@@ -1,6 +1,6 @@
-workspace "YEET"
+workspace "pandora_project"
     architecture "x64"
-    startproject "YEET"
+    startproject "pandora_project"
     
     configurations
     {
@@ -16,10 +16,13 @@ workspace "YEET"
 	include "libs/ch_stl"
 
 
-project "YEET"
-    kind "WindowedApp"
+project "pandora_project"
     language "C++"
 	dependson "ch_stl"
+
+    cppdialect "C++17"
+    systemversion "latest"
+    architecture "x64"
 
 	defines
 	{
@@ -55,6 +58,7 @@ project "YEET"
 		}
 		runtime "Debug"
 		symbols "On"
+        kind "ConsoleApp"
 
 	filter "configurations:Release"
 		defines 
@@ -65,16 +69,9 @@ project "YEET"
 		}
 		runtime "Release"
         optimize "On"
+        kind "WindowedApp"
         
     filter "system:windows"
-        cppdialect "C++17"
-		systemversion "latest"
-		architecture "x64"
-
-		defines
-		{
-			"PLATFORM_WINDOWS#1",
-        }
 
 		files 
 		{
