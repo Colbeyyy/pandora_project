@@ -5,7 +5,6 @@ Game_State g_game_state;
 
 #include <ch_stl/ch_window.h>
 #include <ch_stl/ch_opengl.h>
-#include <ch_stl/ch_defer.h>
 
 const tchar* window_title = CH_TEXT("pandora_project");
 
@@ -24,8 +23,8 @@ void Game_State::init() {
     window.on_sizing = [](const ch::Window& window) {
         g_game_state.draw_game();
     };
-    window.on_resize = [](const ch::Window& window, u32 old_width, u32 old_height) {
-        glViewport(0, 0, window.width, window.height);
+    window.on_resize = [](const ch::Window& window) {
+        // glViewport(0, 0, window.width, window.height);
     };
 
     window.set_visibility(true);

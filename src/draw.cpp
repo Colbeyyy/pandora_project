@@ -163,8 +163,8 @@ void draw_frame_begin() {
 	verts_drawn = 0;
 	verts_culled = 0;
 
-	const ch::Window& window = g_game_state.window;
-	glViewport(0, 0, window.width, window.height);
+	const ch::Vector2 viewport_size = g_game_state.window.get_viewport_size();
+	glViewport(0, 0, viewport_size.ux, viewport_size.uy);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.f, 1.f, 0.f, 1.f);
 
@@ -183,10 +183,10 @@ void refresh_transform() {
 }
 
 void render_right_handed() {
-	const ch::Window& window = g_game_state.window;
+	const ch::Vector2 viewport_size = g_game_state.window.get_viewport_size();
 
-	const f32 width = (f32)window.width;
-	const f32 height = (f32)window.height;
+	const f32 width = (f32)viewport_size.ux;
+	const f32 height = (f32)viewport_size.uy;
 	
 	const f32 aspect_ratio = width / height;
 	
