@@ -3,8 +3,8 @@
 
 Game_State g_game_state;
 
-#include <ch_stl/ch_window.h>
-#include <ch_stl/ch_opengl.h>
+#include <ch_stl/window.h>
+#include <ch_stl/opengl.h>
 
 const tchar* window_title = CH_TEXT("pandora_project");
 

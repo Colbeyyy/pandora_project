@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ch_stl/ch_types.h>
-#include <ch_stl/ch_window.h>
+#include <ch_stl/types.h>
+#include <ch_stl/window.h>
 
 struct Game_State {
 

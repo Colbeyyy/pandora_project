@@ -3,7 +3,7 @@
 
 struct Vertex {
 	ch::Vector2 position;
-	ch::Vector4 color;
+	ch::Color color;
 	ch::Vector2 uv;
 	f32 z_index;
 };
@@ -243,7 +243,7 @@ void imm_flush() {
 	glBindVertexArray(0);
 }
 
-void imm_vertex(f32 x, f32 y, const ch::Vector4& color, ch::Vector2 uv, f32 z_index /*= 0.f*/) {
+void imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, f32 z_index /*= 0.f*/) {
 	auto get_next_vertex_ptr = []() -> Vertex* {
 		return (Vertex*)&imm_vertices + imm_vertex_count;
 	};
@@ -264,7 +264,7 @@ void imm_vertex(f32 x, f32 y, const ch::Vector4& color, ch::Vector2 uv, f32 z_in
 	imm_vertex_count += 1;
 }
 
-void imm_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Vector4& color, f32 z_index /*= 0.f*/) {
+void imm_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, f32 z_index /*= 0.f*/) {
 	imm_vertex(x0, y0, color, ch::Vector2(-1.f, -1.f), z_index);
 	imm_vertex(x0, y1, color, ch::Vector2(-1.f, -1.f), z_index);
 	imm_vertex(x1, y0, color, ch::Vector2(-1.f, -1.f), z_index);
