@@ -1,5 +1,6 @@
 #include "game_state.h"
 #include "draw.h"
+#include "entity.h"
 
 Game_State g_game_state;
 
@@ -35,6 +36,12 @@ void Game_State::init() {
 	wglSwapIntervalEXT(!BUILD_DEBUG);
 #endif
 	draw_init();
+
+	loaded_world = ch_new World;
+
+	Camera* cam = loaded_world->spawn_entity<Camera>(0.f);
+	cam->set_to_current();
+	loaded_world->spawn_entity<Block>(0.f);
 }
 
 void Game_State::loop() {
@@ -58,27 +65,13 @@ void Game_State::process_inputs() {
 }
 
 void Game_State::tick_game(f32 dt) {
-	x += dt * speed;
+	if (loaded_world) loaded_world->tick(dt);
 }
 
 void Game_State::draw_game() {
 	draw_frame_begin();
 
-	const ch::Vector2 viewport_size = window.get_viewport_size();
-
-	render_from_pos(ch::Vector2(0.f, 0.f), viewport_size.uy / 2.f);
-
-	{
-		const ch::Vector2 size(1000000.f, 20.f);
-		const ch::Vector2 pos(0.f, -(s64)viewport_size.ux + 20);
-		draw_quad(pos, size, ch::white);
-	}
-
-	{
-		const ch::Vector2 size = 20.f;
-		const ch::Vector2 pos(x, 0.f);
-		draw_quad(pos, size, ch::green);
-	}
+	if (loaded_world) loaded_world->draw();
 
 	draw_frame_end();
 }

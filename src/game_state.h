@@ -3,11 +3,15 @@
 #include <ch_stl/types.h>
 #include <ch_stl/window.h>
 
+struct World;
+
 struct Game_State {
 
     bool exit_requested = false;
     f32 delta_time;
 	ch::Window window;
+
+	World* loaded_world;
 
     void init();
     void loop();
