@@ -166,7 +166,7 @@ void draw_frame_begin() {
 	const ch::Vector2 viewport_size = g_game_state.window.get_viewport_size();
 	glViewport(0, 0, viewport_size.ux, viewport_size.uy);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.f, 1.f, 0.f, 1.f);
+	glClearColor(ch::black);
 
 }
 
@@ -197,6 +197,23 @@ void render_right_handed() {
 
 	view_to_projection = ch::ortho(ortho_size, aspect_ratio, f, n);
 	world_to_view = ch::translate(ch::Vector2(-width / 2.f, ortho_size));
+
+	refresh_transform();
+}
+
+void render_from_pos(ch::Vector2 pos, f32 ortho_size) {
+	const ch::Vector2 viewport_size = g_game_state.window.get_viewport_size();
+	
+	const f32 width = (f32)viewport_size.ux;
+	const f32 height = (f32)viewport_size.uy;
+
+	const f32 aspect_ratio = width / height;
+
+	const f32 f = 10.f;
+	const f32 n = 1.f;
+
+	view_to_projection = ch::ortho(ortho_size, aspect_ratio, f, n);
+	world_to_view = ch::translate(-pos);
 
 	refresh_transform();
 }
@@ -256,7 +273,7 @@ void imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, f32 z_inde
 	Vertex* vert = get_next_vertex_ptr();
 
 	vert->position.x = x;
-	vert->position.y = -y;
+	vert->position.y = y;
 	vert->color = color;
 	vert->uv = uv;
 	vert->z_index = z_index;
