@@ -38,6 +38,8 @@ void Camera::tick(f32 dt) {
 }
 
 void Camera::draw() {
+	Super::draw();
+
 	render_from_pos(position.xy, 100.f);
 }
 
@@ -51,6 +53,7 @@ void Camera::set_to_current() {
 
 void Block::on_created() {
 	time_created = ch::get_ms_time();
+	size = 100.f;
 }
 
 void Block::tick(f32 dt) {
@@ -62,7 +65,15 @@ void Block::tick(f32 dt) {
 }
 
 void Block::draw() {
+	Super::draw();
+
 	const ch::Vector2 size = 50.f;
 	const ch::Color color = ch::white;
-	draw_quad(position.xy, size, color);
+	// draw_quad(position.xy, size, color);
+}
+
+void Entity::draw() {
+	#if BUILD_DEBUG
+		get_bounds().debug_draw();
+	#endif
 }

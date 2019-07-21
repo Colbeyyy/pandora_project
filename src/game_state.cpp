@@ -1,6 +1,7 @@
 #include "game_state.h"
 #include "draw.h"
 #include "entity.h"
+#include "collision.h"
 
 Game_State g_game_state;
 

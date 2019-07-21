@@ -4,6 +4,7 @@
 #include <ch_stl/array.h>
 
 #include "game_state.h"
+#include "collision.h"
 
 using Entity_Id = u64;
 
@@ -15,10 +16,18 @@ struct Entity {
 	Entity_Id id;
 	u32 flags = 0;
 	ch::Vector3 position;
+	ch::Vector2 size;
 
 	virtual void on_created() {}
 	virtual void tick(f32 dt) {}
-	virtual void draw() {}
+	virtual void draw();
+
+	CH_FORCEINLINE AABB get_bounds() const {
+		AABB result;
+		result.position = position.xy;
+		result.size = size;
+		return result;
+	}
 
 	CH_FORCEINLINE void destroy() {
 		flags |= EF_MarkedForDestruction;
