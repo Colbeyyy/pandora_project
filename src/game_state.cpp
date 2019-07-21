@@ -12,8 +12,7 @@ Game_State g_game_state;
 
 const tchar* window_title = CH_TEXT("pandora_project");
 
-f32 x = 0.f;
-const f32 speed = 5.f;
+bool space_pressed = false;
 
 void Game_State::init() {
     assert(ch::load_gl());
@@ -30,6 +29,10 @@ void Game_State::init() {
     window.on_sizing = [](const ch::Window& window) {
         g_game_state.draw_game();
     };
+	window.on_key_pressed = [](const ch::Window& window, u8 key) {
+		
+		if (key == 32) space_pressed = true;
+	};
 
     window.set_visibility(true);
 
@@ -42,7 +45,8 @@ void Game_State::init() {
 
 	Camera* cam = loaded_world->spawn_entity<Camera>(0.f);
 	cam->set_to_current();
-	loaded_world->spawn_entity<Block>(0.f);
+	loaded_world->spawn_entity<Block>(ch::Vector2(0.f, -200.f));
+	loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 100.f));
 }
 
 void Game_State::loop() {
@@ -62,6 +66,7 @@ void Game_State::shut_down() {
 }
 
 void Game_State::process_inputs() {
+	space_pressed = false;
     ch::poll_events();
 }
 

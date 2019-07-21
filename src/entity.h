@@ -57,6 +57,21 @@ struct Block : public Entity {
 
 };
 
+struct Player : public Entity {
+	using Super = Entity;
+
+	ch::Vector2 velocity;
+
+	virtual void tick(f32 dt) override;
+	virtual void draw() override;
+};
+
+struct Trace_Details {
+	ch::Array<Entity_Id> e_to_ignore;
+
+	Trace_Details() = default;
+};
+
 struct World {
 	ch::Array<Entity*> entities;
 	Entity_Id last_id = 0;
@@ -101,6 +116,7 @@ struct World {
 		return false;
 	}
 
+	bool line_trace(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, const Trace_Details& trace_details = Trace_Details());
 	void tick(f32 dt);
 	void draw();
 };

@@ -5,6 +5,8 @@
 
 struct World;
 
+extern bool space_pressed;
+
 struct Game_State {
 
     bool exit_requested = false;

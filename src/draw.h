@@ -28,5 +28,21 @@ CH_FORCEINLINE void draw_quad(ch::Vector2 pos, ch::Vector2 size, const ch::Color
 	const f32 y0 = pos.y - (size.y / 2.f);
 	const f32 x1 = x0 + size.x;
 	const f32 y1 = y0 + size.y;
-	draw_quad(x0, y0, x1, y1, ch::white);
+	draw_quad(x0, y0, x1, y1, color);
+}
+
+void imm_border_quad(f32 x0, f32 y0, f32 x1, f32 y1, f32 thickness, const ch::Color& color, f32 z_index = 9.f);
+
+CH_FORCEINLINE void draw_border_quad(f32 x0, f32 y0, f32 x1, f32 y1, f32 thickness, const ch::Color& color, f32 z_index = 9.f) {
+	imm_begin();
+	imm_border_quad(x0, y0, x1, y1, thickness, color, z_index);
+	imm_flush();
+}
+
+CH_FORCEINLINE void draw_border_quad(ch::Vector2 pos, ch::Vector2 size, f32 thickness, const ch::Color& color, f32 z_index = 9.f) {
+	const f32 x0 = pos.x - (size.x / 2.f);
+	const f32 y0 = pos.y - (size.y / 2.f);
+	const f32 x1 = x0 + size.x;
+	const f32 y1 = y0 + size.y;
+	draw_border_quad(x0, y0, x1, y1, thickness, color);
 }
