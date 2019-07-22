@@ -3,6 +3,9 @@
 #include <ch_stl/types.h>
 #include <ch_stl/window.h>
 
+#include "entity.h"
+
+
 struct World;
 
 struct Input_State {
@@ -24,6 +27,8 @@ struct Game_State {
     f32 delta_time;
 	ch::Window window;
 	World* loaded_world;
+
+	Entity_Id player_id;
 
     void init();
     void loop();

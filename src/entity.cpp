@@ -1,6 +1,8 @@
 #include "entity.h"
 #include "draw.h"
 #include "ch_stl/time.h"
+#include "game_state.h"
+
 
 bool World::line_trace(struct Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, const Trace_Details& trace_details) {
 	Hit_Result closest_result = {};
@@ -58,6 +60,13 @@ void World::draw() {
 }
 
 void Camera::tick(f32 dt) {
+	Player* player = get_world()->find_entity<Player>(g_game_state.player_id);
+
+	const f32 tx = player->position.x;
+	const f32 ty = player->position.y;
+
+	position.x = ch::interp_to(position.x, tx, dt, 5.f);
+	position.y = ch::interp_to(position.y, ty, dt, 1.f);
 }
 
 void Camera::draw() {
@@ -163,3 +172,6 @@ void Player::collision_tick(f32 dt) {
 	}
 }
 
+CH_FORCEINLINE World* get_world() {
+	return g_game_state.loaded_world;
+}

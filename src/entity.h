@@ -3,7 +3,6 @@
 #include <ch_stl/math.h>
 #include <ch_stl/array.h>
 
-#include "game_state.h"
 #include "collision.h"
 
 using Entity_Id = u64;
@@ -131,6 +130,4 @@ struct World {
 	void draw();
 };
 
-CH_FORCEINLINE World* get_world() {
-	return g_game_state.loaded_world;
-}
+CH_FORCEINLINE World* get_world();

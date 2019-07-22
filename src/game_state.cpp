@@ -1,6 +1,5 @@
 #include "game_state.h"
 #include "draw.h"
-#include "entity.h"
 #include "collision.h"
 
 #include <ch_stl/window.h>
@@ -62,7 +61,12 @@ void Game_State::init() {
 		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(200.f, -100.f));
 		b->size = 100.f;
 	}
-	loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 100.f));
+	{
+		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(300.f, -50.f));
+		b->size = ch::Vector2(100.f, 200.f);
+	}
+	Player* p = loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 100.f));
+	player_id = p->id;
 }
 
 void Game_State::loop() {
