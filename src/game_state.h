@@ -5,14 +5,24 @@
 
 struct World;
 
-extern bool space_pressed;
+struct Input_State {
+	ch::Vector2 current_mouse_position;
+    bool exit_requested = false;
+	bool keys_down[255];
+	bool keys_pressed[255];
+
+	void bind(ch::Window* window);
+
+	CH_FORCEINLINE bool is_key_down(u8 key) { return keys_down[key]; }
+	CH_FORCEINLINE bool was_key_pressed(u8 key) { return keys_pressed[key]; }
+};
+
+extern Input_State g_input_state;
 
 struct Game_State {
 
-    bool exit_requested = false;
     f32 delta_time;
 	ch::Window window;
-
 	World* loaded_world;
 
     void init();

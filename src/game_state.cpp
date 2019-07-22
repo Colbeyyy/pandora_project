@@ -3,38 +3,47 @@
 #include "entity.h"
 #include "collision.h"
 
-Game_State g_game_state;
-
 #include <ch_stl/window.h>
 #include <ch_stl/opengl.h>
 #include <ch_stl/filesystem.h>
 #include <ch_stl/time.h>
 
+Game_State g_game_state;
+Input_State g_input_state;
+
 const tchar* window_title = CH_TEXT("pandora_project");
 
-bool space_pressed = false;
+void Input_State::bind(ch::Window* window) {
+	window->on_exit_requested = [](const ch::Window& window) {
+		g_input_state.exit_requested = true;
+	};
+
+	window->on_key_pressed = [](const ch::Window& window, u8 key) {
+		g_input_state.keys_down[key] = true;
+		g_input_state.keys_pressed[key] = true;
+	};
+
+	window->on_key_released = [](const ch::Window& window, u8 key) {
+		g_input_state.keys_down[key] = false;
+	};
+}
 
 void Game_State::init() {
     assert(ch::load_gl());
     {
-        const u32 width = 1920;
+        const u32 width = 1280;
         const u32 height = (u32)((f32)width * (9.f / 16.f));
         assert(ch::create_gl_window(window_title, width, height, 0, &window));
     }
     assert(ch::make_current(window));
 
-    window.on_exit_requested = [](const ch::Window& window) {
-        g_game_state.exit_requested = true;
-    };
     window.on_sizing = [](const ch::Window& window) {
         g_game_state.draw_game();
     };
-	window.on_key_pressed = [](const ch::Window& window, u8 key) {
-		
-		if (key == 32) space_pressed = true;
-	};
 
     window.set_visibility(true);
+
+	g_input_state.bind(&window);
 
 #if CH_PLATFORM_WINDOWS
 	wglSwapIntervalEXT(!BUILD_DEBUG);
@@ -51,7 +60,7 @@ void Game_State::init() {
 
 void Game_State::loop() {
 	f64 last_frame_time = ch::get_ms_time();
-    while (!exit_requested) {
+    while (!g_input_state.exit_requested) {
 		f64 current_frame_time = ch::get_ms_time();
 		const f32 dt = (f32)(current_frame_time - last_frame_time);
 		last_frame_time = current_frame_time;
@@ -66,8 +75,10 @@ void Game_State::shut_down() {
 }
 
 void Game_State::process_inputs() {
-	space_pressed = false;
+	ch::mem_set(g_input_state.keys_pressed, sizeof(g_input_state.keys_pressed), 0);
+
     ch::poll_events();
+
 }
 
 void Game_State::tick_game(f32 dt) {

@@ -62,6 +62,9 @@ struct Player : public Entity {
 
 	ch::Vector2 velocity;
 
+	bool on_ground = false;
+	u8 num_jumps = 0;
+
 	virtual void tick(f32 dt) override;
 	virtual void draw() override;
 };

@@ -76,7 +76,7 @@ void Camera::set_to_current() {
 
 void Block::on_created() {
 	time_created = ch::get_ms_time();
-	size = 100.f;
+	size = ch::Vector2(10000.f, 100.f);
 }
 
 void Block::tick(f32 dt) {
@@ -85,7 +85,6 @@ void Block::tick(f32 dt) {
 
 void Block::draw() {
 
-	const ch::Vector2 size = 100.f;
 	const ch::Color color = ch::white;
 	draw_quad(position.xy, size, color);
 	Super::draw();
@@ -93,7 +92,7 @@ void Block::draw() {
 
 void Entity::draw() {
 	#if BUILD_DEBUG
-		get_bounds().debug_draw();
+		// get_bounds().debug_draw();
 	#endif
 }
 
@@ -110,19 +109,37 @@ void Player::tick(f32 dt) {
 	if (get_world()->line_trace(&hit, start, end, details)) {
 		position = hit.impact + half_height;
 		velocity.y = 0.f;
+		on_ground = true;
+		num_jumps = 0;
 	} else {
 		position = end + half_height;
 		velocity.y -= 980.f * dt;
+		on_ground = false;
 	}
 
-	if (space_pressed) {
+	velocity.x = 0.f;
+
+	const u8 max_jumps = 2;
+
+	if (num_jumps < max_jumps &&  g_input_state.was_key_pressed(' ')) {
 		velocity.y = 400.f;
+		num_jumps += 1;
+	}
+
+	const f32 speed = 300.f;
+
+	if (g_input_state.is_key_down('A')) {
+		velocity.x -= speed;
+	}
+
+	if (g_input_state.is_key_down('D')) {
+		velocity.x += speed;
 	}
 }
 
 void Player::draw() {
 
-	size = ch::Vector2(20.f, 100.f);
+	size = ch::Vector2(40.f, 100.f);
 
 	draw_quad(position.xy, size, ch::cyan);
 	Super::draw();
