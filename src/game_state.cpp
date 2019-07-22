@@ -54,7 +54,14 @@ void Game_State::init() {
 
 	Camera* cam = loaded_world->spawn_entity<Camera>(0.f);
 	cam->set_to_current();
-	loaded_world->spawn_entity<Block>(ch::Vector2(0.f, -200.f));
+	{
+		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(0.f, -200.f));
+		b->size = ch::Vector2(10000.f, 100.f);
+	}
+	{
+		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(200.f, -100.f));
+		b->size = 100.f;
+	}
 	loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 100.f));
 }
 

@@ -76,7 +76,6 @@ void Camera::set_to_current() {
 
 void Block::on_created() {
 	time_created = ch::get_ms_time();
-	size = ch::Vector2(10000.f, 100.f);
 }
 
 void Block::tick(f32 dt) {
@@ -97,6 +96,9 @@ void Entity::draw() {
 }
 
 void Player::tick(f32 dt) {
+
+	velocity.y = ch::max(velocity.y, -(980.f * 980.f));
+
 	Hit_Result hit;
 	const ch::Vector2 half_height(0.f, size.y / 2.f);
 
