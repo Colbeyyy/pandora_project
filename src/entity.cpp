@@ -3,60 +3,12 @@
 #include "ch_stl/time.h"
 #include "game_state.h"
 
-
-bool World::line_trace(struct Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, const Trace_Details& trace_details) {
-	Hit_Result closest_result = {};
-
-	for (Entity* e : entities) {
-		Hit_Result result;
-		if (e && !trace_details.e_to_ignore.contains(e->id) && line_trace_to_aabb(&result, start, end, e->get_bounds())) {
-			result.entity = e;
-
-			if (closest_result.entity) {
-				const f32 r_distance = (result.impact - start).length_squared();
-				const f32 cr_distance = (closest_result.impact - start).length_squared();
-				
-				if (r_distance > cr_distance) {
-					closest_result = result;
-				}
-			} else {
-				closest_result = result;
-			}
-		}
-	}
-
-	*out_result = closest_result;
-
-	return closest_result.entity;
-}
-
-void World::tick(f32 dt) {
-	for (usize i = 0; i < entities.count; i++) {
-		Entity* e = entities[i];
-		
-		if (!e) continue;
-
-		if (e->is_marked_for_destruction()) {
-			entities.remove(i);
-			ch_delete e;
-			i -= 1;
-			continue;
-		}
-
-		e->tick(dt);
-	}
-}
-
-void World::draw() {
-	if (current_camera) {
-		current_camera->draw();
-	}
-
-	for (Entity* e : entities) {
-		if (e && e != current_camera) {
-			e->draw();
-		}
-	}
+void Entity::draw() {
+#if BUILD_DEBUG
+	// get_bounds().debug_draw();
+	const ch::Vector2 size = 10.f;
+	draw_border_quad(position.xy, size, 2.f, ch::green);
+#endif
 }
 
 void Camera::tick(f32 dt) {
@@ -70,7 +22,7 @@ void Camera::tick(f32 dt) {
 }
 
 void Camera::draw() {
-	Super::draw();
+	// Super::draw();
 
 	render_from_pos(position.xy, 512.f);
 }
@@ -89,19 +41,15 @@ void Block::on_created() {
 
 void Block::tick(f32 dt) {
 	const f64 current_time = ch::get_ms_time();
+
+	position.y += ch::sin(current_time) * 1.f * dt;
 }
 
 void Block::draw() {
 
 	const ch::Color color = ch::white;
-	draw_quad(position.xy, size, color);
+	draw_border_quad(position.xy, size, 2.f, color);
 	Super::draw();
-}
-
-void Entity::draw() {
-	#if BUILD_DEBUG
-		// get_bounds().debug_draw();
-	#endif
 }
 
 void Player::tick(f32 dt) {
@@ -135,7 +83,7 @@ void Player::draw() {
 
 	size = ch::Vector2(40.f, 100.f);
 
-	draw_quad(position.xy, size, ch::cyan);
+	draw_border_quad(position.xy, size, 2.f, 0xFFC0CBFF);
 	Super::draw();
 }
 
@@ -151,7 +99,9 @@ void Player::collision_tick(f32 dt) {
 				if (my_bb.intersects(e->get_bounds(), &out_bb)) {
 					if (out_bb.size.x > out_bb.size.y) {
 						f32 flip = 1.f;
-						if (position.y < e->position.y) flip = -1.f;
+						if (position.y < e->position.y) {
+							flip = -1.f;
+						}
 						position.y += out_bb.size.y * flip;
 
 						if (flip == 1.f) {
@@ -159,15 +109,76 @@ void Player::collision_tick(f32 dt) {
 							on_ground = true;
 						}
 
-						velocity.y = 0.f;
+						if ((flip == 1.f && velocity.y < 0.f) || (flip == -1.f && velocity.y > 0.f)) {
+							velocity.y = 0.f;
+						}
 					} else {
 						f32 flip = 1.f;
 						if (position.x < e->position.x) flip = -1.f;
 						position.x += out_bb.size.x * flip;
-						velocity.x = 0.f;
+
+						if ((flip == 1.f && velocity.x < 0.f) || (flip == -1.f && velocity.x > 0.f)) {
+							velocity.x = 0.f;
+						}
 					}
 				}
 			}
+		}
+	}
+}
+
+bool World::line_trace(struct Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, const Trace_Details& trace_details) {
+	Hit_Result closest_result = {};
+
+	for (Entity* e : entities) {
+		Hit_Result result;
+		if (e && !trace_details.e_to_ignore.contains(e->id) && line_trace_to_aabb(&result, start, end, e->get_bounds())) {
+			result.entity = e;
+
+			if (closest_result.entity) {
+				const f32 r_distance = (result.impact - start).length_squared();
+				const f32 cr_distance = (closest_result.impact - start).length_squared();
+
+				if (r_distance > cr_distance) {
+					closest_result = result;
+				}
+			}
+			else {
+				closest_result = result;
+			}
+		}
+	}
+
+	*out_result = closest_result;
+
+	return closest_result.entity;
+}
+
+void World::tick(f32 dt) {
+	for (usize i = 0; i < entities.count; i++) {
+		Entity* e = entities[i];
+
+		if (!e) continue;
+
+		if (e->is_marked_for_destruction()) {
+			entities.remove(i);
+			ch_delete e;
+			i -= 1;
+			continue;
+		}
+
+		e->tick(dt);
+	}
+}
+
+void World::draw() {
+	if (current_camera) {
+		current_camera->draw();
+	}
+
+	for (Entity* e : entities) {
+		if (e && e != current_camera) {
+			e->draw();
 		}
 	}
 }

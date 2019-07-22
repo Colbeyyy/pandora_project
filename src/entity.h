@@ -64,7 +64,7 @@ struct Player : public Entity {
 	bool on_ground = false;
 	u8 num_jumps = 0;
 	const u8 max_jumps = 2;
-	const f32 jump_y_velocity = 500.f;
+	const f32 jump_y_velocity = 600.f;
 
 	f32 walk_speed = 300.f;
 	f32 sprint_speed = 600.f;
