@@ -18,8 +18,10 @@ void Input_State::bind(ch::Window* window) {
 	};
 
 	window->on_key_pressed = [](const ch::Window& window, u8 key) {
+		if (!g_input_state.keys_down[key]) {
+			g_input_state.keys_pressed[key] = true;
+		}
 		g_input_state.keys_down[key] = true;
-		g_input_state.keys_pressed[key] = true;
 	};
 
 	window->on_key_released = [](const ch::Window& window, u8 key) {
@@ -50,30 +52,14 @@ void Game_State::init() {
 	draw_init();
 
 	loaded_world = ch_new World;
-
-	Camera* cam = loaded_world->spawn_entity<Camera>(0.f);
-	cam->set_to_current();
-	{
-		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(0.f, -200.f));
-		b->size = ch::Vector2(10000.f, 100.f);
-	}
-	{
-		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(200.f, -100.f));
-		b->size = 100.f;
-	}
-	{
-		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(300.f, -50.f));
-		b->size = ch::Vector2(100.f, 200.f);
-	}
-	Player* p = loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 100.f));
-	player_id = p->id;
+	reset_world();
 }
 
 void Game_State::loop() {
 	f64 last_frame_time = ch::get_ms_time();
     while (!g_input_state.exit_requested) {
 		f64 current_frame_time = ch::get_ms_time();
-		const f32 dt = (f32)(current_frame_time - last_frame_time);
+		dt = (f32)(current_frame_time - last_frame_time);
 		last_frame_time = current_frame_time;
         process_inputs();
         tick_game(dt);
@@ -99,6 +85,11 @@ void Game_State::process_inputs() {
 }
 
 void Game_State::tick_game(f32 dt) {
+
+	if (g_input_state.was_key_pressed('R')) {
+		reset_world();
+	}
+
 	if (loaded_world) loaded_world->tick(dt);
 }
 
@@ -130,4 +121,25 @@ void Game_State::draw_game() {
 	}
 
 	draw_frame_end();
+}
+
+void Game_State::reset_world() {
+	loaded_world->destroy_all();
+
+	Camera* cam = loaded_world->spawn_entity<Camera>(0.f);
+	cam->set_to_current();
+	{
+		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(0.f, -200.f));
+		b->size = ch::Vector2(10000.f, 100.f);
+	}
+	{
+		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(200.f, -100.f));
+		b->size = 100.f;
+	}
+	{
+		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(300.f, -50.f));
+		b->size = ch::Vector2(100.f, 200.f);
+	}
+	Player* p = loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 100.f));
+	player_id = p->id;
 }

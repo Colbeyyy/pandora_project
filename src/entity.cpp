@@ -46,9 +46,8 @@ void Block::tick(f32 dt) {
 }
 
 void Block::draw() {
-
 	const ch::Color color = ch::white;
-	draw_border_quad(position.xy, size, 2.f, color);
+	draw_quad(position.xy, size, color);
 	Super::draw();
 }
 
@@ -83,48 +82,60 @@ void Player::draw() {
 
 	size = ch::Vector2(40.f, 100.f);
 
-	draw_border_quad(position.xy, size, 2.f, 0xFFC0CBFF);
+
+	draw_quad(position.xy, size, 0xFFC0CBFF);
+	 draw_line(position.xy, position.xy + velocity.get_normalized() * 100.f, 5.f, ch::green);
 	Super::draw();
 }
 
 void Player::collision_tick(f32 dt) {
-	position.xy += velocity * dt;
+	ch::Vector2 new_position = position.xy + velocity * dt;
 
-	World* world = get_world();
-	if (world) {
-		const AABB my_bb = get_bounds();
-		for (Entity* e : world->entities) {
-			if (e && e != world->current_camera && e != this) {
-				AABB out_bb;
-				if (my_bb.intersects(e->get_bounds(), &out_bb)) {
-					if (out_bb.size.x > out_bb.size.y) {
-						f32 flip = 1.f;
-						if (position.y < e->position.y) {
-							flip = -1.f;
-						}
-						position.y += out_bb.size.y * flip;
+	Trace_Details td;
+	td.e_to_ignore.push(id);
+	td.e_to_ignore.push(get_world()->current_camera->id);
+	defer(td.e_to_ignore.destroy());
 
-						if (flip == 1.f) {
-							num_jumps = 0;
-							on_ground = true;
-						}
+	const ch::Vector2 start = position.xy;
+	const ch::Vector2 end = new_position;
 
-						if ((flip == 1.f && velocity.y < 0.f) || (flip == -1.f && velocity.y > 0.f)) {
-							velocity.y = 0.f;
-						}
-					} else {
-						f32 flip = 1.f;
-						if (position.x < e->position.x) flip = -1.f;
-						position.x += out_bb.size.x * flip;
+	Hit_Result result;
+	if (get_world()->aabb_sweep(&result, start, end, size, td)) {
+		const ch::Vector2 d = result.impact - end;
+		new_position += result.normal * d.length();
+ 		velocity -= result.normal * velocity;
 
-						if ((flip == 1.f && velocity.x < 0.f) || (flip == -1.f && velocity.x > 0.f)) {
-							velocity.x = 0.f;
-						}
-					}
-				}
-			}
+		const ch::Vector2 up(0.f, 1.f);
+		const f32 dot_up = up.dot(result.normal);
+
+		if (ch::abs(dot_up) > 0.7f) {
+			on_ground = true;
+			num_jumps = 0;
 		}
 	}
+
+	position.xy = new_position;
+}
+
+bool World::destroy_entity(Entity_Id id) {
+	for (usize i = 0; i < entities.count; i++) {
+		Entity* e = entities[i];
+
+		if (e && e->id == id) {
+			e->destroy();
+		}
+		return true;
+	}
+
+	return false;
+}
+
+void World::destroy_all() {
+	for (Entity* e : entities) {
+		if (e) ch_delete e;
+	}
+
+	entities.count = 0;
 }
 
 bool World::line_trace(struct Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, const Trace_Details& trace_details) {
@@ -133,6 +144,34 @@ bool World::line_trace(struct Hit_Result* out_result, ch::Vector2 start, ch::Vec
 	for (Entity* e : entities) {
 		Hit_Result result;
 		if (e && !trace_details.e_to_ignore.contains(e->id) && line_trace_to_aabb(&result, start, end, e->get_bounds())) {
+			result.entity = e;
+
+			if (closest_result.entity) {
+				const f32 r_distance = (result.impact - start).length_squared();
+				const f32 cr_distance = (closest_result.impact - start).length_squared();
+
+				if (r_distance > cr_distance) {
+					closest_result = result;
+				}
+			}
+			else {
+				closest_result = result;
+			}
+		}
+	}
+
+	*out_result = closest_result;
+
+	return closest_result.entity;
+}
+
+bool World::aabb_sweep(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, ch::Vector2 size, const Trace_Details& trace_details) {
+
+	Hit_Result closest_result = {};
+
+	for (Entity* e : entities) {
+		Hit_Result result;
+		if (e && !trace_details.e_to_ignore.contains(e->id) && aabb_sweep_to_aabb(&result, start, end, size, e->get_bounds())) {
 			result.entity = e;
 
 			if (closest_result.entity) {

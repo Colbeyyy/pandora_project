@@ -291,6 +291,27 @@ void imm_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, f32 z_inde
 	imm_vertex(x1, y0, color, ch::Vector2(-1.f, -1.f), z_index);
 }
 
+void imm_line(ch::Vector2 start, ch::Vector2 end, f32 thickness, const ch::Color& color, f32 z_index /*= 9.f*/) {
+
+	const ch::Vector2 angle = (end - start).get_normalized();
+	const ch::Vector2 perp(angle.y, -angle.x);
+
+	const f32 ht = thickness / 2.f;
+
+	const ch::Vector2 bl = start - perp * ht;
+	const ch::Vector2 br = start + perp * ht;
+	const ch::Vector2 tl = end - perp * ht;
+	const ch::Vector2 tr = end + perp * ht;
+
+	imm_vertex(bl, color, ch::Vector2(-1.f, -1.f), z_index);
+	imm_vertex(tl, color, ch::Vector2(-1.f, -1.f), z_index);
+	imm_vertex(br, color, ch::Vector2(-1.f, -1.f), z_index);
+
+	imm_vertex(tl, color, ch::Vector2(-1.f, -1.f), z_index);
+	imm_vertex(tr, color, ch::Vector2(-1.f, -1.f), z_index);
+	imm_vertex(br, color, ch::Vector2(-1.f, -1.f), z_index);
+}
+
 void imm_border_quad(f32 x0, f32 y0, f32 x1, f32 y1, f32 thickness, const ch::Color& color, f32 z_index /*= 9.f*/)
 {
 	{

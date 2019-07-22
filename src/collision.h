@@ -35,3 +35,4 @@ struct Hit_Result {
 bool line_intersect(ch::Vector2 a1, ch::Vector2 a2, ch::Vector2 b1, ch::Vector2 b2, ch::Vector2* out_vec);
 
 bool line_trace_to_aabb(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, const AABB& box);
+bool aabb_sweep_to_aabb(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, ch::Vector2 size, AABB box);

@@ -112,20 +112,12 @@ struct World {
 		return nullptr;
 	}
 
-	bool destroy_entity(Entity_Id id) {
-		for (usize i = 0; i < entities.count; i++) {
-			Entity* e = entities[i];
+	bool destroy_entity(Entity_Id id);
 
-			if (e && e->id == id) {
-				e->destroy();
-			}
-			return true;
-		}
-
-		return false;
-	}
+	void destroy_all();
 
 	bool line_trace(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, const Trace_Details& trace_details = Trace_Details());
+	bool aabb_sweep(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, ch::Vector2 size, const Trace_Details& trace_details = Trace_Details());
 	void tick(f32 dt);
 	void draw();
 };

@@ -64,10 +64,11 @@ bool line_trace_to_aabb(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 e
 
 	ch::Vector2 hit_pos;
 
-	auto get_hit_result = [&]() -> Hit_Result {
+	auto get_hit_result = [&](ch::Vector2 a, ch::Vector2 b) -> Hit_Result {
 		Hit_Result result;
 		result.impact = hit_pos;
-		result.normal = (start - end).get_normalized();
+		const ch::Vector2 hit_angle = (b - a).get_normalized();
+		result.normal = ch::Vector2(hit_angle.y, -hit_angle.x);
 		return result;
 	};
 
@@ -80,7 +81,7 @@ bool line_trace_to_aabb(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 e
 		const ch::Vector2 b1 = min;
 		const ch::Vector2 b2 = ch::Vector2(min.x, max.y);
 		if (line_intersect(start, end, b1, b2, &hit_pos)) {
-			*out_result = get_hit_result();
+			*out_result = get_hit_result(b2, b1);
 			return true;
 		}
 	}
@@ -90,7 +91,7 @@ bool line_trace_to_aabb(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 e
 		const ch::Vector2 b1 = max;
 		const ch::Vector2 b2 = ch::Vector2(max.x, min.y);
 		if (line_intersect(start, end, b1, b2, &hit_pos)) {
-			*out_result = get_hit_result();
+			*out_result = get_hit_result(b2, b1);
 			return true;
 		}
 	}
@@ -100,7 +101,7 @@ bool line_trace_to_aabb(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 e
 		const ch::Vector2 b1 = min;
 		const ch::Vector2 b2 = ch::Vector2(max.x, min.y);
 		if (line_intersect(start, end, b1, b2, &hit_pos)) {
-			*out_result = get_hit_result();
+			*out_result = get_hit_result(b1, b2);
 			return true;
 		}
 	}
@@ -110,10 +111,44 @@ bool line_trace_to_aabb(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 e
 		const ch::Vector2 b1 = max;
 		const ch::Vector2 b2 = ch::Vector2(min.x, max.y);
 		if (line_intersect(start, end, b1, b2, &hit_pos)) {
-			*out_result = get_hit_result();
+			*out_result = get_hit_result(b1, b2);
 			return true;
 		}
 	}
 
 	return false;
+}
+
+bool aabb_sweep_to_aabb(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, ch::Vector2 size, AABB box) {
+	box.size += size;
+
+	if (line_trace_to_aabb(out_result, start, end, box)) {
+		return true;
+	}
+
+	*out_result = Hit_Result();
+
+	auto Sign = [](f32 num) -> f32 {
+		return (num < 0.f ? -1.f : 1.f);
+	};
+
+	box.size -= size;
+	AABB out_bb;
+	if (AABB(start, size).intersects(box, &out_bb)) {
+		if (out_bb.size.x > out_bb.size.y) {
+			f32 flip = Sign(start.y - box.position.y);
+			start.y += out_bb.size.y * flip;
+			out_result->normal.y = flip;
+		} else {
+			f32 flip = Sign(start.x - box.position.x);
+			start.x += out_bb.size.x * flip;
+			out_result->normal.x = flip;
+		}
+
+		out_result->impact = start;
+		return true;
+	}
+
+	return false;
+
 }

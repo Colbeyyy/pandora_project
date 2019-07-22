@@ -30,6 +30,8 @@ struct Game_State {
 
 	Entity_Id player_id;
 
+	f32 dt;
+
     void init();
     void loop();
     void shut_down();
@@ -37,6 +39,8 @@ struct Game_State {
     void process_inputs();
     void tick_game(f32 dt);
     void draw_game();
+
+	void reset_world();
 
 };
 
