@@ -7,6 +7,9 @@ void draw_init();
 void draw_frame_begin();
 void draw_frame_end();
 
+extern ch::Matrix4 view_to_projection;
+extern ch::Matrix4 world_to_view;
+
 void refresh_transform();
 void render_right_handed();
 void render_from_pos(ch::Vector2 pos, f32 ortho_size);

@@ -90,6 +90,12 @@ void Game_State::process_inputs() {
 
     ch::poll_events();
 
+	ch::Vector2 mouse_pos;
+	if (!window.get_mouse_position(&mouse_pos)) {
+		mouse_pos.ux = 0;
+		mouse_pos.uy = 0;
+	}
+	g_input_state.current_mouse_position = ch::Vector2((f32)mouse_pos.ux, (f32)mouse_pos.uy);
 }
 
 void Game_State::tick_game(f32 dt) {
@@ -100,6 +106,24 @@ void Game_State::draw_game() {
 	draw_frame_begin();
 
 	if (loaded_world) loaded_world->draw();
+
+	{
+		const ch::Vector2 viewport_size = window.get_viewport_size();
+		const ch::Vector2 mouse_pos = g_input_state.current_mouse_position;
+		const f32 width = (f32)viewport_size.ux;
+		const f32 height = (f32)viewport_size.uy;
+		const f32 x = mouse_pos.x - width / 2.f;
+		const f32 y = -(mouse_pos.y - height / 2.f);
+		const ch::Vector2 mouse_ray(x, y);
+
+		const ch::Vector4 real_ray = ch::Vector4(mouse_ray.x, mouse_ray.y, -9.f, 1.f);
+		const ch::Vector4 ray_eye = ch::translate(-loaded_world->current_camera->position.xy).inverse() * real_ray;
+		const ch::Vector4 th = ray_eye;
+
+		draw_quad(th.xy + loaded_world->current_camera->position.xy, 10.f, ch::white);
+
+		ch::std_out << th.xy << ch::eol;
+	}
 
 	draw_frame_end();
 }

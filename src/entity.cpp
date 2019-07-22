@@ -42,7 +42,7 @@ void Block::on_created() {
 void Block::tick(f32 dt) {
 	const f64 current_time = ch::get_ms_time();
 
-	position.y += ch::sin(current_time) * 1.f * dt;
+	position.y += ch::sin((f32)current_time) * 1.f * dt;
 }
 
 void Block::draw() {
