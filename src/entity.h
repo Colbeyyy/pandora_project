@@ -64,9 +64,16 @@ struct Player : public Entity {
 
 	bool on_ground = false;
 	u8 num_jumps = 0;
+	const u8 max_jumps = 2;
+	const f32 jump_y_velocity = 500.f;
+
+	f32 walk_speed = 300.f;
+	f32 sprint_speed = 600.f;
 
 	virtual void tick(f32 dt) override;
 	virtual void draw() override;
+
+	void collision_tick(f32 dt);
 };
 
 struct Trace_Details {

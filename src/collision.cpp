@@ -5,6 +5,35 @@ void AABB::debug_draw(const ch::Color& color) {
 	draw_border_quad(position, size, 5.f, color);
 }
 
+bool AABB::intersects(const AABB& box, AABB* out) const {
+	const ch::Vector2 my_min = get_min();
+	const ch::Vector2 my_max = get_max();
+	const ch::Vector2 r_min = box.get_min();
+	const ch::Vector2 r_max = box.get_max();
+
+	if (out) {
+		const f32 min_x = (my_min.x < r_min.x) ? r_min.x : my_min.x;
+		const f32 min_y = (my_min.y < r_min.y) ? r_min.y : my_min.y;
+		const f32 max_x = (my_max.x > r_max.x) ? r_max.x : my_max.x;
+		const f32 max_y = (my_max.y > r_max.y) ? r_max.y : my_max.y;
+
+
+		const ch::Vector2 size(max_x - min_x, max_y - min_y);
+		const ch::Vector2 position(min_x + size.x / 2.f, min_y + size.y / 2.f);
+
+		*out = AABB(position, size);
+	}
+
+	return !(r_min.x > my_max.x || r_max.x < my_min.x || r_max.y < my_min.y || r_min.y > my_max.y);
+}
+
+bool AABB::intersects(ch::Vector2 point) const {
+	const ch::Vector2 min = get_min();
+	const ch::Vector2 max = get_max();
+
+	return !(point.x < min.x || point.x > max.x || point.y < min.y || point.y > max.y);
+}
+
 bool line_intersect(ch::Vector2 a1, ch::Vector2 a2, ch::Vector2 b1, ch::Vector2 b2, ch::Vector2* out_vec) {
 	*out_vec = ch::Vector2();
 

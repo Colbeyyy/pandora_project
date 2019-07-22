@@ -4,10 +4,13 @@
 
 struct AABB {
 
-	void debug_draw(const ch::Color& color = ch::green);
-
 	ch::Vector2 position;
 	ch::Vector2 size;
+
+	AABB() = default;
+	AABB(ch::Vector2 _pos, ch::Vector2 _size) : position(_pos), size(_size) {}
+
+	void debug_draw(const ch::Color& color = ch::green);
 
 	CH_FORCEINLINE ch::Vector2 get_min() const {
 		return position - (size / 2.f);
@@ -16,6 +19,9 @@ struct AABB {
 	CH_FORCEINLINE ch::Vector2 get_max() const {
 		return position + (size / 2.f);
 	}
+
+	bool intersects(const AABB& box, AABB* out = nullptr) const;
+	bool intersects(ch::Vector2 point) const;
 };
 
 struct Entity;

@@ -99,44 +99,27 @@ void Player::tick(f32 dt) {
 
 	velocity.y = ch::max(velocity.y, -(980.f * 980.f));
 
-	Hit_Result hit;
-	const ch::Vector2 half_height(0.f, size.y / 2.f);
-
-	const ch::Vector2 start = position.xy - half_height;
-	const ch::Vector2 end = start + velocity * dt;
-
-	Trace_Details details;
-	details.e_to_ignore.push(id);
-	defer(details.e_to_ignore.destroy());
-	if (get_world()->line_trace(&hit, start, end, details)) {
-		position = hit.impact + half_height;
-		velocity.y = 0.f;
-		on_ground = true;
-		num_jumps = 0;
-	} else {
-		position = end + half_height;
-		velocity.y -= 980.f * dt;
-		on_ground = false;
-	}
-
 	velocity.x = 0.f;
-
-	const u8 max_jumps = 2;
+	velocity.y -= 980.f * dt;
 
 	if (num_jumps < max_jumps &&  g_input_state.was_key_pressed(' ')) {
-		velocity.y = 400.f;
+		velocity.y = jump_y_velocity;
 		num_jumps += 1;
 	}
 
-	const f32 speed = 300.f;
+	const bool is_sprinting = g_input_state.is_key_down(16);
+
+	f32 speed = is_sprinting ? sprint_speed : walk_speed;
 
 	if (g_input_state.is_key_down('A')) {
-		velocity.x -= speed;
+		velocity.x = -speed;
 	}
 
 	if (g_input_state.is_key_down('D')) {
-		velocity.x += speed;
+		velocity.x = speed;
 	}
+
+	collision_tick(dt);
 }
 
 void Player::draw() {
@@ -147,4 +130,36 @@ void Player::draw() {
 	Super::draw();
 }
 
+void Player::collision_tick(f32 dt) {
+	position.xy += velocity * dt;
+
+	World* world = get_world();
+	if (world) {
+		const AABB my_bb = get_bounds();
+		for (Entity* e : world->entities) {
+			if (e && e != world->current_camera && e != this) {
+				AABB out_bb;
+				if (my_bb.intersects(e->get_bounds(), &out_bb)) {
+					if (out_bb.size.x > out_bb.size.y) {
+						f32 flip = 1.f;
+						if (position.y < e->position.y) flip = -1.f;
+						position.y += out_bb.size.y * flip;
+
+						if (flip == 1.f) {
+							num_jumps = 0;
+							on_ground = true;
+						}
+
+						velocity.y = 0.f;
+					} else {
+						f32 flip = 1.f;
+						if (position.x < e->position.x) flip = -1.f;
+						position.x += out_bb.size.x * flip;
+						velocity.x = 0.f;
+					}
+				}
+			}
+		}
+	}
+}
 
