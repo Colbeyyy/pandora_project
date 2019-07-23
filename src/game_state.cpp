@@ -1,6 +1,7 @@
 #include "game_state.h"
 #include "draw.h"
 #include "collision.h"
+#include "world.h"
 
 #include <ch_stl/window.h>
 #include <ch_stl/opengl.h>
@@ -139,6 +140,10 @@ void Game_State::reset_world() {
 	{
 		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(300.f, -50.f));
 		b->size = ch::Vector2(100.f, 200.f);
+	}
+	{
+		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(500.f, 50.f));
+		b->size = 100.f;
 	}
 	Player* p = loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 100.f));
 	player_id = p->id;

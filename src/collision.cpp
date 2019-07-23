@@ -134,18 +134,18 @@ bool aabb_sweep_to_aabb(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 e
 
 	box.size -= size;
 	AABB out_bb;
-	if (AABB(start, size).intersects(box, &out_bb)) {
+	if (AABB(end, size).intersects(box, &out_bb)) {
 		if (out_bb.size.x > out_bb.size.y) {
-			f32 flip = Sign(start.y - box.position.y);
-			start.y += out_bb.size.y * flip;
+			f32 flip = Sign(end.y - box.position.y);
+			end.y += out_bb.size.y * flip;
 			out_result->normal.y = flip;
 		} else {
-			f32 flip = Sign(start.x - box.position.x);
-			start.x += out_bb.size.x * flip;
+			f32 flip = Sign(end.x - box.position.x);
+			end.x += out_bb.size.x * flip;
 			out_result->normal.x = flip;
 		}
 
-		out_result->impact = start;
+		out_result->impact = end;
 		return true;
 	}
 
