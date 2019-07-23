@@ -17,6 +17,10 @@ struct Entity {
 	ch::Vector3 position;
 	ch::Vector2 size;
 
+	bool collision_enabled = true;
+
+	Entity() = default;
+
 	virtual void on_created() {}
 	virtual void tick(f32 dt) {}
 	virtual void draw();
@@ -37,6 +41,8 @@ struct Entity {
 
 struct Camera : public Entity {
 	using Super = Entity;
+
+	Camera();
 
 	virtual void tick(f32 dt) override;
 	virtual void draw() override;

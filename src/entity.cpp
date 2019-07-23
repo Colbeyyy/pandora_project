@@ -6,10 +6,16 @@
 
 void Entity::draw() {
 #if BUILD_DEBUG
-	// get_bounds().debug_draw();
-	const ch::Vector2 size = 10.f;
-	draw_border_quad(position.xy, size, 2.f, ch::green);
+	if (collision_enabled) {
+		get_bounds().debug_draw();
+		const ch::Vector2 draw_size = 10.f;
+		draw_border_quad(position.xy, draw_size, 2.f, ch::green);
+	}
 #endif
+}
+
+Camera::Camera() : Super() {
+	collision_enabled = false;
 }
 
 void Camera::tick(f32 dt) {
@@ -23,7 +29,7 @@ void Camera::tick(f32 dt) {
 }
 
 void Camera::draw() {
-	// Super::draw();
+	Super::draw();
 
 	render_from_pos(position.xy, 512.f);
 }
@@ -86,7 +92,7 @@ void Player::tick(f32 dt) {
 
 	const bool is_sprinting = g_input_state.is_key_down(16);
 
-	f32 speed = is_sprinting ? sprint_speed : walk_speed;
+	const f32 speed = is_sprinting ? sprint_speed : walk_speed;
 
 	if (g_input_state.is_key_down('A')) {
 		velocity.x = -speed;
@@ -111,7 +117,6 @@ void Player::collision_tick(f32 dt) {
 
 	Trace_Details td;
 	td.e_to_ignore.push(id);
-	td.e_to_ignore.push(get_world()->current_camera->id);
 	defer(td.e_to_ignore.destroy());
 
 	const ch::Vector2 start = position.xy;

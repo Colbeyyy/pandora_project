@@ -27,7 +27,7 @@ bool World::line_trace(struct Hit_Result* out_result, ch::Vector2 start, ch::Vec
 
 	for (Entity* e : entities) {
 		Hit_Result result;
-		if (e && !trace_details.e_to_ignore.contains(e->id) && line_trace_to_aabb(&result, start, end, e->get_bounds())) {
+		if (e && e->collision_enabled && !trace_details.e_to_ignore.contains(e->id) && line_trace_to_aabb(&result, start, end, e->get_bounds())) {
 			result.entity = e;
 
 			if (closest_result.entity) {
@@ -55,7 +55,7 @@ bool World::aabb_sweep(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 en
 
 	for (Entity* e : entities) {
 		Hit_Result result;
-		if (e && !trace_details.e_to_ignore.contains(e->id) && aabb_sweep_to_aabb(&result, start, end, size, e->get_bounds())) {
+		if (e && e->collision_enabled && !trace_details.e_to_ignore.contains(e->id) && aabb_sweep_to_aabb(&result, start, end, size, e->get_bounds())) {
 			result.entity = e;
 
 			if (closest_result.entity) {
@@ -80,7 +80,7 @@ bool World::aabb_sweep(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 en
 bool World::aabb_multi_sweep(ch::Array<Hit_Result>* out_results, ch::Vector2 start, ch::Vector2 end, ch::Vector2 size, const Trace_Details& trace_details) {
 	for (Entity* e : entities) {
 		Hit_Result result;
-		if (e && !trace_details.e_to_ignore.contains(e->id) && aabb_sweep_to_aabb(&result, start, end, size, e->get_bounds())) {
+		if (e && e->collision_enabled && !trace_details.e_to_ignore.contains(e->id) && aabb_sweep_to_aabb(&result, start, end, size, e->get_bounds())) {
 			result.entity = e;
 			out_results->push(result);
 		}
