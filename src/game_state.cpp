@@ -100,25 +100,9 @@ void Game_State::draw_game() {
 	if (loaded_world) loaded_world->draw();
 
 	{
-		const ch::Vector2 viewport_size = window.get_viewport_size();
-		const ch::Vector2 mouse_pos = g_input_state.current_mouse_position;
-		const ch::Vector2 cam_pos = loaded_world->current_camera->position.xy;
 
-		const f32 width = (f32)viewport_size.ux;
-		const f32 height = (f32)viewport_size.uy;
 
-		const f32 x = (2.f * mouse_pos.x) / width - 1.f;
-		const f32 y = 1.f - (2.f * mouse_pos.y) / height;
-
-		const ch::Vector4 clip_coords(x, y, -1.f, 1.f);
-		ch::Vector4 eye_coords = view_to_projection.inverse() * clip_coords;
-		eye_coords.z = -1.f;
-		eye_coords.w = 0.f;
-
-		const ch::Vector4 ray_world = world_to_view.inverse() * eye_coords;
-		const ch::Vector2 world = ray_world.xy;
-
-		draw_quad(world + cam_pos, 10.f, ch::white);
+		draw_quad(loaded_world->current_camera->get_mouse_position_in_world(), 10.f, ch::white);
 	}
 
 	draw_frame_end();

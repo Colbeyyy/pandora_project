@@ -36,6 +36,27 @@ void Camera::set_to_current() {
 	}
 }
 
+ch::Vector2 Camera::get_mouse_position_in_world() const {
+	const ch::Vector2 viewport_size = g_game_state.window.get_viewport_size();
+	const ch::Vector2 mouse_pos = g_input_state.current_mouse_position;
+
+	const f32 width = (f32)viewport_size.ux;
+	const f32 height = (f32)viewport_size.uy;
+
+	const f32 x = (2.f * mouse_pos.x) / width - 1.f;
+	const f32 y = 1.f - (2.f * mouse_pos.y) / height;
+
+	const ch::Vector4 clip_coords(x, y, -1.f, 1.f);
+	ch::Vector4 eye_coords = view_to_projection.inverse() * clip_coords;
+	eye_coords.z = -1.f;
+	eye_coords.w = 0.f;
+
+	const ch::Vector4 ray_world = world_to_view.inverse() * eye_coords;
+	const ch::Vector2 world = ray_world.xy;
+
+	return position.xy + world;
+}
+
 void Block::on_created() {
 	time_created = ch::get_ms_time();
 }

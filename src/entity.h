@@ -43,6 +43,8 @@ struct Camera : public Entity {
 
 	void set_to_current();
 
+	ch::Vector2 get_mouse_position_in_world() const;
+
 };
 
 struct Block : public Entity {
