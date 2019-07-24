@@ -68,6 +68,7 @@ struct Player : public Entity {
 	using Super = Entity;
 
 	ch::Vector2 velocity;
+	ch::Vector2 acceleration;
 
 	bool on_ground = false;
 	u8 num_jumps = 0;

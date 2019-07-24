@@ -14,10 +14,17 @@ struct Input_State {
 	bool keys_down[255];
 	bool keys_pressed[255];
 
-	void bind(ch::Window* window);
+	bool mb_down[3];
+	bool mb_pressed[3];
 
-	CH_FORCEINLINE bool is_key_down(u8 key) { return keys_down[key]; }
-	CH_FORCEINLINE bool was_key_pressed(u8 key) { return keys_pressed[key]; }
+	void bind(ch::Window* window);
+	void reset();
+
+	CH_FORCEINLINE bool is_key_down(u8 key) const { return keys_down[key]; }
+	CH_FORCEINLINE bool was_key_pressed(u8 key) const { return keys_pressed[key]; }
+
+	CH_FORCEINLINE bool is_mouse_button_down(u8 mouse_button) const { return mb_down[mouse_button]; }
+	CH_FORCEINLINE bool was_mouse_button_pressed(u8 mouse_button) const { return mb_pressed[mouse_button]; }
 };
 
 extern Input_State g_input_state;

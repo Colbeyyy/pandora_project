@@ -28,6 +28,22 @@ void Input_State::bind(ch::Window* window) {
 	window->on_key_released = [](const ch::Window& window, u8 key) {
 		g_input_state.keys_down[key] = false;
 	};
+
+	window->on_mouse_button_down = [](const ch::Window& window, u8 mouse_button) {
+		if (!g_input_state.mb_down[mouse_button]) {
+			g_input_state.mb_pressed[mouse_button] = true;
+		}
+		g_input_state.mb_down[mouse_button] = true;
+	};
+
+	window->on_mouse_button_up = [](const ch::Window& window, u8 mouse_button) {
+		g_input_state.mb_down[mouse_button] = false;
+	};
+}
+
+void Input_State::reset() {
+	ch::mem_set(keys_pressed, sizeof(keys_pressed), 0);
+	ch::mem_set(mb_pressed, sizeof(mb_pressed), 0);
 }
 
 void Game_State::init() {
@@ -73,7 +89,7 @@ void Game_State::shut_down() {
 }
 
 void Game_State::process_inputs() {
-	ch::mem_set(g_input_state.keys_pressed, sizeof(g_input_state.keys_pressed), 0);
+	g_input_state.reset();
 
     ch::poll_events();
 

@@ -2,7 +2,9 @@
 #include "draw.h"
 #include "game_state.h"
 #include "world.h"
-#include "ch_stl/time.h"
+
+#include <ch_stl/time.h>
+#include <ch_stl/input.h>
 
 void Entity::draw() {
 #if BUILD_DEBUG
@@ -82,11 +84,16 @@ void Player::tick(f32 dt) {
 
 	// velocity.y = ch::max(velocity.y, -(980.f * 980.f));
 
-	velocity.x = 0.f;
 	velocity.y -= 980.f * dt;
 
+	velocity.x = 0.f;
+
 	if (num_jumps < max_jumps &&  g_input_state.was_key_pressed(' ')) {
-		velocity.y = jump_y_velocity;
+		if (velocity.y > 0) {
+			velocity.y += jump_y_velocity;
+		} else {
+			velocity.y = jump_y_velocity;
+		}
 		num_jumps += 1;
 	}
 
@@ -102,12 +109,19 @@ void Player::tick(f32 dt) {
 		velocity.x = speed;
 	}
 
+	if (g_input_state.is_mouse_button_down(CH_MOUSE_LEFT)) {
+		const Camera* current_camera = get_world()->current_camera;
+		const ch::Vector2 mouse_pos = current_camera->get_mouse_position_in_world();
+
+		Block* bobby_b = get_world()->spawn_entity<Block>(mouse_pos);
+		bobby_b->size = 100.f;
+	}
+
 	collision_tick(dt);
 }
 
 void Player::draw() {
-	draw_quad(position.xy, size, on_ground ? 0xFFC0CBFF : ch::red);
-	draw_line(position.xy, position.xy + velocity * 0.5f, 5.f, ch::green);
+	draw_quad(position.xy, size, 0xFFC0CBFF);
 
 	Super::draw();
 }
@@ -127,19 +141,26 @@ void Player::collision_tick(f32 dt) {
 	ch::Array<Hit_Result> results;
 	defer(results.destroy());
 	if (get_world()->aabb_multi_sweep(&results, start, end, size, td)) {
-		for (const Hit_Result& result : results) {
+		ch::Vector2 best_pos = 0.f;
+		for (Hit_Result& result : results) {
 			const ch::Vector2 d = ch::abs(result.impact - end);
-			new_position += result.normal * d;
-			velocity -= result.normal * velocity;
+			const ch::Vector2 possible_pos = result.normal * d;
+
+			if (ch::abs(best_pos.x) < ch::abs(possible_pos.x)) best_pos.x = possible_pos.x;
+			if (ch::abs(best_pos.y) < ch::abs(possible_pos.y)) best_pos.y = possible_pos.y;
 
 			const ch::Vector2 up(0.f, 1.f);
 			const f32 dot_up = up.dot(result.normal);
 
-			if (ch::abs(dot_up) > 0.7f) {
+			result.normal.y = ch::abs(result.normal.y);
+			velocity -= result.normal * velocity;
+
+			if (dot_up > 0.7f) {
 				on_ground = true;
 				num_jumps = 0;
 			}
 		}
+		new_position += best_pos;
 	}
 
 	position.xy = new_position;
