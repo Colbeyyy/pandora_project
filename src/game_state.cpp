@@ -70,6 +70,10 @@ void Game_State::init() {
 
 	loaded_world = ch_new World;
 	reset_world();
+
+	ch::std_out << ch::get_os_font_path() << ch::eol;
+	ch::set_current_path(ch::get_os_font_path());
+	ch::std_out << ch::get_current_path() << ch::eol;
 }
 
 void Game_State::loop() {
