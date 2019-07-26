@@ -66,9 +66,12 @@ void Game_State::init() {
 	g_input_state.bind(&window);
 
 #if CH_PLATFORM_WINDOWS
-	wglSwapIntervalEXT(!BUILD_DEBUG);
+	wglSwapIntervalEXT(false);
 #endif
 	draw_init();
+
+	ch::Allocator temp_allocator = ch::make_arena_allocator(1024 * 32);
+	ch::context_allocator = temp_allocator;
 
 	loaded_world = ch_new World;
 	reset_world();
@@ -85,6 +88,7 @@ void Game_State::loop() {
 		dt = (f32)(current_frame_time - last_frame_time);
 		last_frame_time = current_frame_time;
 
+
 		dt_counter += dt;
 		if (dt_counter > 1.f) {
 			fps = fps_count;
@@ -95,6 +99,8 @@ void Game_State::loop() {
         process_inputs();
         tick_game(dt);
         draw_game();
+
+		ch::reset_arena_allocator(&ch::context_allocator);
 
 		fps_count += 1;
     }
@@ -139,9 +145,9 @@ void Game_State::draw_game() {
 		render_right_handed();
 		tchar buffer[100];
 #if CH_UNICODE
-		swprintf(buffer, CH_TEXT("%i"), fps);
+		swprintf(buffer, CH_TEXT("FPS: %i\nEntity Count: %i"), fps, loaded_world->entities.count);
 #else
-		sprintf(buffer, "%i", fps);
+		sprintf(buffer, "FPS: %i\nENTITY Count: %i", fps, loaded_world->entities.count);
 #endif
 		draw_string(buffer, 10.f, -20.f, ch::white, font);
 	}

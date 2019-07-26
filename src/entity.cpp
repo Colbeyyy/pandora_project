@@ -45,6 +45,9 @@ void Camera::set_to_current() {
 }
 
 ch::Vector2 Camera::get_mouse_position_in_world() const {
+	// @HACK(Chall): Find a better way to do this
+	render_from_pos(position.xy, 512.f);
+
 	const ch::Vector2 viewport_size = g_game_state.window.get_viewport_size();
 	const ch::Vector2 mouse_pos = g_input_state.current_mouse_position;
 
@@ -109,7 +112,7 @@ void Player::tick(f32 dt) {
 		velocity.x = speed;
 	}
 
-	if (g_input_state.is_mouse_button_down(CH_MOUSE_LEFT)) {
+	if (g_input_state.was_mouse_button_pressed(CH_MOUSE_LEFT)) {
 		const Camera* current_camera = get_world()->current_camera;
 		const ch::Vector2 mouse_pos = current_camera->get_mouse_position_in_world();
 

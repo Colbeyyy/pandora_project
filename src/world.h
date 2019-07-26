@@ -15,6 +15,8 @@ struct World {
 	Entity_Id last_id = 0;
 	Camera* current_camera;
 
+	World();
+
 	template <typename T>
 	T* spawn_entity(const ch::Vector3& position) {
 		T* result = ch_new T;

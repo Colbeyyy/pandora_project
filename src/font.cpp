@@ -15,13 +15,12 @@ struct Bitmap {
 
 bool Font::load_from_os(const tchar* font_name, Font* out_font) {
 	ch::String old_path = ch::get_current_path();
-	defer({
-		ch::set_current_path(old_path);
-		old_path.destroy();
-	});
+	defer(ch::set_current_path(old_path));
 	ch::String font_path = ch::get_os_font_path();
-	defer(font_path.destroy());
-	assert(ch::set_current_path(font_path));
+	
+	if (!ch::set_current_path(font_path)) {
+		return false;
+	}
 
 	return load_from_path(font_name, out_font);
 }

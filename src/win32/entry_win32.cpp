@@ -5,7 +5,7 @@
 #if BUILD_DEBUG 
 #define MAIN_FUNCTION(...) main(int argc, char** argv)
 #else
-#define MAIN_FUNCTION(...) WinMain(void*, void*, tchar*, int)
+#define MAIN_FUNCTION(...) WinMain(HINSTANCE, HINSTANCE, tchar*, int)
 #endif
 
 int MAIN_FUNCTION() {

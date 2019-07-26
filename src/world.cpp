@@ -1,6 +1,12 @@
 #include "world.h"
 #include "game_state.h"
 
+#include <ch_stl/allocator.h>
+
+World::World() {
+	entities = ch::Array<Entity*>(ch::get_heap_allocator());
+}
+
 bool World::destroy_entity(Entity_Id id) {
 	for (usize i = 0; i < entities.count; i++) {
 		Entity* e = entities[i];
