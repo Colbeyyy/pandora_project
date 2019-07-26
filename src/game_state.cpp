@@ -8,6 +8,8 @@
 #include <ch_stl/filesystem.h>
 #include <ch_stl/time.h>
 
+#include <stdio.h>
+
 Game_State g_game_state;
 Input_State g_input_state;
 
@@ -71,9 +73,7 @@ void Game_State::init() {
 	loaded_world = ch_new World;
 	reset_world();
 
-	ch::std_out << ch::get_os_font_path() << ch::eol;
-	ch::set_current_path(ch::get_os_font_path());
-	ch::std_out << ch::get_current_path() << ch::eol;
+	Font::load_from_os(CH_TEXT("consola.ttf"), &font);
 }
 
 void Game_State::loop() {
@@ -120,9 +120,19 @@ void Game_State::draw_game() {
 	if (loaded_world) loaded_world->draw();
 
 	{
-
-
 		draw_quad(loaded_world->current_camera->get_mouse_position_in_world(), 10.f, ch::white);
+	}
+
+	{
+		render_right_handed();
+		const f32 fps = 1.f / dt;
+		tchar buffer[100];
+#if CH_UNICODE
+		swprintf(buffer, CH_TEXT("%f"), fps);
+#else
+		sprintf(buffer, "%f", fps);
+#endif
+		draw_string(buffer, 10.f, -20.f, ch::white, font);
 	}
 
 	draw_frame_end();

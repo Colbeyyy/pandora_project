@@ -218,6 +218,15 @@ void render_from_pos(ch::Vector2 pos, f32 ortho_size) {
 	refresh_transform();
 }
 
+void draw_bind_font(const Font& font) {
+	assert(Shader::current_shader);
+	refresh_transform();
+	glUniform1i(Shader::current_shader->texture_loc, 0);
+
+	glBindTexture(GL_TEXTURE_2D, font.texture_id);
+	glActiveTexture(GL_TEXTURE0);
+}
+
 void imm_begin() {
 	imm_vertex_count = 0;
 }
@@ -345,4 +354,69 @@ void imm_border_quad(f32 x0, f32 y0, f32 x1, f32 y1, f32 thickness, const ch::Co
 		const f32 _y1 = _y0 + thickness;
 		imm_quad(_x0, _y0, _x1, _y1, color, z_index);
 	}
+}
+
+void imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, const Font& font) {
+	const f32 x0 = x + glyph.bearing_x;
+	const f32 y0 = y + glyph.height;
+	const f32 x1 = x0 + glyph.width;
+	const f32 y1 = y0 + glyph.bearing_y;
+
+	const ch::Vector2 bottom_right = ch::Vector2(glyph.x1 / (f32)FONT_ATLAS_DIMENSION, glyph.y0 / (f32)FONT_ATLAS_DIMENSION);
+	const ch::Vector2 bottom_left = ch::Vector2(glyph.x0 / (f32)FONT_ATLAS_DIMENSION, glyph.y0 / (f32)FONT_ATLAS_DIMENSION);
+	const ch::Vector2 top_right = ch::Vector2(glyph.x1 / (f32)FONT_ATLAS_DIMENSION, glyph.y1 / (f32)FONT_ATLAS_DIMENSION);
+	const ch::Vector2 top_left = ch::Vector2(glyph.x0 / (f32)FONT_ATLAS_DIMENSION, glyph.y1 / (f32)FONT_ATLAS_DIMENSION);
+
+	imm_vertex(x0, y0, color, bottom_left);
+	imm_vertex(x0, y1, color, top_left);
+	imm_vertex(x1, y0, color, bottom_right);
+
+	imm_vertex(x0, y1, color, top_left);
+	imm_vertex(x1, y1, color, top_right);
+	imm_vertex(x1, y0, color, bottom_right);
+}
+
+Font_Glyph imm_char(tchar c, f32 x, f32 y, const ch::Color& color, const Font& font) {
+	const Font_Glyph g = font[c];
+
+	imm_glyph(g, x, y, color, font);
+
+	return g;
+}
+
+ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font) {
+	const f32 font_height = FONT_SIZE;
+
+	const f32 original_x = x;
+	const f32 original_y = y;
+
+	f32 largest_x = 0.f;
+	f32 largest_y = 0.f;
+
+	for (usize i = 0; i < ch::strlen(str); i++) {
+		if (str[i] == ch::eol) {
+			y -= font_height;
+			x = original_x;
+			verts_culled += 6;
+			continue;
+		}
+
+		if (str[i] == '\t') {
+			Font_Glyph space_glyph = font[' '];
+			x += space_glyph.advance * 4.f;
+			verts_culled += 6 * 4;
+			continue;
+		}
+
+		Font_Glyph& glyph = font[str[i]];
+
+		imm_glyph(glyph, x, y, color, font);
+
+		x += glyph.advance;
+
+		if (x - original_x > largest_x) largest_x = x - original_x;
+		if (y - original_y > largest_y) largest_y = x - original_y;
+	}
+
+	return ch::Vector2(largest_x, largest_y);
 }

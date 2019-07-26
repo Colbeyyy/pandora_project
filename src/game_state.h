@@ -5,6 +5,8 @@
 
 #include "entity.h"
 
+#include "font.h"
+
 
 struct World;
 
@@ -36,6 +38,8 @@ struct Game_State {
 	World* loaded_world;
 
 	Entity_Id player_id;
+
+	struct Font font;
 
 	f32 dt;
 

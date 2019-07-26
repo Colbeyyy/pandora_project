@@ -3,6 +3,8 @@
 #include <ch_stl/math.h>
 #include <ch_stl/opengl.h>
 
+#include "font.h"
+
 void draw_init();
 void draw_frame_begin();
 void draw_frame_end();
@@ -13,6 +15,8 @@ extern ch::Matrix4 world_to_view;
 void refresh_transform();
 void render_right_handed();
 void render_from_pos(ch::Vector2 pos, f32 ortho_size);
+
+void draw_bind_font(const Font& font);
 
 void imm_begin();
 void imm_flush();
@@ -60,3 +64,30 @@ CH_FORCEINLINE void draw_line(ch::Vector2 start, ch::Vector2 end, f32 thickness,
 	imm_line(start, end, thickness, color, z_index);
 	imm_flush();
 }
+
+void imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, const Font& font);
+
+CH_FORCEINLINE void draw_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, const Font& font) {
+	imm_begin();
+	imm_glyph(glyph, x, y, color, font);
+	imm_flush();
+}
+
+Font_Glyph imm_char(tchar c, f32 x, f32 y, const ch::Color& color, const Font& font);
+
+CH_FORCEINLINE void draw_char(tchar c, f32 x, f32 y, const ch::Color& color, const Font& font) {
+	imm_begin();
+	imm_char(c, x, y, color, font);
+	imm_flush();
+}
+
+ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font);
+
+CH_FORCEINLINE void draw_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font) {
+	draw_bind_font(font);
+	imm_begin();
+	imm_string(str, x, y, color, font);
+	imm_flush();
+}
+
+// void imm_string();
