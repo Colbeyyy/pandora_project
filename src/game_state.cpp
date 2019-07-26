@@ -78,13 +78,25 @@ void Game_State::init() {
 
 void Game_State::loop() {
 	f64 last_frame_time = ch::get_ms_time();
+	f32 dt_counter = 0.f;
+	u32 fps_count = 0;
     while (!g_input_state.exit_requested) {
 		f64 current_frame_time = ch::get_ms_time();
 		dt = (f32)(current_frame_time - last_frame_time);
 		last_frame_time = current_frame_time;
+
+		dt_counter += dt;
+		if (dt_counter > 1.f) {
+			fps = fps_count;
+			dt_counter = 0.f;
+			fps_count = 0;
+		}
+
         process_inputs();
         tick_game(dt);
         draw_game();
+
+		fps_count += 1;
     }
 }
 
@@ -125,12 +137,11 @@ void Game_State::draw_game() {
 
 	{
 		render_right_handed();
-		const f32 fps = 1.f / dt;
 		tchar buffer[100];
 #if CH_UNICODE
-		swprintf(buffer, CH_TEXT("%f"), fps);
+		swprintf(buffer, CH_TEXT("%i"), fps);
 #else
-		sprintf(buffer, "%f", fps);
+		sprintf(buffer, "%i", fps);
 #endif
 		draw_string(buffer, 10.f, -20.f, ch::white, font);
 	}

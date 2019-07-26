@@ -42,6 +42,7 @@ struct Game_State {
 	struct Font font;
 
 	f32 dt;
+	u32 fps;
 
     void init();
     void loop();
