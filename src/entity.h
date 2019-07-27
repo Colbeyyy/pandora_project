@@ -71,6 +71,7 @@ struct Player : public Entity {
 	ch::Vector2 acceleration;
 
 	bool on_ground = false;
+	bool on_wall = false;
 	u8 num_jumps = 0;
 	const u8 max_jumps = 2;
 	const f32 jump_y_velocity = 600.f;
@@ -80,6 +81,8 @@ struct Player : public Entity {
 
 	virtual void tick(f32 dt) override;
 	virtual void draw() override;
+
+	CH_FORCEINLINE bool is_falling() const { return velocity.y < 0.f; }
 
 	void collision_tick(f32 dt);
 };

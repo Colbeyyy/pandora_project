@@ -87,7 +87,12 @@ void Player::tick(f32 dt) {
 
 	// velocity.y = ch::max(velocity.y, -(980.f * 980.f));
 
-	velocity.y -= 980.f * dt;
+	if (on_wall && is_falling()) {
+		velocity.y = -100.f;
+		num_jumps = 0;
+	} else {
+		velocity.y -= 980.f * dt;
+	}
 
 	velocity.x = 0.f;
 
@@ -120,16 +125,17 @@ void Player::tick(f32 dt) {
 		bobby_b->size = 100.f;
 	}
 
+	collision_tick(dt);
 }
 
 void Player::draw() {
-	draw_quad(position.xy, size, 0xFFC0CBFF);
-	collision_tick(g_game_state.dt);
+	draw_quad(position.xy, size, on_wall ? ch::green : 0xFFC0CBFF);
 
 	Super::draw();
 }
 
 void Player::collision_tick(f32 dt) {
+	ch::Vector2 new_velocity = velocity;
 	ch::Vector2 new_position = position.xy + velocity * dt;
 
 	Trace_Details td;
@@ -138,7 +144,10 @@ void Player::collision_tick(f32 dt) {
 	const ch::Vector2 start = position.xy;
 	const ch::Vector2 end = new_position;
 
+	const bool was_on_wall = on_wall;
+
 	on_ground = false;
+	on_wall = false;
 
 	ch::Array<Hit_Result> results;
 	if (get_world()->aabb_multi_sweep(&results, start, end, size, td)) {
@@ -152,20 +161,25 @@ void Player::collision_tick(f32 dt) {
 			if (ch::abs(best_pos.y) < ch::abs(possible_pos.y)) best_pos.y = possible_pos.y;
 
 			const ch::Vector2 up(0.f, 1.f);
+			const ch::Vector2 right(1.f, 0.f);
 			const f32 dot_up = up.dot(result.normal);
+			const f32 dot_right = right.dot(result.normal);
 
-			result.normal = ch::abs(result.normal);
-			velocity -= result.normal * velocity;
+			new_velocity -= ch::abs(result.normal) * new_velocity;
 
 			if (dot_up > 0.7f) {
 				on_ground = true;
 				num_jumps = 0;
 			}
 
-			draw_border_quad(new_position + possible_pos, size, 2.f, ch::blue, 6);
+			if (ch::abs(dot_right) > 0.7f && velocity.x != 0.f) {
+				on_wall = true;
+			}
 		}
 		new_position += best_pos;
 	}
 
 	position.xy = new_position;
+	velocity = new_velocity;
+
 }
