@@ -120,11 +120,11 @@ void Player::tick(f32 dt) {
 		bobby_b->size = 100.f;
 	}
 
-	collision_tick(dt);
 }
 
 void Player::draw() {
 	draw_quad(position.xy, size, 0xFFC0CBFF);
+	collision_tick(g_game_state.dt);
 
 	Super::draw();
 }
@@ -134,7 +134,6 @@ void Player::collision_tick(f32 dt) {
 
 	Trace_Details td;
 	td.e_to_ignore.push(id);
-	defer(td.e_to_ignore.destroy());
 
 	const ch::Vector2 start = position.xy;
 	const ch::Vector2 end = new_position;
@@ -142,11 +141,11 @@ void Player::collision_tick(f32 dt) {
 	on_ground = false;
 
 	ch::Array<Hit_Result> results;
-	defer(results.destroy());
 	if (get_world()->aabb_multi_sweep(&results, start, end, size, td)) {
 		ch::Vector2 best_pos = 0.f;
 		for (Hit_Result& result : results) {
 			const ch::Vector2 d = ch::abs(result.impact - end);
+
 			const ch::Vector2 possible_pos = result.normal * d;
 
 			if (ch::abs(best_pos.x) < ch::abs(possible_pos.x)) best_pos.x = possible_pos.x;
@@ -155,13 +154,15 @@ void Player::collision_tick(f32 dt) {
 			const ch::Vector2 up(0.f, 1.f);
 			const f32 dot_up = up.dot(result.normal);
 
-			result.normal.y = ch::abs(result.normal.y);
+			result.normal = ch::abs(result.normal);
 			velocity -= result.normal * velocity;
 
 			if (dot_up > 0.7f) {
 				on_ground = true;
 				num_jumps = 0;
 			}
+
+			draw_border_quad(new_position + possible_pos, size, 2.f, ch::blue, 6);
 		}
 		new_position += best_pos;
 	}
