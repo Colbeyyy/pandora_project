@@ -2,13 +2,7 @@
 
 #include "../game_state.h"
 
-#if BUILD_DEBUG 
-#define MAIN_FUNCTION(...) main(int argc, char** argv)
-#else
-#define MAIN_FUNCTION(...) WinMain(HINSTANCE, HINSTANCE, tchar*, int)
-#endif
-
-int MAIN_FUNCTION() {
+int WinMain(HINSTANCE, HINSTANCE, tchar*, int) {
     g_game_state.init();
     g_game_state.loop();
     g_game_state.shut_down();

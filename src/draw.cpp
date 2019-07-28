@@ -43,8 +43,6 @@ ch::Matrix4 world_to_view;
 Shader solid_shape;
 
 const GLchar* shader = R"foo(
-#extension GL_ARB_separate_shader_objects: enable
-
 #ifdef VERTEX
 layout(location = 0) in vec2 position;
 layout(location = 1) in vec4 color;
@@ -85,7 +83,7 @@ static Shader load_shader(const GLchar* shader_source) {
 	GLuint vertex_id = glCreateShader(GL_VERTEX_SHADER);
 	GLuint frag_id = glCreateShader(GL_FRAGMENT_SHADER);
 
-	const GLchar* shader_header = "#version 330 core\n";
+	const GLchar* shader_header = "#version 330 core\n#extension GL_ARB_separate_shader_objects: enable\n";
 
 	const GLchar* vert_shader[3] = { shader_header, "#define VERTEX 1", shader_source };
 	const GLchar* frag_shader[3] = { shader_header, "#define FRAGMENT 1", shader_source };

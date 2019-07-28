@@ -1,4 +1,5 @@
 #include "font.h"
+#include "game_state.h"
 
 #include <ch_stl/os.h>
 #include <ch_stl/memory.h>
@@ -9,7 +10,7 @@
 
 // @NOTE(CHall): Move this elsewhere
 struct Bitmap {
-	s32 width, height;
+	u32 width, height;
 	u8* data;
 };
 
@@ -26,28 +27,19 @@ bool Font::load_from_os(const tchar* font_name, Font* out_font) {
 }
 
 bool Font::load_from_path(const tchar* path, Font* out_font) {
-	FILE* f = fopen(path, "rb");
-	if (!f) {
-		return false;
-	}
-	fseek(f, 0, SEEK_END);
-	const usize size = ftell(f);
-	fseek(f, 0, SEEK_SET);
 
-	u8* buffer = ch_new u8[size];
-	defer(ch_delete buffer);
-	fread(buffer, size, 1, f);
-	fclose(f);
-	buffer[size] = 0;
+	ch::File_Data fd;
+	if (!g_game_state.asset_manager.load_asset(path, &fd)) return false;
 
 	Font result;
 
 	stbtt_fontinfo info;
-	stbtt_InitFont(&info, buffer, stbtt_GetFontOffsetForIndex(buffer, 0));
+	stbtt_InitFont(&info, fd.data, stbtt_GetFontOffsetForIndex(fd.data, 0));
 
 	Bitmap atlas;
 	atlas.width = atlas.height = FONT_ATLAS_DIMENSION;
-	atlas.data = (u8*)ch::malloc(atlas.width * atlas.height);
+	atlas.data = ch_new u8[atlas.width * atlas.height];
+	defer(ch_delete atlas.data);
 
 	stbtt_pack_context pc;
 	stbtt_packedchar pdata[NUM_CHARACTERS];
@@ -67,7 +59,7 @@ bool Font::load_from_path(const tchar* path, Font* out_font) {
 	const u32 v_oversample = 8;
 
 	stbtt_PackSetOversampling(&pc, h_oversample, v_oversample);
-	stbtt_PackFontRanges(&pc, buffer, 0, &pr, 1);
+	stbtt_PackFontRanges(&pc, fd.data, 0, &pr, 1);
 	stbtt_PackEnd(&pc);
 
 	glGenTextures(1, &result.texture_id);

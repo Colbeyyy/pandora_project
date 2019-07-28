@@ -4,8 +4,8 @@
 #include <ch_stl/window.h>
 
 #include "entity.h"
-
 #include "font.h"
+#include "asset.h"
 
 
 struct World;
@@ -33,7 +33,8 @@ extern Input_State g_input_state;
 
 struct Game_State {
 
-    f32 delta_time;
+	Asset_Manager asset_manager;
+
 	ch::Window window;
 	World* loaded_world;
 

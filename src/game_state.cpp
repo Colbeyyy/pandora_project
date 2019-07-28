@@ -7,6 +7,7 @@
 #include <ch_stl/opengl.h>
 #include <ch_stl/filesystem.h>
 #include <ch_stl/time.h>
+#include <ch_stl/input.h>
 
 #include <stdio.h>
 
@@ -70,6 +71,8 @@ void Game_State::init() {
 #endif
 	draw_init();
 
+	asset_manager = Asset_Manager(1024 * 1024);
+
 	ch::Allocator temp_allocator = ch::make_arena_allocator(1024 * 32);
 	ch::context_allocator = temp_allocator;
 
@@ -129,6 +132,10 @@ void Game_State::tick_game(f32 dt) {
 		reset_world();
 	}
 
+	if (g_input_state.was_key_pressed(CH_KEY_ESCAPE)) {
+		g_input_state.exit_requested = true;
+	}
+
 	if (loaded_world) loaded_world->tick(dt);
 }
 
@@ -143,11 +150,11 @@ void Game_State::draw_game() {
 
 	{
 		render_right_handed();
-		tchar buffer[100];
+		tchar buffer[512];
 #if CH_UNICODE
 		swprintf(buffer, CH_TEXT("FPS: %i\nEntity Count: %i"), fps, loaded_world->entities.count);
 #else
-		sprintf(buffer, "FPS: %i\nENTITY Count: %i", fps, loaded_world->entities.count);
+		sprintf(buffer, "FPS: %i\nEntity Count: %i\nAssets Loaded: %ikb\n", fps, loaded_world->entities.count, asset_manager.get_current_size() / 1024);
 #endif
 		draw_string(buffer, 10.f, -20.f, ch::white, font);
 	}
