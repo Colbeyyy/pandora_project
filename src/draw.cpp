@@ -356,9 +356,9 @@ void imm_border_quad(f32 x0, f32 y0, f32 x1, f32 y1, f32 thickness, const ch::Co
 
 void imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, const Font& font) {
 	const f32 x0 = x + glyph.bearing_x;
-	const f32 y0 = y + glyph.height;
+	const f32 y0 = y - glyph.bearing_y;
 	const f32 x1 = x0 + glyph.width;
-	const f32 y1 = y0 + glyph.bearing_y;
+	const f32 y1 = y0 - glyph.height;
 
 	const ch::Vector2 bottom_right = ch::Vector2(glyph.x1 / (f32)FONT_ATLAS_DIMENSION, glyph.y0 / (f32)FONT_ATLAS_DIMENSION);
 	const ch::Vector2 bottom_left = ch::Vector2(glyph.x0 / (f32)FONT_ATLAS_DIMENSION, glyph.y0 / (f32)FONT_ATLAS_DIMENSION);
