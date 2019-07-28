@@ -156,6 +156,7 @@ void Game_State::draw_game() {
 #else
 		sprintf(buffer, "FPS: %i\nEntity Count: %i\nAssets Loaded: %ikb\n", fps, loaded_world->entities.count, asset_manager.get_current_size() / 1024);
 #endif
+		draw_string(buffer, 12.f, -22.f, ch::black, font);
 		draw_string(buffer, 10.f, -20.f, ch::white, font);
 	}
 
