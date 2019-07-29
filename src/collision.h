@@ -10,6 +10,8 @@ struct AABB {
 	AABB() = default;
 	AABB(ch::Vector2 _pos, ch::Vector2 _size) : position(_pos), size(_size) {}
 
+	CH_FORCEINLINE operator bool() const { return (bool)size; }
+
 	void debug_draw(const ch::Color& color = ch::green);
 
 	CH_FORCEINLINE ch::Vector2 get_min() const {

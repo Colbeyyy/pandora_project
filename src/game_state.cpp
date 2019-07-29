@@ -201,15 +201,15 @@ void Game_State::reset_world() {
 		}
 	}
 	{
-		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(200.f, -100.f));
+		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(32.f, -16.f));
 		b->size = 16.f;
 	}
 	{
-		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(300.f, -50.f));
+		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(48.f, -16.f));
 		b->size = 16.f;
 	}
 	{
-		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(500.f, 50.f));
+		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(48.f, 0.f));
 		b->size = 16.f;
 	}
 	Player* p = loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 100.f));
