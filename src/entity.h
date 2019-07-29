@@ -42,6 +42,8 @@ struct Entity {
 struct Camera : public Entity {
 	using Super = Entity;
 
+	f32 orth_size = 96.f;
+
 	Camera();
 
 	virtual void tick(f32 dt) override;
@@ -74,10 +76,10 @@ struct Player : public Entity {
 	bool on_wall = false;
 	u8 num_jumps = 0;
 	const u8 max_jumps = 2;
-	const f32 jump_y_velocity = 600.f;
+	const f32 jump_y_velocity = 16.f * 16.f;
 
-	f32 walk_speed = 300.f;
-	f32 sprint_speed = 600.f;
+	f32 walk_speed = 48.f;
+	f32 sprint_speed = 6.f * 16.f;
 
 	virtual void tick(f32 dt) override;
 	virtual void draw() override;

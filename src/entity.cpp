@@ -9,9 +9,7 @@
 void Entity::draw() {
 #if BUILD_DEBUG
 	if (collision_enabled) {
-		get_bounds().debug_draw();
-		const ch::Vector2 draw_size = 10.f;
-		draw_border_quad(position.xy, draw_size, 2.f, ch::green);
+		// get_bounds().debug_draw();
 	}
 #endif
 }
@@ -33,7 +31,7 @@ void Camera::tick(f32 dt) {
 void Camera::draw() {
 	Super::draw();
 
-	render_from_pos(position.xy, 512.f);
+	Imm_Draw::render_from_pos(position.xy, orth_size);
 }
 
 void Camera::set_to_current() {
@@ -46,7 +44,7 @@ void Camera::set_to_current() {
 
 ch::Vector2 Camera::get_mouse_position_in_world() const {
 	// @HACK(Chall): Find a better way to do this
-	render_from_pos(position.xy, 512.f);
+	Imm_Draw::render_from_pos(position.xy, orth_size);
 
 	const ch::Vector2 viewport_size = g_game_state.window.get_viewport_size();
 	const ch::Vector2 mouse_pos = g_input_state.current_mouse_position;
@@ -58,11 +56,11 @@ ch::Vector2 Camera::get_mouse_position_in_world() const {
 	const f32 y = 1.f - (2.f * mouse_pos.y) / height;
 
 	const ch::Vector4 clip_coords(x, y, -1.f, 1.f);
-	ch::Vector4 eye_coords = view_to_projection.inverse() * clip_coords;
+	ch::Vector4 eye_coords = Imm_Draw::view_to_projection.inverse() * clip_coords;
 	eye_coords.z = -1.f;
 	eye_coords.w = 0.f;
 
-	const ch::Vector4 ray_world = world_to_view.inverse() * eye_coords;
+	const ch::Vector4 ray_world = Imm_Draw::world_to_view.inverse() * eye_coords;
 	const ch::Vector2 world = ray_world.xy;
 
 	return position.xy + world;
@@ -78,12 +76,12 @@ void Block::tick(f32 dt) {
 
 void Block::draw() {
 	const ch::Color color = ch::white;
-	draw_quad(position.xy, size, color);
+	Imm_Draw::draw_textured_quad(position.xy, size, color, Imm_Draw::test);
 	Super::draw();
 }
 
 void Player::tick(f32 dt) {
-	size = ch::Vector2(40.f, 100.f);
+	size = ch::Vector2(16.f, 48.f);
 
 	// velocity.y = ch::max(velocity.y, -(980.f * 980.f));
 
@@ -122,14 +120,14 @@ void Player::tick(f32 dt) {
 		const ch::Vector2 mouse_pos = current_camera->get_mouse_position_in_world();
 
 		Block* bobby_b = get_world()->spawn_entity<Block>(mouse_pos);
-		bobby_b->size = 100.f;
+		bobby_b->size = 10.f;
 	}
 
 	collision_tick(dt);
 }
 
 void Player::draw() {
-	draw_quad(position.xy, size, on_wall ? ch::green : 0xFFC0CBFF);
+	Imm_Draw::draw_quad(position.xy, size, on_wall ? ch::green : 0xFFC0CBFF);
 
 	Super::draw();
 }

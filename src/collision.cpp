@@ -2,7 +2,9 @@
 #include "draw.h"
 
 void AABB::debug_draw(const ch::Color& color) {
-	draw_border_quad(position, size, 2.f, color);
+	Imm_Draw::draw_border_quad(position, size, 2.f, color);
+	const ch::Vector2 draw_size = 10.f;
+	Imm_Draw::draw_border_quad(position, draw_size, 2.f, color);
 }
 
 bool AABB::intersects(const AABB& box, AABB* out) const {
@@ -46,10 +48,10 @@ bool line_intersect(ch::Vector2 a1, ch::Vector2 a2, ch::Vector2 b1, ch::Vector2 
 
 	ch::Vector2 c = b1 - a1;
 	const f32 t = (c.x * d.y - c.y * d.x) / bd_cross;
-	if (t < 0.f || t > 1.f) return false;
+	if (t <= 0.f || t >= 1.f) return false;
 
 	const f32 u = (c.x * b.y - c.y * b.x) / bd_cross;
-	if (u < 0.f || u > 1.f) return false;
+	if (u <= 0.f || u >= 1.f) return false;
 
 	// @NOTE(CHall): Add scalar multiplication
 	*out_vec = a1 + ch::Vector2(t) * b;

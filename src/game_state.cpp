@@ -69,9 +69,9 @@ void Game_State::init() {
 #if CH_PLATFORM_WINDOWS
 	wglSwapIntervalEXT(false);
 #endif
-	draw_init();
-
 	asset_manager = Asset_Manager(1024 * 1024);
+
+	Imm_Draw::init();
 
 	ch::Allocator temp_allocator = ch::make_arena_allocator(1024 * 32);
 	ch::context_allocator = temp_allocator;
@@ -140,27 +140,28 @@ void Game_State::tick_game(f32 dt) {
 }
 
 void Game_State::draw_game() {
-	draw_frame_begin();
+	Imm_Draw::frame_begin();
 
 	if (loaded_world) loaded_world->draw();
 
 	{
-		draw_quad(loaded_world->current_camera->get_mouse_position_in_world(), 10.f, ch::white);
+		Imm_Draw::draw_quad(loaded_world->current_camera->get_mouse_position_in_world(), 1.f, ch::white);
 	}
 
 	{
-		render_right_handed();
+		Imm_Draw::render_right_handed();
 		tchar buffer[512];
 #if CH_UNICODE
 		swprintf(buffer, CH_TEXT("FPS: %i\nEntity Count: %i"), fps, loaded_world->entities.count);
 #else
 		sprintf(buffer, "FPS: %i\nEntity Count: %i\nAssets Loaded: %ikb\n", fps, loaded_world->entities.count, asset_manager.get_current_size() / 1024);
 #endif
-		draw_string(buffer, 12.f, -22.f, ch::black, font);
-		draw_string(buffer, 10.f, -20.f, ch::white, font);
+		Imm_Draw::draw_string(buffer, 12.f, -22.f, ch::black, font);
+		Imm_Draw::draw_string(buffer, 10.f, -20.f, ch::white, font);
+		Imm_Draw::draw_string(ch::get_current_path(), 10.f, -100.f, ch::white, font);
 	}
 
-	draw_frame_end();
+	Imm_Draw::frame_end();
 }
 
 void Game_State::reset_world() {
@@ -169,20 +170,27 @@ void Game_State::reset_world() {
 	Camera* cam = loaded_world->spawn_entity<Camera>(0.f);
 	cam->set_to_current();
 	{
-		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(0.f, -200.f));
-		b->size = ch::Vector2(10000.f, 100.f);
+		f32 current_x = -(16.f * 50);
+		for (usize i = 0; i < 100; i++) {
+			Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(current_x, -32.f));
+
+			const f32 size = 16.f;
+
+			b->size = size;
+			current_x += size;
+		}
 	}
 	{
 		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(200.f, -100.f));
-		b->size = 100.f;
+		b->size = 16.f;
 	}
 	{
 		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(300.f, -50.f));
-		b->size = ch::Vector2(100.f, 200.f);
+		b->size = 16.f;
 	}
 	{
 		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(500.f, 50.f));
-		b->size = 100.f;
+		b->size = 16.f;
 	}
 	Player* p = loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 100.f));
 	player_id = p->id;

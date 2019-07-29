@@ -4,8 +4,9 @@
 #include <ch_stl/window.h>
 
 #include "entity.h"
-#include "font.h"
 #include "asset.h"
+
+#include "draw.h"
 
 
 struct World;
