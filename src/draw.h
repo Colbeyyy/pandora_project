@@ -127,6 +127,7 @@ namespace Imm_Draw {
 	extern Shader image_shader;
 
 	extern Texture test;
+	extern Texture character;
 
 	void imm_begin();
 	void imm_flush();

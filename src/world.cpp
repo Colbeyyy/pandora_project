@@ -99,7 +99,7 @@ void World::tick(f32 dt) {
 	for (usize i = 0; i < entities.count; i++) {
 		Entity* e = entities[i];
 
-		if (!e) continue;
+		if (!e || !e->tick_enabled) continue;
 
 		if (e->is_marked_for_destruction()) {
 			entities.remove(i);

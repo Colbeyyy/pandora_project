@@ -145,6 +145,26 @@ void Game_State::draw_game() {
 	if (loaded_world) loaded_world->draw();
 
 	{
+		Imm_Draw::test.set_active();
+		Imm_Draw::image_shader.bind();
+		Imm_Draw::imm_begin();
+
+		const ch::Vector2 size = 16.f;
+
+		for (f32 x = -16.f * 50.f; x < 16.f * 50.f; x += 16.f) {
+			for (f32 y = -16.f * 3.f; y > -16.f * 7.f; y -= 16.f) {
+				const f32 x0 = x - (size.x / 2.f);
+				const f32 y0 = y - (size.y / 2.f);
+				const f32 x1 = x0 + size.x;
+				const f32 y1 = y0 + size.y;
+				Imm_Draw::imm_textured_quad(x0, y0, x1, y1, ch::white, Imm_Draw::test);
+			}
+		}
+
+		Imm_Draw::imm_flush();
+	}
+
+	{
 		Imm_Draw::draw_quad(loaded_world->current_camera->get_mouse_position_in_world(), 1.f, ch::white);
 	}
 
@@ -158,7 +178,7 @@ void Game_State::draw_game() {
 #endif
 		Imm_Draw::draw_string(buffer, 12.f, -22.f, ch::black, font);
 		Imm_Draw::draw_string(buffer, 10.f, -20.f, ch::white, font);
-		Imm_Draw::draw_string(ch::get_current_path(), 10.f, -100.f, ch::white, font);
+		// Imm_Draw::draw_string(ch::get_current_path(), 10.f, -100.f, ch::white, font);
 	}
 
 	Imm_Draw::frame_end();

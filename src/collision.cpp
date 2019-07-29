@@ -2,9 +2,9 @@
 #include "draw.h"
 
 void AABB::debug_draw(const ch::Color& color) {
-	Imm_Draw::draw_border_quad(position, size, 2.f, color);
-	const ch::Vector2 draw_size = 10.f;
-	Imm_Draw::draw_border_quad(position, draw_size, 2.f, color);
+	Imm_Draw::draw_border_quad(position, size, 1.f, color);
+	const ch::Vector2 draw_size = 4.f;
+	Imm_Draw::draw_border_quad(position, draw_size, 1.f, color);
 }
 
 bool AABB::intersects(const AABB& box, AABB* out) const {

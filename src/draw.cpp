@@ -97,6 +97,7 @@ Shader Imm_Draw::solid_shape_shader;
 Shader Imm_Draw::font_shader;
 Shader Imm_Draw::image_shader;
 Texture Imm_Draw::test;
+Texture Imm_Draw::character;
 
 const GLchar* solid_shape_source= R"foo(
 #ifdef VERTEX
@@ -362,6 +363,7 @@ void Imm_Draw::init() {
 	ch::String current_path = ch::get_current_path();
 
 	Texture::load_from_path(CH_TEXT("..\\res\\tex\\rock_tile.png"), BT_RGBA, &test);
+	Texture::load_from_path(CH_TEXT("..\\res\\tex\\character.png"), BT_RGBA, &character);
 
 	solid_shape_shader.bind();
 

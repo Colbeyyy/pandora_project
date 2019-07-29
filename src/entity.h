@@ -18,6 +18,7 @@ struct Entity {
 	ch::Vector2 size;
 
 	bool collision_enabled = true;
+	bool tick_enabled = true;
 
 	Entity() = default;
 
@@ -58,10 +59,8 @@ struct Camera : public Entity {
 struct Block : public Entity {
 	using Super = Entity;
 
-	f64 time_created;
+	Block();
 
-	virtual void on_created() override;
-	virtual void tick(f32 dt) override;
 	virtual void draw() override;
 
 };
@@ -76,7 +75,7 @@ struct Player : public Entity {
 	bool on_wall = false;
 	u8 num_jumps = 0;
 	const u8 max_jumps = 2;
-	const f32 jump_y_velocity = 16.f * 16.f;
+	const f32 jump_y_velocity = 6.f * 16.f;
 
 	f32 walk_speed = 48.f;
 	f32 sprint_speed = 6.f * 16.f;

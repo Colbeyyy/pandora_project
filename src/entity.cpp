@@ -22,7 +22,7 @@ void Camera::tick(f32 dt) {
 	Player* player = get_world()->find_entity<Player>(g_game_state.player_id);
 
 	const f32 tx = player->position.x;
-	const f32 ty = player->position.y;
+	const f32 ty = player->position.y + 32.f;
 
 	position.x = ch::interp_to(position.x, tx, dt, 5.f);
 	position.y = ch::interp_to(position.y, ty, dt, 1.f);
@@ -30,7 +30,6 @@ void Camera::tick(f32 dt) {
 
 void Camera::draw() {
 	Super::draw();
-
 	Imm_Draw::render_from_pos(position.xy, orth_size);
 }
 
@@ -66,12 +65,8 @@ ch::Vector2 Camera::get_mouse_position_in_world() const {
 	return position.xy + world;
 }
 
-void Block::on_created() {
-	time_created = ch::get_ms_time();
-}
-
-void Block::tick(f32 dt) {
-	const f64 current_time = ch::get_ms_time();
+Block::Block() : Super() {
+	tick_enabled = false;
 }
 
 void Block::draw() {
@@ -81,7 +76,7 @@ void Block::draw() {
 }
 
 void Player::tick(f32 dt) {
-	size = ch::Vector2(16.f, 48.f);
+	size = ch::Vector2(16.f, 32.f);
 
 	// velocity.y = ch::max(velocity.y, -(980.f * 980.f));
 
@@ -89,7 +84,7 @@ void Player::tick(f32 dt) {
 		velocity.y = -100.f;
 		num_jumps = 0;
 	} else {
-		velocity.y -= 980.f * dt;
+		velocity.y -= 16.f * 9.8f * dt;
 	}
 
 	velocity.x = 0.f;
@@ -120,14 +115,14 @@ void Player::tick(f32 dt) {
 		const ch::Vector2 mouse_pos = current_camera->get_mouse_position_in_world();
 
 		Block* bobby_b = get_world()->spawn_entity<Block>(mouse_pos);
-		bobby_b->size = 10.f;
+		bobby_b->size = 16.f;
 	}
 
 	collision_tick(dt);
 }
 
 void Player::draw() {
-	Imm_Draw::draw_quad(position.xy, size, on_wall ? ch::green : 0xFFC0CBFF);
+	Imm_Draw::draw_textured_quad(position.xy, size, ch::white, Imm_Draw::character);
 
 	Super::draw();
 }
