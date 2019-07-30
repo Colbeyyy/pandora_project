@@ -11,6 +11,23 @@
 
 #include <stdio.h>
 
+#include <windows.h>
+
+static void list_all_files() {
+
+	ch::set_current_path(CH_TEXT("tex"));
+
+	for (ch::Directory_Iterator itr; itr.can_advance(); itr.advance()) {
+		ch::Directory_Result dr = itr.get();
+
+		ch::Date_Time last_write_time;
+		if (!ch::date_time_from_file_time(dr.last_write_time, &last_write_time)) continue;
+			   
+		ch::std_out << dr.file_name << CH_TEXT("    ") << last_write_time << ch::eol;
+	}
+
+}
+
 Game_State g_game_state;
 Input_State g_input_state;
 
@@ -80,6 +97,8 @@ void Game_State::init() {
 	reset_world();
 
 	Font::load_from_os(CH_TEXT("consola.ttf"), &font);
+
+	list_all_files();
 }
 
 void Game_State::loop() {
@@ -132,6 +151,10 @@ void Game_State::tick_game(f32 dt) {
 		reset_world();
 	}
 
+	if (g_input_state.was_key_pressed(CH_KEY_F1)) {
+		debug_collision = !debug_collision;
+	}
+
 	if (g_input_state.was_key_pressed(CH_KEY_ESCAPE)) {
 		g_input_state.exit_requested = true;
 	}
@@ -174,7 +197,7 @@ void Game_State::draw_game() {
 #if CH_UNICODE
 		swprintf(buffer, CH_TEXT("FPS: %i\nEntity Count: %i"), fps, loaded_world->entities.count);
 #else
-		sprintf(buffer, "FPS: %i\nEntity Count: %i\nAssets Loaded: %ikb\n", fps, loaded_world->entities.count, asset_manager.get_current_size() / 1024);
+		sprintf(buffer, "FPS: %i\nEntity Count: %lli\nAssets Loaded: %llikb\n", fps, loaded_world->entities.count, asset_manager.get_current_size() / 1024);
 #endif
 		Imm_Draw::draw_string(buffer, 12.f, -22.f, ch::black, font);
 		Imm_Draw::draw_string(buffer, 10.f, -20.f, ch::white, font);

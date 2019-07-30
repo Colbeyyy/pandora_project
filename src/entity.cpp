@@ -8,7 +8,7 @@
 
 void Entity::draw() {
 #if BUILD_DEBUG
-	if (collision_enabled) {
+	if (collision_enabled && g_game_state.debug_collision) {
 		get_bounds().debug_draw();
 	}
 #endif
@@ -76,7 +76,7 @@ void Block::draw() {
 }
 
 void Player::tick(f32 dt) {
-	size = ch::Vector2(16.f, 32.f);
+	size = ch::Vector2(12.f, 32.f);
 
 	// velocity.y = ch::max(velocity.y, -(980.f * 980.f));
 
@@ -122,7 +122,8 @@ void Player::tick(f32 dt) {
 }
 
 void Player::draw() {
-	Imm_Draw::draw_textured_quad(position.xy, size, ch::white, Imm_Draw::character);
+	const ch::Vector2 draw_size(16.f, 32.f);
+	Imm_Draw::draw_textured_quad(position.xy, draw_size, ch::white, Imm_Draw::character);
 
 	Super::draw();
 }
@@ -149,11 +150,6 @@ void Player::collision_tick(f32 dt) {
 			const ch::Vector2 d = ch::abs(result.impact - end);
 
 			const ch::Vector2 possible_pos = result.normal * d;
-
-			// @FIXME(CHall): this sucks
-			AABB out_bb;
-			AABB(result.impact, size).intersects(result.entity->get_bounds(), &out_bb);
-			if (!out_bb.size) continue;
 
 			if (ch::abs(best_pos.x) < ch::abs(possible_pos.x)) best_pos.x = possible_pos.x;
 			if (ch::abs(best_pos.y) < ch::abs(possible_pos.y)) best_pos.y = possible_pos.y;

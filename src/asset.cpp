@@ -12,8 +12,14 @@ bool Asset_Manager::set_to_res_path() {
 	ch::String exe_path = ch::get_app_path();
 	defer(exe_path.free());
 
+	const ssize last_slash = exe_path.find_from_right('\\');
+	if (last_slash < 0) return false;
+
+	exe_path.count = last_slash + 1;
+	exe_path.data[exe_path.count] = 0;
+
 	if (!ch::set_current_path(exe_path)) return false;
-	if (!ch::set_current_path(CH_TEXT("..\\"))) return false;
+	if (!ch::set_current_path(CH_TEXT("..\\res"))) return false;
 
 	return true;
 }

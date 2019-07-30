@@ -88,6 +88,11 @@ bool World::aabb_multi_sweep(ch::Array<Hit_Result>* out_results, ch::Vector2 sta
 		Hit_Result result;
 		if (e && e->collision_enabled && !trace_details.e_to_ignore.contains(e->id) && aabb_sweep_to_aabb(&result, start, end, size, e->get_bounds())) {
 			result.entity = e;
+
+			AABB out_bb;
+			AABB(result.impact, size).intersects(result.entity->get_bounds(), &out_bb);
+			if (!out_bb.size) continue;
+
 			out_results->push(result);
 		}
 	}

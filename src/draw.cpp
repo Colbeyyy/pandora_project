@@ -360,10 +360,8 @@ void Imm_Draw::init() {
 
 	Asset_Manager::set_to_res_path();
 
-	ch::String current_path = ch::get_current_path();
-
-	Texture::load_from_path(CH_TEXT("..\\res\\tex\\rock_tile.png"), BT_RGBA, &test);
-	Texture::load_from_path(CH_TEXT("..\\res\\tex\\character.png"), BT_RGBA, &character);
+	Texture::load_from_path(CH_TEXT("tex\\rock_tile.png"), BT_RGBA, &test);
+	Texture::load_from_path(CH_TEXT("tex\\character.png"), BT_RGBA, &character);
 
 	solid_shape_shader.bind();
 
