@@ -84,7 +84,7 @@ void Game_State::init() {
 	g_input_state.bind(&window);
 
 #if CH_PLATFORM_WINDOWS
-	wglSwapIntervalEXT(false);
+	wglSwapIntervalEXT(true);
 #endif
 	asset_manager = Asset_Manager(1024 * 1024);
 
@@ -168,28 +168,11 @@ void Game_State::draw_game() {
 	if (loaded_world) loaded_world->draw();
 
 	{
-		Imm_Draw::test.set_active();
-		Imm_Draw::image_shader.bind();
-		Imm_Draw::imm_begin();
-
-		const ch::Vector2 size = 16.f;
-
-		for (f32 x = -16.f * 50.f; x < 16.f * 50.f; x += 16.f) {
-			for (f32 y = -16.f * 3.f; y > -16.f * 7.f; y -= 16.f) {
-				const f32 x0 = x - (size.x / 2.f);
-				const f32 y0 = y - (size.y / 2.f);
-				const f32 x1 = x0 + size.x;
-				const f32 y1 = y0 + size.y;
-				Imm_Draw::imm_textured_quad(x0, y0, x1, y1, ch::white, Imm_Draw::test);
-			}
-		}
-
-		Imm_Draw::imm_flush();
+		const ch::Vector2 mouse_pos = loaded_world->current_camera->get_mouse_position_in_world();
+		Imm_Draw::draw_quad(ch::Vector2(mouse_pos), 1.f, ch::white);
 	}
 
-	{
-		Imm_Draw::draw_quad(loaded_world->current_camera->get_mouse_position_in_world(), 1.f, ch::white);
-	}
+	Imm_Draw::frame_end();
 
 	{
 		Imm_Draw::render_right_handed();
@@ -204,7 +187,7 @@ void Game_State::draw_game() {
 		// Imm_Draw::draw_string(ch::get_current_path(), 10.f, -100.f, ch::white, font);
 	}
 
-	Imm_Draw::frame_end();
+	ch::swap_buffers(window);
 }
 
 void Game_State::reset_world() {
@@ -235,6 +218,6 @@ void Game_State::reset_world() {
 		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(48.f, 0.f));
 		b->size = 16.f;
 	}
-	Player* p = loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 100.f));
+	Player* p = loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 0.f));
 	player_id = p->id;
 }

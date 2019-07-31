@@ -122,6 +122,12 @@ namespace Imm_Draw {
 	extern ch::Matrix4 view_to_projection;
 	extern ch::Matrix4 world_to_view;
 
+	extern GLuint back_buffer_fbo;
+	extern GLuint back_buffer_color;
+	extern GLuint back_buffer_depth;
+	extern u32 back_buffer_width;
+	extern u32 back_buffer_height;
+
 	extern Shader solid_shape_shader;
 	extern Shader font_shader;
 	extern Shader image_shader;

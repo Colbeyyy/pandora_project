@@ -43,7 +43,7 @@ struct Entity {
 struct Camera : public Entity {
 	using Super = Entity;
 
-	f32 orth_size = 96.f;
+	f32 orth_size = 32.f;
 
 	Camera();
 

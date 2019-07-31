@@ -188,6 +188,7 @@ uniform sampler2D ftex;
 void main() {
 	vec4 result = texture(ftex, out_uv);
 	frag_color = result * out_color;
+	
 }
 #endif
 )foo";
@@ -336,6 +337,12 @@ bool Font::load_from_path(const tchar* path, Font* out_font) {
 	return true;
 }
 
+GLuint Imm_Draw::back_buffer_fbo;
+GLuint Imm_Draw::back_buffer_color;
+GLuint Imm_Draw::back_buffer_depth;
+u32 Imm_Draw::back_buffer_width = 320;
+u32 Imm_Draw::back_buffer_height = 180;
+
 void Imm_Draw::init() {
 	assert(ch::is_gl_loaded());
 
@@ -365,6 +372,29 @@ void Imm_Draw::init() {
 
 	solid_shape_shader.bind();
 
+	glGenFramebuffers(1, &back_buffer_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, back_buffer_fbo);
+
+	glGenTextures(1, &back_buffer_color);
+	glBindTexture(GL_TEXTURE_2D, back_buffer_color);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, back_buffer_width, back_buffer_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// attach it to currently bound framebuffer object
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, back_buffer_color, 0);
+
+	glGenRenderbuffers(1, &back_buffer_depth);
+	glBindRenderbuffer(GL_RENDERBUFFER, back_buffer_depth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, back_buffer_width, back_buffer_height);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, back_buffer_depth);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) assert(false);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	render_right_handed();
 }
 
@@ -373,15 +403,70 @@ void Imm_Draw::frame_begin() {
 	verts_drawn = 0;
 	verts_culled = 0;
 
+	glBindFramebuffer(GL_FRAMEBUFFER, back_buffer_fbo);
 	const ch::Vector2 viewport_size = g_game_state.window.get_viewport_size();
-	glViewport(0, 0, viewport_size.ux, viewport_size.uy);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(ch::black);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, back_buffer_width, back_buffer_height);
 
+	render_right_handed();
 }
 
 void Imm_Draw::frame_end() {
-	ch::swap_buffers(g_game_state.window);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	Texture tex;
+	tex.id = back_buffer_color;
+
+	const ch::Vector2 viewport_size = g_game_state.window.get_viewport_size();
+	glViewport(0, 0, viewport_size.ux, viewport_size.uy);
+
+	render_right_handed();
+	world_to_view = ch::translate(0.f);
+	refresh_transform();
+
+	{
+		Imm_Draw::image_shader.bind();
+		tex.set_active();
+
+		f32 width, height;
+
+
+		const f32 back_buffer_aspect_ratio = (f32)(back_buffer_width) / (f32)(back_buffer_height);
+		const f32 viewport_aspect_ratio = (f32)(viewport_size.ux) / (f32)(viewport_size.uy);
+
+		if (viewport_aspect_ratio >= back_buffer_aspect_ratio) {
+			height = (f32)viewport_size.uy;
+
+
+			width = height * back_buffer_aspect_ratio;
+		} else {
+			width = (f32)viewport_size.ux;
+
+			const f32 ratio = (f32)(back_buffer_height) / (f32)(back_buffer_width);
+
+			height = width * ratio;
+		}
+
+		const f32 x0 = -width / 2.f;
+		const f32 y0 = height / 2.f;
+		const f32 x1 = x0 + width;
+		const f32 y1 = y0 - height;
+		const ch::Color color = ch::white;
+		Imm_Draw::imm_begin();
+		Imm_Draw::imm_vertex(x0, y0, color, ch::Vector2(0.f, 1.f), 9.f);
+		Imm_Draw::imm_vertex(x0, y1, color, ch::Vector2(0.f, 0.f), 9.f);
+		Imm_Draw::imm_vertex(x1, y0, color, ch::Vector2(1.f, 1.f), 9.f);
+
+		Imm_Draw::imm_vertex(x0, y1, color, ch::Vector2(0.f, 0.f), 9.f);
+		Imm_Draw::imm_vertex(x1, y1, color, ch::Vector2(1.f, 0.f), 9.f);
+		Imm_Draw::imm_vertex(x1, y0, color, ch::Vector2(1.f, 1.f), 9.f);
+		Imm_Draw::imm_flush();
+
+	}
 }
 
 void Imm_Draw::refresh_transform() {
@@ -414,8 +499,8 @@ void Imm_Draw::render_right_handed() {
 void Imm_Draw::render_from_pos(ch::Vector2 pos, f32 ortho_size) {
 	const ch::Vector2 viewport_size = g_game_state.window.get_viewport_size();
 	
-	const f32 width = (f32)viewport_size.ux;
-	const f32 height = (f32)viewport_size.uy;
+	const f32 width = (f32)back_buffer_width;
+	const f32 height = (f32)back_buffer_height;
 
 	const f32 aspect_ratio = width / height;
 

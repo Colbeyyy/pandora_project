@@ -21,16 +21,19 @@ Camera::Camera() : Super() {
 void Camera::tick(f32 dt) {
 	Player* player = get_world()->find_entity<Player>(g_game_state.player_id);
 
-	const f32 tx = player->position.x;
-	const f32 ty = player->position.y + 32.f;
+	if (player->position.x > position.x + 96.f) {
+		position.x = player->position.x - 96.f;
+	}
 
-	position.x = ch::interp_to(position.x, tx, dt, 5.f);
-	position.y = ch::interp_to(position.y, ty, dt, 1.f);
+	if (player->position.x < position.x - 96.f) {
+		position.x = player->position.x + 96.f;
+	}
 }
 
 void Camera::draw() {
 	Super::draw();
-	Imm_Draw::render_from_pos(position.xy, orth_size);
+	const ch::Vector2 render_pos(ch::round(position.x), ch::round(position.y));
+	Imm_Draw::render_from_pos(position.xy, ((f32)Imm_Draw::back_buffer_height / 2.f));
 }
 
 void Camera::set_to_current() {
@@ -43,7 +46,7 @@ void Camera::set_to_current() {
 
 ch::Vector2 Camera::get_mouse_position_in_world() const {
 	// @HACK(Chall): Find a better way to do this
-	Imm_Draw::render_from_pos(position.xy, orth_size);
+	Imm_Draw::render_from_pos(position.xy, (f32)Imm_Draw::back_buffer_height / 2.f);
 
 	const ch::Vector2 viewport_size = g_game_state.window.get_viewport_size();
 	const ch::Vector2 mouse_pos = g_input_state.current_mouse_position;
@@ -119,11 +122,15 @@ void Player::tick(f32 dt) {
 	}
 
 	collision_tick(dt);
+
+	get_world()->current_camera->tick(dt);
 }
 
 void Player::draw() {
 	const ch::Vector2 draw_size(16.f, 32.f);
+	const ch::Vector2 draw_pos(ch::round(position.x), ch::round(position.y));
 	Imm_Draw::draw_textured_quad(position.xy, draw_size, ch::white, Imm_Draw::character);
+
 
 	Super::draw();
 }
