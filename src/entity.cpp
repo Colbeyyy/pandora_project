@@ -21,12 +21,14 @@ Camera::Camera() : Super() {
 void Camera::tick(f32 dt) {
 	Player* player = get_world()->find_entity<Player>(g_game_state.player_id);
 
-	if (player->position.x > position.x + 96.f) {
-		position.x = player->position.x - 96.f;
+	const f32 dist = 32.f;
+
+	if (player->position.x > position.x + dist) {
+		position.x = ch::round(player->position.x - dist);
 	}
 
-	if (player->position.x < position.x - 96.f) {
-		position.x = player->position.x + 96.f;
+	if (player->position.x < position.x - dist) {
+		position.x = ch::round(player->position.x + dist);
 	}
 }
 
@@ -129,8 +131,7 @@ void Player::tick(f32 dt) {
 void Player::draw() {
 	const ch::Vector2 draw_size(16.f, 32.f);
 	const ch::Vector2 draw_pos(ch::round(position.x), ch::round(position.y));
-	Imm_Draw::draw_textured_quad(position.xy, draw_size, ch::white, Imm_Draw::character);
-
+	Imm_Draw::draw_textured_quad(draw_pos, draw_size, ch::white, Imm_Draw::character);
 
 	Super::draw();
 }

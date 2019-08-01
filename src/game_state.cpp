@@ -102,11 +102,11 @@ void Game_State::init() {
 }
 
 void Game_State::loop() {
-	f64 last_frame_time = ch::get_ms_time();
+	f64 last_frame_time = ch::get_time_in_seconds();
 	f32 dt_counter = 0.f;
 	u32 fps_count = 0;
     while (!g_input_state.exit_requested) {
-		f64 current_frame_time = ch::get_ms_time();
+		f64 current_frame_time = ch::get_time_in_seconds();
 		dt = (f32)(current_frame_time - last_frame_time);
 		last_frame_time = current_frame_time;
 
@@ -147,7 +147,7 @@ void Game_State::process_inputs() {
 
 void Game_State::tick_game(f32 dt) {
 
-	if (g_input_state.was_key_pressed('R')) {
+	if (g_input_state.was_key_pressed(CH_KEY_R)) {
 		reset_world();
 	}
 

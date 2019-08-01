@@ -1,0 +1,14 @@
+-------- TODO --------
+
+* Asset System
+
+* Audio Engine
+	- dsound?
+	- xaudio2?
+
+* Gamepad Input
+	- xinput
+
+* ECS
+
+* Level Editor
