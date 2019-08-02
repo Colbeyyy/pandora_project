@@ -14,13 +14,13 @@
 #include <windows.h>
 
 static void list_all_files() {
-	for (ch::Directory_Iterator itr; itr.can_advance(); itr.advance()) {
+	for (ch::Recursive_Directory_Iterator itr; itr.can_advance(); itr.advance()) {
 		ch::Directory_Result dr = itr.get();
 
 		ch::Date_Time last_write_time;
 		if (!ch::date_time_from_file_time(dr.last_write_time, &last_write_time)) continue;
 			   
-		ch::std_out << dr.file_name << CH_TEXT("    ") << last_write_time << ch::eol;
+		ch::std_out << itr.current_path << '\\' << dr.file_name << CH_TEXT("    ") << last_write_time << ch::eol;
 	}
 
 }
