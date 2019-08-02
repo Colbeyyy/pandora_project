@@ -107,15 +107,15 @@ void Player::tick(f32 dt) {
 
 	const f32 speed = is_sprinting ? sprint_speed : walk_speed;
 
-	if (g_input_state.is_key_down('A')) {
+	if (g_input_state.is_key_down(CH_KEY_A)) {
 		velocity.x = -speed;
 	}
 
-	if (g_input_state.is_key_down('D')) {
+	if (g_input_state.is_key_down(CH_KEY_D)) {
 		velocity.x = speed;
 	}
 
-	if (g_input_state.was_mouse_button_pressed(CH_MOUSE_LEFT)) {
+	if (g_input_state.is_mouse_button_down(CH_MOUSE_LEFT)) {
 		const Camera* current_camera = get_world()->current_camera;
 		const ch::Vector2 mouse_pos = current_camera->get_mouse_position_in_world();
 

@@ -260,9 +260,9 @@ void Texture::set_active() {
 }
 
 bool Font::load_from_os(const tchar* font_name, Font* out_font) {
-	ch::String old_path = ch::get_current_path();
+	ch::Path old_path = ch::get_current_path();
 	defer(ch::set_current_path(old_path));
-	ch::String font_path = ch::get_os_font_path();
+	ch::Path font_path = ch::get_os_font_path();
 
 	if (!ch::set_current_path(font_path)) {
 		return false;

@@ -9,10 +9,9 @@ bool Asset_Manager::load_asset(const tchar* path, ch::File_Data* fd) {
 }
 
 bool Asset_Manager::set_to_res_path() {
-	ch::String exe_path = ch::get_app_path();
-	defer(exe_path.free());
+	ch::Path exe_path = ch::get_app_path();
 
-	const ssize last_slash = exe_path.find_from_right('\\');
+	const ssize last_slash = 0;// exe_path.find_from_right('\\');
 	if (last_slash < 0) return false;
 
 	exe_path.count = last_slash + 1;

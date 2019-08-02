@@ -14,9 +14,6 @@
 #include <windows.h>
 
 static void list_all_files() {
-
-	ch::set_current_path(CH_TEXT("tex"));
-
 	for (ch::Directory_Iterator itr; itr.can_advance(); itr.advance()) {
 		ch::Directory_Result dr = itr.get();
 
@@ -84,7 +81,7 @@ void Game_State::init() {
 	g_input_state.bind(&window);
 
 #if CH_PLATFORM_WINDOWS
-	wglSwapIntervalEXT(true);
+	// wglSwapIntervalEXT(true);
 #endif
 	asset_manager = Asset_Manager(1024 * 1024);
 
@@ -146,7 +143,7 @@ void Game_State::process_inputs() {
 }
 
 void Game_State::tick_game(f32 dt) {
-
+	CH_SCOPED_TIMER(tick);
 	if (g_input_state.was_key_pressed(CH_KEY_R)) {
 		reset_world();
 	}
@@ -163,6 +160,7 @@ void Game_State::tick_game(f32 dt) {
 }
 
 void Game_State::draw_game() {
+	CH_SCOPED_TIMER(draw);
 	Imm_Draw::frame_begin();
 
 	if (loaded_world) loaded_world->draw();
