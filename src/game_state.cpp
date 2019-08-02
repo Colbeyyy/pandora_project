@@ -20,6 +20,7 @@ static void list_all_files() {
 		ch::Date_Time last_write_time;
 		if (!ch::date_time_from_file_time(dr.last_write_time, &last_write_time)) continue;
 			   
+		// if (dr.type == ch::DRT_File)
 		ch::std_out << itr.current_path << '\\' << dr.file_name << CH_TEXT("    ") << last_write_time << ch::eol;
 	}
 
