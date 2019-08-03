@@ -2,7 +2,8 @@
 layout(location = 0) in vec2 position;
 layout(location = 1) in vec4 color;
 layout(location = 2) in vec2 uv;
-layout(location = 3) in float z_index;
+layout(location = 3) in vec2 normal;
+layout(location = 4) in float z_index;
 uniform mat4 projection;
 uniform mat4 view;
 out vec4 out_color;

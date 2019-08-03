@@ -86,13 +86,12 @@ void Asset_Manager::refresh() {
 			if (ext == CH_TEXT("glsl")) {
 				for (Lookup<Shader>& it : loaded_shaders) {
 					if (ch::streq(it.key.file_name, r.file_name) && it.key.last_write_time < r.last_write_time) {
-						it.value.free();
-
 						ch::File_Data fd;
 						assert(load_asset(full_path, &fd));
 
 						Shader s;
 						if (Shader::load_from_source((const GLchar*)fd.data, &s)) {
+							it.value.free();
 							it.value = s;
 							it.key = r;
 						}
@@ -101,8 +100,6 @@ void Asset_Manager::refresh() {
 			} else if (ext == CH_TEXT("png")) {
 				for (Lookup<Texture>& it : loaded_textures) {
 					if (ch::streq(it.key.file_name, r.file_name) && it.key.last_write_time < r.last_write_time) {
-						it.value.free();
-
 						ch::File_Data fd;
 						assert(load_asset(full_path, &fd));
 
@@ -112,6 +109,7 @@ void Asset_Manager::refresh() {
 						bm.data = stbi_load_from_memory(fd.data, (int)fd.size, &bm.width, &bm.height, &bm.num_components, desired_components);
 						defer(stbi_image_free(bm.data));
 						if (bm) {
+							it.value.free();
 							it.value = Texture(bm);
 							it.key = r;
 						}

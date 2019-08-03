@@ -193,6 +193,7 @@ void Imm_Draw::imm_flush() {
 	GLuint position_loc = current_shader->position_loc;
 	GLuint color_loc = current_shader->color_loc;
 	GLuint uv_loc = current_shader->uv_loc;
+	GLuint normal_loc = current_shader->normal_loc;
 	GLuint z_index_loc = current_shader->z_index_loc;
 
 	glVertexAttribPointer(position_loc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
@@ -204,7 +205,10 @@ void Imm_Draw::imm_flush() {
 	glVertexAttribPointer(uv_loc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(ch::Vector2) + sizeof(ch::Vector4)));
 	glEnableVertexAttribArray(uv_loc);
 
-	glVertexAttribPointer(z_index_loc, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(ch::Vector2) + sizeof(ch::Vector4) + sizeof(ch::Vector2)));
+	glVertexAttribPointer(normal_loc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(ch::Vector2) + sizeof(ch::Vector4) + sizeof(ch::Vector2)));
+	glEnableVertexAttribArray(normal_loc);
+
+	glVertexAttribPointer(z_index_loc, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(ch::Vector2) + sizeof(ch::Vector4) + sizeof(ch::Vector2) + sizeof(ch::Vector2)));
 	glEnableVertexAttribArray(z_index_loc);
 
 	glDrawArrays(GL_TRIANGLES, 0, imm_vertex_count);
@@ -214,12 +218,13 @@ void Imm_Draw::imm_flush() {
 	glDisableVertexAttribArray(position_loc);
 	glDisableVertexAttribArray(color_loc);
 	glDisableVertexAttribArray(uv_loc);
+	glDisableVertexAttribArray(normal_loc);
 	glDisableVertexAttribArray(z_index_loc);
 
 	glBindVertexArray(0);
 }
 
-void Imm_Draw::imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, f32 z_index /*= 0.f*/) {
+void Imm_Draw::imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, ch::Vector2 normal, f32 z_index /*= 0.f*/) {
 	auto get_next_vertex_ptr = []() -> Vertex* {
 		return (Vertex*)&imm_vertices + imm_vertex_count;
 	};
@@ -235,6 +240,7 @@ void Imm_Draw::imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, 
 	vert->position.y = y;
 	vert->color = color;
 	vert->uv = uv;
+	vert->normal = normal;
 	vert->z_index = z_index;
 
 	imm_vertex_count += 1;
@@ -307,13 +313,13 @@ void Imm_Draw::imm_border_quad(f32 x0, f32 y0, f32 x1, f32 y1, f32 thickness, co
 }
 
 void Imm_Draw::imm_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Texture& texture) {
-	Imm_Draw::imm_vertex(x0, y0, color, ch::Vector2(0.f, 0.f), 9.f);
-	Imm_Draw::imm_vertex(x0, y1, color, ch::Vector2(0.f, 1.f), 9.f);
-	Imm_Draw::imm_vertex(x1, y0, color, ch::Vector2(1.f, 0.f), 9.f);
+	Imm_Draw::imm_vertex(x0, y0, color, ch::Vector2(0.f, 0.f), -1.f, 9.f);
+	Imm_Draw::imm_vertex(x0, y1, color, ch::Vector2(0.f, 1.f), ch::Vector2(-1.f, 1.f), 9.f);
+	Imm_Draw::imm_vertex(x1, y0, color, ch::Vector2(1.f, 0.f), ch::Vector2(1.f, -1.f), 9.f);
 
-	Imm_Draw::imm_vertex(x0, y1, color, ch::Vector2(0.f, 1.f), 9.f);
-	Imm_Draw::imm_vertex(x1, y1, color, ch::Vector2(1.f, 1.f), 9.f);
-	Imm_Draw::imm_vertex(x1, y0, color, ch::Vector2(1.f, 0.f), 9.f);
+	Imm_Draw::imm_vertex(x0, y1, color, ch::Vector2(0.f, 1.f), ch::Vector2(-1.f, 1.f), 9.f);
+	Imm_Draw::imm_vertex(x1, y1, color, ch::Vector2(1.f, 1.f), 1.f, 9.f);
+	Imm_Draw::imm_vertex(x1, y0, color, ch::Vector2(1.f, 0.f), ch::Vector2(1.f, -1.f), 9.f);
 }
 
 void Imm_Draw::imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, const Font& font) {

@@ -11,6 +11,7 @@ struct Shader {
 	GLint position_loc;
 	GLint color_loc;
 	GLint uv_loc;
+	GLint normal_loc;
 	GLint z_index_loc;
 
 	GLuint texture_loc;
