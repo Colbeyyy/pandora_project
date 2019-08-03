@@ -130,5 +130,5 @@ void World::draw() {
 }
 
 World* get_world() {
-	return g_game_state.loaded_world;
+	return Game_State::get().loaded_world;
 }

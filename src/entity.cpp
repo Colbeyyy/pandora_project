@@ -1,6 +1,7 @@
 #include "entity.h"
 #include "draw.h"
 #include "game_state.h"
+#include "input_state.h"
 #include "world.h"
 
 #include <ch_stl/time.h>
@@ -8,7 +9,7 @@
 
 void Entity::draw() {
 #if BUILD_DEBUG
-	if (collision_enabled && g_game_state.debug_collision) {
+	if (collision_enabled && Game_State::get().debug_collision) {
 		get_bounds().debug_draw();
 	}
 #endif
@@ -19,7 +20,7 @@ Camera::Camera() : Super() {
 }
 
 void Camera::tick(f32 dt) {
-	Player* player = get_world()->find_entity<Player>(g_game_state.player_id);
+	Player* player = get_world()->find_entity<Player>(Game_State::get().player_id);
 
 	const f32 dist = 32.f;
 
@@ -50,8 +51,8 @@ ch::Vector2 Camera::get_mouse_position_in_world() const {
 	// @HACK(Chall): Find a better way to do this
 	Imm_Draw::render_from_pos(position.xy, (f32)Imm_Draw::back_buffer_height / 2.f);
 
-	const ch::Vector2 viewport_size = g_game_state.window.get_viewport_size();
-	const ch::Vector2 mouse_pos = g_input_state.current_mouse_position;
+	const ch::Vector2 viewport_size = Game_State::get().window.get_viewport_size();
+	const ch::Vector2 mouse_pos = Input_State::get().current_mouse_position;
 
 	const f32 width = (f32)viewport_size.ux;
 	const f32 height = (f32)viewport_size.uy;
@@ -60,11 +61,11 @@ ch::Vector2 Camera::get_mouse_position_in_world() const {
 	const f32 y = 1.f - (2.f * mouse_pos.y) / height;
 
 	const ch::Vector4 clip_coords(x, y, -1.f, 1.f);
-	ch::Vector4 eye_coords = Imm_Draw::view_to_projection.inverse() * clip_coords;
+	ch::Vector4 eye_coords = Imm_Draw::projection.inverse() * clip_coords;
 	eye_coords.z = -1.f;
 	eye_coords.w = 0.f;
 
-	const ch::Vector4 ray_world = Imm_Draw::world_to_view.inverse() * eye_coords;
+	const ch::Vector4 ray_world = Imm_Draw::view.inverse() * eye_coords;
 	const ch::Vector2 world = ray_world.xy;
 
 	return position.xy + world;
@@ -76,7 +77,10 @@ Block::Block() : Super() {
 
 void Block::draw() {
 	const ch::Color color = ch::white;
-	Imm_Draw::draw_textured_quad(position.xy, size, color, Imm_Draw::test);
+	Texture* t = Asset_Manager::get().find_texture(CH_TEXT("rock_tile"));
+	if (t) {
+		Imm_Draw::draw_textured_quad(position.xy, size, color, *t);
+	}
 	Super::draw();
 }
 
@@ -94,7 +98,7 @@ void Player::tick(f32 dt) {
 
 	velocity.x = 0.f;
 
-	if (num_jumps < max_jumps &&  g_input_state.was_key_pressed(' ')) {
+	if (num_jumps < max_jumps &&  Input_State::get().was_key_pressed(CH_KEY_SPACE)) {
 		if (velocity.y > 0) {
 			velocity.y += jump_y_velocity;
 		} else {
@@ -103,19 +107,19 @@ void Player::tick(f32 dt) {
 		num_jumps += 1;
 	}
 
-	const bool is_sprinting = g_input_state.is_key_down(16);
+	const bool is_sprinting = Input_State::get().is_key_down(CH_KEY_SHIFT);
 
 	const f32 speed = is_sprinting ? sprint_speed : walk_speed;
 
-	if (g_input_state.is_key_down(CH_KEY_A)) {
+	if (Input_State::get().is_key_down(CH_KEY_A)) {
 		velocity.x = -speed;
 	}
 
-	if (g_input_state.is_key_down(CH_KEY_D)) {
+	if (Input_State::get().is_key_down(CH_KEY_D)) {
 		velocity.x = speed;
 	}
 
-	if (g_input_state.is_mouse_button_down(CH_MOUSE_LEFT)) {
+	if (Input_State::get().is_mouse_button_down(CH_MOUSE_LEFT)) {
 		const Camera* current_camera = get_world()->current_camera;
 		const ch::Vector2 mouse_pos = current_camera->get_mouse_position_in_world();
 
@@ -131,7 +135,10 @@ void Player::tick(f32 dt) {
 void Player::draw() {
 	const ch::Vector2 draw_size(16.f, 32.f);
 	const ch::Vector2 draw_pos(ch::round(position.x), ch::round(position.y));
-	Imm_Draw::draw_textured_quad(draw_pos, draw_size, ch::white, Imm_Draw::character);
+	Texture* t = Asset_Manager::get().find_texture(CH_TEXT("character"));
+	if (t) {
+		Imm_Draw::draw_textured_quad(draw_pos, draw_size, ch::white, *t);
+	}
 
 	Super::draw();
 }
