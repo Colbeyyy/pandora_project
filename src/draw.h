@@ -47,7 +47,7 @@ namespace Imm_Draw {
 	void imm_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, f32 z_index = 9.f);
 
 	CH_FORCEINLINE void draw_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, f32 z_index = 9.f) {
-		Shader* shader = Asset_Manager::get().find_shader(CH_TEXT("solid_shape"));
+		Shader* shader = asset_manager.find_shader(CH_TEXT("solid_shape"));
 		assert(shader);
 		shader->bind();
 		refresh_transform();
@@ -67,7 +67,7 @@ namespace Imm_Draw {
 	void imm_border_quad(f32 x0, f32 y0, f32 x1, f32 y1, f32 thickness, const ch::Color& color, f32 z_index = 9.f);
 
 	CH_FORCEINLINE void draw_border_quad(f32 x0, f32 y0, f32 x1, f32 y1, f32 thickness, const ch::Color& color, f32 z_index = 9.f) {
-		Shader* shader = Asset_Manager::get().find_shader(CH_TEXT("solid_shape"));
+		Shader* shader = asset_manager.find_shader(CH_TEXT("solid_shape"));
 		assert(shader);
 		shader->bind();
 		refresh_transform();
@@ -87,7 +87,7 @@ namespace Imm_Draw {
 	void imm_line(ch::Vector2 start, ch::Vector2 end, f32 thickness, const ch::Color& color, f32 z_index = 9.f);
 
 	CH_FORCEINLINE void draw_line(ch::Vector2 start, ch::Vector2 end, f32 thickness, const ch::Color& color, f32 z_index = 9.f) {
-		Shader* shader = Asset_Manager::get().find_shader(CH_TEXT("solid_shape"));
+		Shader* shader = asset_manager.find_shader(CH_TEXT("solid_shape"));
 		assert(shader);
 		shader->bind();
 		refresh_transform();
@@ -99,7 +99,7 @@ namespace Imm_Draw {
 	void imm_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Texture& texture);
 
 	CH_FORCEINLINE void draw_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, Texture& texture) {
-		Shader* shader = Asset_Manager::get().find_shader(CH_TEXT("image"));
+		Shader* shader = asset_manager.find_shader(CH_TEXT("image"));
 		assert(shader);
 		shader->bind();
 		refresh_transform();
@@ -121,7 +121,7 @@ namespace Imm_Draw {
 	void imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, const Font& font);
 
 	CH_FORCEINLINE void draw_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, Font& font) {
-		Shader* shader = Asset_Manager::get().find_shader(CH_TEXT("font"));
+		Shader* shader = asset_manager.find_shader(CH_TEXT("font"));
 		assert(shader);
 		shader->bind();
 		refresh_transform();
@@ -133,7 +133,7 @@ namespace Imm_Draw {
 	Font_Glyph imm_char(tchar c, f32 x, f32 y, const ch::Color& color, const Font& font);
 
 	CH_FORCEINLINE void draw_char(tchar c, f32 x, f32 y, const ch::Color& color, Font& font) {
-		Shader* shader = Asset_Manager::get().find_shader(CH_TEXT("font"));
+		Shader* shader = asset_manager.find_shader(CH_TEXT("font"));
 		assert(shader);
 		shader->bind();
 		refresh_transform();
@@ -145,7 +145,7 @@ namespace Imm_Draw {
 	ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font);
 
 	CH_FORCEINLINE ch::Vector2 draw_string(const tchar* str, f32 x, f32 y, const ch::Color& color, Font& font) {
-		Shader* shader = Asset_Manager::get().find_shader(CH_TEXT("font"));
+		Shader* shader = asset_manager.find_shader(CH_TEXT("font"));
 		assert(shader);
 		shader->bind();
 		refresh_transform();
@@ -160,7 +160,7 @@ namespace Imm_Draw {
 	void imm_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Font& font);
 
 	CH_FORCEINLINE void draw_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, Font& font) {
-		Shader* shader = Asset_Manager::get().find_shader(CH_TEXT("font"));
+		Shader* shader = asset_manager.find_shader(CH_TEXT("font"));
 		assert(shader);
 		shader->bind();
 		refresh_transform();

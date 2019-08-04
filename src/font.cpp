@@ -17,7 +17,7 @@ bool Font::load_from_os(const tchar* font_name, Font* out_font) {
 bool Font::load_from_path(const tchar* path, Font* out_font) {
 
 	ch::File_Data fd;
-	if (!Asset_Manager::get().load_asset(path, &fd)) return false;
+	if (!asset_manager.load_asset(path, &fd)) return false;
 
 	Font result;
 

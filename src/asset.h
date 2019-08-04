@@ -30,6 +30,6 @@ struct Asset_Manager {
 	Shader* find_shader(u32 id);
 
 	Texture* find_texture(const tchar* name);
-
-	static Asset_Manager& get();
 };
+
+extern Asset_Manager asset_manager;

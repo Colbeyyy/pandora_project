@@ -69,7 +69,7 @@ void Imm_Draw::frame_begin() {
 	verts_culled = 0;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, back_buffer_fbo);
-	const ch::Vector2 viewport_size = Game_State::get().window.get_viewport_size();
+	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
 	glClearColor(ch::black);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, back_buffer_width, back_buffer_height);
@@ -86,7 +86,7 @@ void Imm_Draw::frame_end() {
 	Texture tex;
 	tex.id = back_buffer_color;
 
-	const ch::Vector2 viewport_size = Game_State::get().window.get_viewport_size();
+	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
 	glViewport(0, 0, viewport_size.ux, viewport_size.uy);
 
 	render_right_handed();
@@ -94,7 +94,7 @@ void Imm_Draw::frame_end() {
 	refresh_transform();
 
 	{
-		Shader* s = Asset_Manager::get().find_shader(CH_TEXT("back_buffer"));
+		Shader* s = asset_manager.find_shader(CH_TEXT("back_buffer"));
 		s->bind();
 		tex.set_active();
 		refresh_transform();
@@ -122,7 +122,7 @@ void Imm_Draw::frame_end() {
 }
 
 void Imm_Draw::refresh_transform() {
-	const Shader* current_shader = Asset_Manager::get().find_shader(Shader::bound_shader);
+	const Shader* current_shader = asset_manager.find_shader(Shader::bound_shader);
 	if (!current_shader) return;
 
 	glUniformMatrix4fv(current_shader->view_loc, 1, GL_FALSE, view.elems);
@@ -130,7 +130,7 @@ void Imm_Draw::refresh_transform() {
 }
 
 void Imm_Draw::render_right_handed() {
-	const ch::Vector2 viewport_size = Game_State::get().window.get_viewport_size();
+	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
 
 	const f32 width = (f32)viewport_size.ux;
 	const f32 height = (f32)viewport_size.uy;
@@ -149,7 +149,7 @@ void Imm_Draw::render_right_handed() {
 }
 
 void Imm_Draw::render_from_pos(ch::Vector2 pos, f32 ortho_size) {
-	const ch::Vector2 viewport_size = Game_State::get().window.get_viewport_size();
+	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
 	
 	const f32 width = (f32)back_buffer_width;
 	const f32 height = (f32)back_buffer_height;
@@ -170,7 +170,7 @@ void Imm_Draw::imm_begin() {
 }
 
 void Imm_Draw::imm_flush() {
-	const Shader* current_shader = Asset_Manager::get().find_shader(Shader::bound_shader);
+	const Shader* current_shader = asset_manager.find_shader(Shader::bound_shader);
 
 	assert(current_shader);
 
@@ -213,7 +213,7 @@ void Imm_Draw::imm_flush() {
 }
 
 ch::Vector2 Imm_Draw::get_back_buffer_draw_size() {
-	const ch::Vector2 viewport_size = Game_State::get().window.get_viewport_size();
+	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
 	f32 width, height;
 	const f32 back_buffer_aspect_ratio = (f32)(back_buffer_width) / (f32)(back_buffer_height);
 	const f32 viewport_aspect_ratio = (f32)(viewport_size.ux) / (f32)(viewport_size.uy);

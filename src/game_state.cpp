@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 
-static Game_State g_game_state;
+Game_State game_state;
 
 const tchar* window_title = CH_TEXT("pandora_project");
 
@@ -26,18 +26,18 @@ void Game_State::init() {
     assert(ch::make_current(window));
 
     window.on_sizing = [](const ch::Window& window) {
-        g_game_state.draw_game();
+        game_state.draw_game();
     };
 
     window.set_visibility(true);
 
-	Input_State::bind(&window);
+	input_state.bind(&window);
 
 #if CH_PLATFORM_WINDOWS
 	wglSwapIntervalEXT(false);
 #endif
 
-	Asset_Manager::get().init();
+	asset_manager.init();
 
 	Imm_Draw::init();
 
@@ -57,31 +57,37 @@ void Game_State::init() {
 void Game_State::loop() {
 	f64 last_frame_time = ch::get_time_in_seconds();
 
-    while (!Input_State::get().exit_requested) {
+    while (!input_state.exit_requested) {
 		f64 current_frame_time = ch::get_time_in_seconds();
 		dt = (f32)(current_frame_time - last_frame_time);
 		last_frame_time = current_frame_time;
 
-		Input_State::process_input();
+		process_input();
         tick_game(dt);
         draw_game();
 
-		ch::Scoped_Timer_Manager::get().reset();
-		Asset_Manager::get().refresh();
+		ch::scoped_timer_manager.reset();
+		asset_manager.refresh();
 		ch::reset_arena_allocator(&ch::context_allocator);
     }
 }
 
 void Game_State::shut_down() { }
 
+void Game_State::process_input() {
+	input_state.reset();
+	ch::poll_events();
+	input_state.process_input();
+}
+
 void Game_State::tick_game(f32 dt) {
 	CH_SCOPED_TIMER(tick_game);
 
-	if (Input_State::get().was_key_pressed(CH_KEY_R)) {
+	if (input_state.was_key_pressed(CH_KEY_R)) {
 		reset_world();
 	}
 
-	if (Input_State::get().was_key_pressed(CH_KEY_F1)) {
+	if (input_state.was_key_pressed(CH_KEY_F1)) {
 		debug_collision = !debug_collision;
 	}
 
@@ -110,7 +116,7 @@ void Game_State::draw_game() {
 
 		y -= size.y + FONT_SIZE;
 
-		for (const ch::Scoped_Timer& it : ch::Scoped_Timer_Manager::get().entries) {
+		for (const ch::Scoped_Timer& it : ch::scoped_timer_manager.entries) {
 			const f64 gap = it.get_gap();
 
 			sprintf(debug_text, CH_TEXT("%s : %f"), it.name, gap);
@@ -154,8 +160,4 @@ void Game_State::reset_world() {
 	}
 	Player* p = loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 0.f));
 	player_id = p->id;
-}
-
-Game_State& Game_State::get() {
-	return g_game_state;
 }

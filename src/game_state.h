@@ -26,10 +26,11 @@ struct Game_State {
     void loop();
     void shut_down();
 
+	void process_input();
     void tick_game(f32 dt);
     void draw_game();
 
 	void reset_world();
-
-	static Game_State& get();
 };
+
+extern Game_State game_state;

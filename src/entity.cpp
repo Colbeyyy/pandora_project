@@ -9,7 +9,7 @@
 
 void Entity::draw() {
 #if BUILD_DEBUG
-	if (collision_enabled && Game_State::get().debug_collision) {
+	if (collision_enabled && game_state.debug_collision) {
 		get_bounds().debug_draw();
 	}
 #endif
@@ -20,7 +20,7 @@ Camera::Camera() : Super() {
 }
 
 void Camera::tick(f32 dt) {
-	Player* player = get_world()->find_entity<Player>(Game_State::get().player_id);
+	Player* player = get_world()->find_entity<Player>(game_state.player_id);
 
 	const f32 dist = 32.f;
 
@@ -52,8 +52,8 @@ ch::Vector2 Camera::get_mouse_position_in_world() const {
 	Imm_Draw::render_from_pos(position.xy, (f32)Imm_Draw::back_buffer_height / 2.f);
 
 	const ch::Vector2 back_buffer_size = Imm_Draw::get_back_buffer_draw_size();
-	const ch::Vector2 viewport_size = Game_State::get().window.get_viewport_size();
-	ch::Vector2 mouse_pos = Input_State::get().current_mouse_position;
+	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
+	ch::Vector2 mouse_pos = input_state.current_mouse_position;
 
 	const f32 width = back_buffer_size.x;
 	const f32 height = back_buffer_size.y;
@@ -84,7 +84,7 @@ Block::Block() : Super() {
 
 void Block::draw() {
 	const ch::Color color = ch::white;
-	Texture* t = Asset_Manager::get().find_texture(CH_TEXT("rock_tile"));
+	Texture* t = asset_manager.find_texture(CH_TEXT("rock_tile"));
 	if (t) {
 		Imm_Draw::draw_textured_quad(position.xy, size, color, *t);
 	}
@@ -105,7 +105,7 @@ void Player::tick(f32 dt) {
 
 	velocity.x = 0.f;
 
-	if (num_jumps < max_jumps &&  Input_State::get().was_key_pressed(CH_KEY_SPACE)) {
+	if (num_jumps < max_jumps &&  input_state.was_key_pressed(CH_KEY_SPACE)) {
 		if (velocity.y > 0) {
 			velocity.y += jump_y_velocity;
 		} else {
@@ -114,19 +114,19 @@ void Player::tick(f32 dt) {
 		num_jumps += 1;
 	}
 
-	const bool is_sprinting = Input_State::get().is_key_down(CH_KEY_SHIFT);
+	const bool is_sprinting = input_state.is_key_down(CH_KEY_SHIFT);
 
 	const f32 speed = is_sprinting ? sprint_speed : walk_speed;
 
-	if (Input_State::get().is_key_down(CH_KEY_A)) {
+	if (input_state.is_key_down(CH_KEY_A)) {
 		velocity.x = -speed;
 	}
 
-	if (Input_State::get().is_key_down(CH_KEY_D)) {
+	if (input_state.is_key_down(CH_KEY_D)) {
 		velocity.x = speed;
 	}
 
-	if (Input_State::get().is_mouse_button_down(CH_MOUSE_LEFT)) {
+	if (input_state.is_mouse_button_down(CH_MOUSE_LEFT)) {
 		const Camera* current_camera = get_world()->current_camera;
 		const ch::Vector2 mouse_pos = current_camera->get_mouse_position_in_world();
 
@@ -142,7 +142,7 @@ void Player::tick(f32 dt) {
 void Player::draw() {
 	const ch::Vector2 draw_size(16.f, 32.f);
 	const ch::Vector2 draw_pos(ch::round(position.x), ch::round(position.y));
-	Texture* t = Asset_Manager::get().find_texture(CH_TEXT("character"));
+	Texture* t = asset_manager.find_texture(CH_TEXT("character"));
 	if (t) {
 		Imm_Draw::draw_textured_quad(draw_pos, draw_size, ch::white, *t);
 	}

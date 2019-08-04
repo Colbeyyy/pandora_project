@@ -23,7 +23,8 @@ struct Input_State {
 	CH_FORCEINLINE bool is_mouse_button_down(u8 mouse_button) const { return mb_down[mouse_button]; }
 	CH_FORCEINLINE bool was_mouse_button_pressed(u8 mouse_button) const { return mb_pressed[mouse_button]; }
 
-	static const Input_State& get();
-	static void process_input();
-	static void bind(ch::Window* window);
+	void process_input();
+	void bind(ch::Window* window);
 };
+
+extern Input_State input_state;

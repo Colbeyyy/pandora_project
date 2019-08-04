@@ -7,7 +7,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
-static Asset_Manager g_asset_manager;
+Asset_Manager asset_manager;
 
 static bool set_to_res_path() {
 	ch::Path exe_path = ch::get_app_path();
@@ -157,8 +157,4 @@ Texture* Asset_Manager::find_texture(const tchar* name) {
 	}
 
 	return nullptr;
-}
-
-Asset_Manager& Asset_Manager::get() {
-	return g_asset_manager;
 }
