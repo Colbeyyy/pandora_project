@@ -5,15 +5,13 @@
 #include <stb/stb_truetype.h>
 
 bool Font::load_from_os(const tchar* font_name, Font* out_font) {
-	ch::Path old_path = ch::get_current_path();
-	defer(ch::set_current_path(old_path));
 	ch::Path font_path = ch::get_os_font_path();
-
 	if (!ch::set_current_path(font_path)) {
 		return false;
 	}
 
-	return load_from_path(font_name, out_font);
+	font_path.append(font_name);
+	return load_from_path(font_path, out_font);
 }
 
 bool Font::load_from_path(const tchar* path, Font* out_font) {

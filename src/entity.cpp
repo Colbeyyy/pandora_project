@@ -51,11 +51,18 @@ ch::Vector2 Camera::get_mouse_position_in_world() const {
 	// @HACK(Chall): Find a better way to do this
 	Imm_Draw::render_from_pos(position.xy, (f32)Imm_Draw::back_buffer_height / 2.f);
 
+	const ch::Vector2 back_buffer_size = Imm_Draw::get_back_buffer_draw_size();
 	const ch::Vector2 viewport_size = Game_State::get().window.get_viewport_size();
-	const ch::Vector2 mouse_pos = Input_State::get().current_mouse_position;
+	ch::Vector2 mouse_pos = Input_State::get().current_mouse_position;
 
-	const f32 width = (f32)viewport_size.ux;
-	const f32 height = (f32)viewport_size.uy;
+	const f32 width = back_buffer_size.x;
+	const f32 height = back_buffer_size.y;
+
+	const f32 offset_x = (f32)viewport_size.ux - width;
+	const f32 offset_y = (f32)viewport_size.uy - height;
+
+	mouse_pos.x -= offset_x / 2.f;
+	mouse_pos.y -= offset_y / 2.f;
 
 	const f32 x = (2.f * mouse_pos.x) / width - 1.f;
 	const f32 y = 1.f - (2.f * mouse_pos.y) / height;

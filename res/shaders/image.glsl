@@ -21,7 +21,7 @@ void main() {
 #endif
 
 #ifdef FRAGMENT
-const float ambient_strength = 0.5;
+const float ambient_strength = 0.1;
 const vec3 light_color = vec3(1);
 const vec2 light_pos = vec2(0, 0);
 
@@ -37,8 +37,8 @@ void main() {
 	vec4 tex_color = texture(ftex, out_uv);
 
 	float constant = 1.0;
-	float linear = 0.09;
-	float quadratic = 0.032;
+	float linear = 0.009;
+	float quadratic = 0.00032;
 
 	float distance = length(light_pos - out_position);
 	float attenuation = 1.0 / (constant + linear * distance + quadratic * (distance * distance));
@@ -51,11 +51,3 @@ void main() {
 	frag_color = vec4(result, 1) * tex_color;
 }
 #endif
-
-/*
-Fragment shader failed to compile with the following errors:
-ERROR: 2:52: error(#143) Undeclared identifier: light_dir
-ERROR: 2:52: error(#202) No matching overloaded function found: dot
-ERROR: error(#273) 2 compilation errors.  No code generated
-
-*/

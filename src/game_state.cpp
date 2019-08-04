@@ -10,6 +10,8 @@
 #include <ch_stl/time.h>
 #include <ch_stl/input.h>
 
+#include <stdio.h>
+
 static Game_State g_game_state;
 
 const tchar* window_title = CH_TEXT("pandora_project");
@@ -45,7 +47,11 @@ void Game_State::init() {
 	loaded_world = ch_new World;
 	reset_world();
 
-	Font::load_from_os(CH_TEXT("consola.ttf"), &font);
+	ch::Array<f32> foo(ch::get_heap_allocator());
+	foo.reserve(3);
+	foo.reserve(7);
+
+	assert(Font::load_from_os(CH_TEXT("comic.ttf"), &font));
 }
 
 void Game_State::loop() {
@@ -60,6 +66,7 @@ void Game_State::loop() {
         tick_game(dt);
         draw_game();
 
+		ch::Scoped_Timer_Manager::get().reset();
 		Asset_Manager::get().refresh();
 		ch::reset_arena_allocator(&ch::context_allocator);
     }
@@ -68,6 +75,8 @@ void Game_State::loop() {
 void Game_State::shut_down() { }
 
 void Game_State::tick_game(f32 dt) {
+	CH_SCOPED_TIMER(tick_game);
+
 	if (Input_State::get().was_key_pressed(CH_KEY_R)) {
 		reset_world();
 	}
@@ -80,16 +89,37 @@ void Game_State::tick_game(f32 dt) {
 }
 
 void Game_State::draw_game() {
-	Imm_Draw::frame_begin();
-
-	if (loaded_world) loaded_world->draw();
-
 	{
-		const ch::Vector2 mouse_pos = loaded_world->current_camera->get_mouse_position_in_world();
-		Imm_Draw::draw_quad(ch::Vector2(mouse_pos), 1.f, ch::white);
+		CH_SCOPED_TIMER(draw_game);
+		Imm_Draw::frame_begin();
+		if (loaded_world) loaded_world->draw();
+		Imm_Draw::frame_end();
 	}
 
-	Imm_Draw::frame_end();
+	{
+		Imm_Draw::render_right_handed();
+		const ch::Arena_Allocator_Header* temp_header = ch::context_allocator.get_header<ch::Arena_Allocator_Header>();
+
+		tchar debug_text[4096];
+		sprintf(debug_text, CH_TEXT("FPS: %i\nTemp Usage: %llu\nEntity Count: %llu"), (s32)ch::round(1.f / dt), temp_header->current, loaded_world->entities.count);
+		f32 x = 10.f;
+		f32 y = -20.f;
+
+		Imm_Draw::draw_string(debug_text, x + 2, y - 2, ch::black, font);
+		ch::Vector2 size = Imm_Draw::draw_string(debug_text, x, y, ch::white, font);
+
+		y -= size.y + FONT_SIZE;
+
+		for (const ch::Scoped_Timer& it : ch::Scoped_Timer_Manager::get().entries) {
+			const f64 gap = it.get_gap();
+
+			sprintf(debug_text, CH_TEXT("%s : %f"), it.name, gap);
+			Imm_Draw::draw_string(debug_text, x + 2, y - 2, ch::black, font);
+			size = Imm_Draw::draw_string(debug_text, x, y, ch::white, font);
+
+			y -= FONT_SIZE;
+		}
+	}
 
 	ch::swap_buffers(window);
 }

@@ -38,6 +38,8 @@ namespace Imm_Draw {
 	void imm_begin();
 	void imm_flush();
 
+	ch::Vector2 get_back_buffer_draw_size();
+
 	void imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, ch::Vector2 normal = 0.f, f32 z_index = 9.f);
 	CH_FORCEINLINE void imm_vertex(ch::Vector2 xy, const ch::Color& color, ch::Vector2 uv, ch::Vector2 normal = 0.f, f32 z_index = 9.f) {
 		imm_vertex(xy.x, xy.y, color, uv, normal, z_index);
@@ -142,15 +144,17 @@ namespace Imm_Draw {
 
 	ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font);
 
-	CH_FORCEINLINE void draw_string(const tchar* str, f32 x, f32 y, const ch::Color& color, Font& font) {
+	CH_FORCEINLINE ch::Vector2 draw_string(const tchar* str, f32 x, f32 y, const ch::Color& color, Font& font) {
 		Shader* shader = Asset_Manager::get().find_shader(CH_TEXT("font"));
 		assert(shader);
 		shader->bind();
 		refresh_transform();
 		font.bind();
 		Imm_Draw::imm_begin();
-		Imm_Draw::imm_string(str, x, y, color, font);
+		const ch::Vector2 result = Imm_Draw::imm_string(str, x, y, color, font);
 		Imm_Draw::imm_flush();
+
+		return result;
 	}
 
 	void imm_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Font& font);

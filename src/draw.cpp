@@ -99,21 +99,9 @@ void Imm_Draw::frame_end() {
 		tex.set_active();
 		refresh_transform();
 
-		f32 width, height;
-
-
-		const f32 back_buffer_aspect_ratio = (f32)(back_buffer_width) / (f32)(back_buffer_height);
-		const f32 viewport_aspect_ratio = (f32)(viewport_size.ux) / (f32)(viewport_size.uy);
-
-		if (viewport_aspect_ratio >= back_buffer_aspect_ratio) {
-			height = (f32)viewport_size.uy;
-			width = height * back_buffer_aspect_ratio;
-		} else {
-			const f32 ratio = (f32)(back_buffer_height) / (f32)(back_buffer_width);
-			
-			width = (f32)viewport_size.ux;
-			height = width * ratio;
-		}
+		ch::Vector2 draw_size = get_back_buffer_draw_size();
+		const f32 width = draw_size.x;
+		const f32 height = draw_size.y;
 
 		const f32 x0 = -width / 2.f;
 		const f32 y0 = height / 2.f;
@@ -222,6 +210,25 @@ void Imm_Draw::imm_flush() {
 	glDisableVertexAttribArray(z_index_loc);
 
 	glBindVertexArray(0);
+}
+
+ch::Vector2 Imm_Draw::get_back_buffer_draw_size() {
+	const ch::Vector2 viewport_size = Game_State::get().window.get_viewport_size();
+	f32 width, height;
+	const f32 back_buffer_aspect_ratio = (f32)(back_buffer_width) / (f32)(back_buffer_height);
+	const f32 viewport_aspect_ratio = (f32)(viewport_size.ux) / (f32)(viewport_size.uy);
+
+	if (viewport_aspect_ratio >= back_buffer_aspect_ratio) {
+		height = (f32)viewport_size.uy;
+		width = height * back_buffer_aspect_ratio;
+	}
+	else {
+		const f32 ratio = (f32)(back_buffer_height) / (f32)(back_buffer_width);
+		width = (f32)viewport_size.ux;
+		height = width * ratio;
+	}
+
+	return ch::Vector2(width, height);
 }
 
 void Imm_Draw::imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, ch::Vector2 normal, f32 z_index /*= 0.f*/) {
@@ -380,8 +387,8 @@ ch::Vector2 Imm_Draw::imm_string(const tchar* str, f32 x, f32 y, const ch::Color
 
 		x += glyph.advance;
 
-		if (x - original_x > largest_x) largest_x = x - original_x;
-		if (y - original_y > largest_y) largest_y = x - original_y;
+		if (ch::abs(x - original_x) > ch::abs(largest_x)) largest_x = x - original_x;
+		if (ch::abs(y - original_y) > ch::abs(largest_y)) largest_y = x - original_y;
 	}
 
 	return ch::Vector2(largest_x, largest_y);

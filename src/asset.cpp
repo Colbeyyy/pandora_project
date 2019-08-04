@@ -2,6 +2,8 @@
 #include "shader.h"
 #include "texture.h"
 
+#include <ch_stl/time.h>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
@@ -22,7 +24,7 @@ static bool set_to_res_path() {
 void Asset_Manager::init() {
 	assert(ch::is_gl_loaded());
 
-	const usize amount = 1024 * 1024 * 16;
+	const usize amount = 1024 * 1024 * 128;
 	allocator = ch::make_arena_allocator(amount);
 
 	loaded_shaders.allocator = ch::get_heap_allocator();
@@ -41,7 +43,7 @@ void Asset_Manager::init() {
 			const ch::String ext = full_path.get_extension();
 
 			ch::File_Data fd;
-			assert(load_asset(full_path, &fd));
+			load_asset(full_path, &fd);
 			if (ext == CH_TEXT("glsl")) {
 				Shader s;
 				if (Shader::load_from_source((const GLchar*)fd.data, &s)) {
@@ -72,6 +74,7 @@ void Asset_Manager::init() {
 }
 
 void Asset_Manager::refresh() {
+	CH_SCOPED_TIMER(asset_manager_refresh);
 	set_to_res_path();
 
 	for (ch::Recursive_Directory_Iterator itr; itr.can_advance(); itr.advance()) {
