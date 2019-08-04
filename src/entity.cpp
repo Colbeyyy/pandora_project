@@ -132,6 +132,7 @@ void Player::tick(f32 dt) {
 
 		Block* bobby_b = get_world()->spawn_entity<Block>(mouse_pos);
 		bobby_b->size = 16.f;
+		bobby_b->collision_enabled = false;
 	}
 
 	collision_tick(dt);

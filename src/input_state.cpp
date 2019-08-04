@@ -16,7 +16,7 @@ void Input_State::process_input() {
 	}
 }
 void Input_State::bind(ch::Window* window) {
-	window = window;
+	this->window = window;
 
 	window->on_exit_requested = [](const ch::Window& window) {
 		input_state.exit_requested = true;
