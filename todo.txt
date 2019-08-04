@@ -15,3 +15,5 @@
 
 * Render Engine
 	- Batch Tile Renderer
+	- Spritesheet
+	- Sprite batch rendering

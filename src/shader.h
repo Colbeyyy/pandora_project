@@ -28,3 +28,5 @@ struct Shader {
 		return Shader::bound_shader == program_id;
 	}
 };
+
+Shader* get_default_shader();

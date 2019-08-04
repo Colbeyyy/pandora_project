@@ -145,7 +145,7 @@ Shader* Asset_Manager::find_shader(u32 id) {
 		}
 	}
 
-	return nullptr;
+	return get_default_shader();
 }
 
 Texture* Asset_Manager::find_texture(const tchar* name) {

@@ -3,6 +3,7 @@
 #include "game_state.h"
 #include "input_state.h"
 #include "world.h"
+#include "tile_renderer.h"
 
 #include <ch_stl/time.h>
 #include <ch_stl/input.h>
@@ -83,11 +84,7 @@ Block::Block() : Super() {
 }
 
 void Block::draw() {
-	const ch::Color color = ch::white;
-	Texture* t = asset_manager.find_texture(CH_TEXT("rock_tile"));
-	if (t) {
-		Imm_Draw::draw_textured_quad(position.xy, size, color, *t);
-	}
+	tile_renderer.push_tile(position.xy, size);
 	Super::draw();
 }
 

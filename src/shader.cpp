@@ -1,6 +1,33 @@
 #include "shader.h"
 
 GLuint Shader::bound_shader;
+Shader default_shader;
+
+const GLchar* default_shader_source = R"R(
+#ifdef VERTEX
+layout(location = 0) in vec2 position;
+layout(location = 1) in vec4 color;
+layout(location = 2) in vec2 uv;
+layout(location = 3) in vec2 normal;
+layout(location = 4) in float z_index;
+uniform mat4 projection;
+uniform mat4 view;
+out vec4 out_color;
+void main() {
+    gl_Position =  projection * view * vec4(position, -z_index, 1.0);
+	out_color = color;
+}
+#endif
+
+#ifdef FRAGMENT
+out vec4 frag_color;
+in vec4 out_color;
+uniform sampler2D ftex;
+void main() {
+	frag_color = out_color;
+}
+#endif
+)R";
 
 bool Shader::load_from_source(const GLchar* source, Shader* out_shader) {
 	Shader result;
@@ -79,4 +106,12 @@ void Shader::bind() {
 void Shader::unbind() {
 	glUseProgram(0);
 	Shader::bound_shader = 0;
+}
+
+Shader* get_default_shader() {
+	if (!default_shader) {
+		assert(Shader::load_from_source(default_shader_source, &default_shader));
+	}
+	
+	return &default_shader;
 }

@@ -1,7 +1,7 @@
 #include "draw.h"
 #include "game_state.h"
 
-const usize max_verts = 3 * 1024;
+const usize max_verts = 128 * 1024;
 
 u32 draw_calls = 0;
 u32 verts_drawn = 0;

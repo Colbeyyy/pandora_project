@@ -3,6 +3,7 @@
 #include "collision.h"
 #include "world.h"
 #include "input_state.h"
+#include "tile_renderer.h"
 
 #include <ch_stl/window.h>
 #include <ch_stl/opengl.h>
@@ -91,6 +92,10 @@ void Game_State::tick_game(f32 dt) {
 		debug_collision = !debug_collision;
 	}
 
+	if (input_state.was_key_pressed(CH_KEY_F2)) {
+		debug_performance = !debug_performance;
+	}
+
 	if (loaded_world) loaded_world->tick(dt);
 }
 
@@ -99,9 +104,11 @@ void Game_State::draw_game() {
 		CH_SCOPED_TIMER(draw_game);
 		Imm_Draw::frame_begin();
 		if (loaded_world) loaded_world->draw();
+		tile_renderer.flush();
 		Imm_Draw::frame_end();
 	}
 
+	if (debug_performance)
 	{
 		Imm_Draw::render_right_handed();
 		const ch::Arena_Allocator_Header* temp_header = ch::context_allocator.get_header<ch::Arena_Allocator_Header>();

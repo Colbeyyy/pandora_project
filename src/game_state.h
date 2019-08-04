@@ -19,6 +19,7 @@ struct Game_State {
 	struct Font font;
 
 	bool debug_collision = false;
+	bool debug_performance = false;
 	f32 dt;
 	u32 fps;
 
