@@ -94,8 +94,8 @@ void Imm_Draw::frame_end() {
 	refresh_transform();
 
 	{
-		Shader* image_shader = Asset_Manager::get().find_shader(CH_TEXT("image"));
-		image_shader->bind();
+		Shader* s = Asset_Manager::get().find_shader(CH_TEXT("back_buffer"));
+		s->bind();
 		tex.set_active();
 		refresh_transform();
 
@@ -313,13 +313,13 @@ void Imm_Draw::imm_border_quad(f32 x0, f32 y0, f32 x1, f32 y1, f32 thickness, co
 }
 
 void Imm_Draw::imm_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Texture& texture) {
-	Imm_Draw::imm_vertex(x0, y0, color, ch::Vector2(0.f, 0.f), -1.f, 9.f);
+	Imm_Draw::imm_vertex(x0, y0, color, ch::Vector2(0.f, 0.f), ch::Vector2(-1.f, 1.f), 9.f);
 	Imm_Draw::imm_vertex(x0, y1, color, ch::Vector2(0.f, 1.f), ch::Vector2(-1.f, 1.f), 9.f);
-	Imm_Draw::imm_vertex(x1, y0, color, ch::Vector2(1.f, 0.f), ch::Vector2(1.f, -1.f), 9.f);
+	Imm_Draw::imm_vertex(x1, y0, color, ch::Vector2(1.f, 0.f), ch::Vector2(1.f, 1.f), 9.f);
 
 	Imm_Draw::imm_vertex(x0, y1, color, ch::Vector2(0.f, 1.f), ch::Vector2(-1.f, 1.f), 9.f);
 	Imm_Draw::imm_vertex(x1, y1, color, ch::Vector2(1.f, 1.f), 1.f, 9.f);
-	Imm_Draw::imm_vertex(x1, y0, color, ch::Vector2(1.f, 0.f), ch::Vector2(1.f, -1.f), 9.f);
+	Imm_Draw::imm_vertex(x1, y0, color, ch::Vector2(1.f, 0.f), ch::Vector2(1.f, 1.f), 9.f);
 }
 
 void Imm_Draw::imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, const Font& font) {

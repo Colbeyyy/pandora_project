@@ -87,7 +87,7 @@ void Asset_Manager::refresh() {
 				for (Lookup<Shader>& it : loaded_shaders) {
 					if (ch::streq(it.key.file_name, r.file_name) && it.key.last_write_time < r.last_write_time) {
 						ch::File_Data fd;
-						assert(load_asset(full_path, &fd));
+						if (!load_asset(full_path, &fd)) continue;
 
 						Shader s;
 						if (Shader::load_from_source((const GLchar*)fd.data, &s)) {
@@ -101,7 +101,7 @@ void Asset_Manager::refresh() {
 				for (Lookup<Texture>& it : loaded_textures) {
 					if (ch::streq(it.key.file_name, r.file_name) && it.key.last_write_time < r.last_write_time) {
 						ch::File_Data fd;
-						assert(load_asset(full_path, &fd));
+						if (!load_asset(full_path, &fd)) continue;
 
 						const s32 desired_components = (s32)BT_RGBA;
 						stbi_set_flip_vertically_on_load(true);
