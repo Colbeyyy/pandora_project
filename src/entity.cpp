@@ -35,9 +35,10 @@ void Camera::tick(f32 dt) {
 }
 
 void Camera::draw() {
-	Super::draw();
 	const ch::Vector2 render_pos(ch::round(position.x), ch::round(position.y));
 	Imm_Draw::render_from_pos(position.xy, ((f32)Imm_Draw::back_buffer_height / 2.f));
+
+	Super::draw();
 }
 
 void Camera::set_to_current() {

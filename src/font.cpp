@@ -6,16 +6,11 @@
 
 bool Font::load_from_os(const tchar* font_name, Font* out_font) {
 	ch::Path font_path = ch::get_os_font_path();
-	if (!ch::set_current_path(font_path)) {
-		return false;
-	}
-
 	font_path.append(font_name);
 	return load_from_path(font_path, out_font);
 }
 
 bool Font::load_from_path(const tchar* path, Font* out_font) {
-
 	ch::File_Data fd;
 	if (!asset_manager.load_asset(path, &fd)) return false;
 

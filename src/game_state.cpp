@@ -100,11 +100,12 @@ void Game_State::tick_game(f32 dt) {
 }
 
 void Game_State::draw_game() {
+	u32 culled = 0;
 	{
 		CH_SCOPED_TIMER(draw_game);
 		Imm_Draw::frame_begin();
 		if (loaded_world) loaded_world->draw();
-		tile_renderer.flush();
+		culled = tile_renderer.flush();
 		Imm_Draw::frame_end();
 	}
 
@@ -132,6 +133,10 @@ void Game_State::draw_game() {
 
 			y -= FONT_SIZE;
 		}
+
+		sprintf(debug_text, CH_TEXT("Tiles Culled: %lu"), culled);
+		Imm_Draw::draw_string(debug_text, x + 2, y - 2, ch::black, font);
+		size = Imm_Draw::draw_string(debug_text, x, y, ch::white, font);
 	}
 
 	ch::swap_buffers(window);

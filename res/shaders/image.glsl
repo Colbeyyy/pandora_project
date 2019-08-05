@@ -10,8 +10,15 @@ out vec2 out_position;
 out vec4 out_color;
 out vec2 out_uv;
 out vec2 out_normal;
+
+vec2 round(vec2 v) {
+	v.x = floor(v.x + 0.5);
+	v.y = floor(v.y + 0.5);
+	return v;
+}
+
 void main() {
-    gl_Position =  projection * view * vec4(position, -z_index, 1.0);
+    gl_Position =  projection * view * vec4(round(position), -z_index, 1.0);
 
 	out_position = position;
 	out_color = color;

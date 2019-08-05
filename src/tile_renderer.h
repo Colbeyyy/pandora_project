@@ -13,7 +13,7 @@ struct Tile_Renderer {
 	Tile_Renderer();
 
 	void push_tile(ch::Vector2 position, ch::Vector2 size);
-	void flush();
+	u32 flush();
 };
 
 extern Tile_Renderer tile_renderer;
