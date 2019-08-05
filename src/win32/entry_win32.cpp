@@ -2,7 +2,7 @@
 
 #include "../game_state.h"
 
-int WinMain(HINSTANCE, HINSTANCE, LPTSTR, int) {
+int main() {
     game_state.init();
     game_state.loop();
     game_state.shut_down();

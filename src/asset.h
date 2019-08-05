@@ -3,10 +3,11 @@
 #include <ch_stl/allocator.h>
 #include <ch_stl/array.h>
 #include <ch_stl/filesystem.h>
+#include <ch_stl/hash_table.h>
 
 template <typename T>
 struct Lookup {
-	ch::Directory_Result key;
+	ch::Directory_Result fd;
 	T value;
 };
 
@@ -15,8 +16,8 @@ struct Texture;
 
 struct Asset_Manager {
 	ch::Allocator allocator;
-	ch::Array<Lookup<Shader>> loaded_shaders;
-	ch::Array<Lookup<Texture>> loaded_textures;
+	ch::Hash_Table<ch::String, Lookup<Shader>> loaded_shaders;
+	ch::Hash_Table<ch::String, Lookup<Texture>> loaded_textures;
 
 	Asset_Manager() = default;
 

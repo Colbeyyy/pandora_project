@@ -10,12 +10,49 @@
 #include <ch_stl/filesystem.h>
 #include <ch_stl/time.h>
 #include <ch_stl/input.h>
+#include <ch_stl/hash_table.h>
 
 #include <stdio.h>
 
 Game_State game_state;
 
 const tchar* window_title = CH_TEXT("pandora_project");
+
+static void hash_table_test() {
+	ch::Hash_Table<ch::String, usize> foo;
+
+	foo.push(ch::String(CH_TEXT("hello world")), 123123);
+	foo.push(ch::String(CH_TEXT(" world")), 2342123122343);
+	foo.push(ch::String(CH_TEXT("he world")), 3241234);
+	foo.push(ch::String(CH_TEXT("hello")), 0x123123);
+	foo.push(ch::String(CH_TEXT("hel2342")), 123423123);
+
+	{
+		CH_SCOPED_TIMER(first)
+		usize* find = foo.find(ch::String(CH_TEXT("hel2342")));
+		if (find) {
+			ch::std_out << *find << ch::eol;
+		}
+	}
+
+	ch::Array<usize> bar;
+
+	bar.push(123123);
+	bar.push(2342123122343);
+	bar.push(3241234);
+	bar.push(0x123123);
+	bar.push(123423123);
+
+	{
+		CH_SCOPED_TIMER(second)
+		ssize index = bar.find(123423123);
+		if (index > -1) {
+			ch::std_out << bar[index] << ch::eol;
+		}
+	}
+
+	ch::std_out << "END" << ch::eol;
+}
 
 void Game_State::init() {
     assert(ch::load_gl());
@@ -25,6 +62,8 @@ void Game_State::init() {
         assert(ch::create_gl_window(window_title, width, height, 0, &window));
     }
     assert(ch::make_current(window));
+
+	hash_table_test();
 
     window.on_sizing = [](const ch::Window& window) {
         game_state.draw_game();

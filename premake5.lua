@@ -23,7 +23,7 @@ project "pandora_project"
     cppdialect "C++17"
     systemversion "latest"
     architecture "x64"
-    kind "WindowedApp"
+    kind "ConsoleApp"
 
 
 	defines
