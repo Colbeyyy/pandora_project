@@ -27,9 +27,9 @@ void Asset_Manager::init() {
 	const usize amount = 1024 * 1024 * 128;
 	allocator = ch::make_arena_allocator(amount);
 
-	loaded_shaders = ch::Hash_Table<ch::String, Lookup<Shader>>(ch::get_heap_allocator());
-	loaded_textures = ch::Hash_Table<ch::String, Lookup<Texture>>(ch::get_heap_allocator());
-	   
+	loaded_shaders.allocator = ch::get_heap_allocator();
+	loaded_textures.allocator = ch::get_heap_allocator();
+
 	set_to_res_path();
 
 	for (ch::Recursive_Directory_Iterator itr; itr.can_advance(); itr.advance()) {
@@ -48,11 +48,12 @@ void Asset_Manager::init() {
 				Shader s;
 				if (Shader::load_from_source((const GLchar*)fd.data, &s)) {
 					Lookup<Shader> p;
-					p.fd = r;
+					p.key = r;
 					p.value = s;
-					loaded_shaders.push(full_path.get_filename().copy(ch::get_heap_allocator()), p);
+					loaded_shaders.push(p);
 				}
-			} else if (ext == CH_TEXT("png")) {
+			}
+			else if (ext == CH_TEXT("png")) {
 				const s32 desired_components = (s32)BT_RGBA;
 
 				stbi_set_flip_vertically_on_load(true);
@@ -64,9 +65,9 @@ void Asset_Manager::init() {
 					Texture t(bm);
 
 					Lookup<Texture> p;
-					p.fd = r;
+					p.key = r;
 					p.value = t;
-					loaded_textures.push(full_path.get_filename().copy(ch::get_heap_allocator()), p);
+					loaded_textures.push(p);
 				}
 			}
 		}
@@ -87,34 +88,36 @@ void Asset_Manager::refresh() {
 			const ch::String ext = full_path.get_extension();
 
 			if (ext == CH_TEXT("glsl")) {
-				Lookup<Shader>* ls = loaded_shaders.find(full_path.get_filename().copy(allocator));
-				if (ls && ls->fd.last_write_time < r.last_write_time) {
-					ch::File_Data fd;
-					if (!load_asset(full_path, &fd)) continue;
+				for (Lookup<Shader>& it : loaded_shaders) {
+					if (ch::streq(it.key.file_name, r.file_name) && it.key.last_write_time < r.last_write_time) {
+						ch::File_Data fd;
+						if (!load_asset(full_path, &fd)) continue;
 
-					Shader s;
-					if (Shader::load_from_source((const GLchar*)fd.data, &s)) {
-						ls->value.free();
-						ls->value = s;
-						ls->fd = r;
+						Shader s;
+						if (Shader::load_from_source((const GLchar*)fd.data, &s)) {
+							it.value.free();
+							it.value = s;
+							it.key = r;
+						}
 					}
 				}
-			} else if (ext == CH_TEXT("png")) {
-				Lookup<Texture>* lt = loaded_textures.find(full_path.get_filename().copy(allocator));
+			}
+			else if (ext == CH_TEXT("png")) {
+				for (Lookup<Texture>& it : loaded_textures) {
+					if (ch::streq(it.key.file_name, r.file_name) && it.key.last_write_time < r.last_write_time) {
+						ch::File_Data fd;
+						if (!load_asset(full_path, &fd)) continue;
 
-				if (lt && lt->fd.last_write_time < r.last_write_time) {
-					ch::File_Data fd;
-					if (!load_asset(full_path, &fd)) continue;
-
-					const s32 desired_components = (s32)BT_RGBA;
-					stbi_set_flip_vertically_on_load(true);
-					Bitmap bm;
-					bm.data = stbi_load_from_memory(fd.data, (int)fd.size, &bm.width, &bm.height, &bm.num_components, desired_components);
-					defer(stbi_image_free(bm.data));
-					if (bm) {
-						lt->value.free();
-						lt->value = Texture(bm);
-						lt->fd = r;
+						const s32 desired_components = (s32)BT_RGBA;
+						stbi_set_flip_vertically_on_load(true);
+						Bitmap bm;
+						bm.data = stbi_load_from_memory(fd.data, (int)fd.size, &bm.width, &bm.height, &bm.num_components, desired_components);
+						defer(stbi_image_free(bm.data));
+						if (bm) {
+							it.value.free();
+							it.value = Texture(bm);
+							it.key = r;
+						}
 					}
 				}
 			}
@@ -127,21 +130,33 @@ bool Asset_Manager::load_asset(const tchar* path, ch::File_Data* fd) {
 }
 
 Shader* Asset_Manager::find_shader(const tchar* name) {
-	ch::String search(name);
-	defer(search.free());
-	Lookup<Shader>* r = loaded_shaders.find(search);
-	if (r) return &r->value;
-	return get_default_shader();
+	for (Lookup<Shader>& it : loaded_shaders) {
+		ch::Path fn = it.key.file_name;
+		if (fn.get_filename() == name) {
+			return &it.value;
+		}
+	}
+
+	return nullptr;
 }
 
 Shader* Asset_Manager::find_shader(u32 id) {
+	for (Lookup<Shader>& it : loaded_shaders) {
+		if (it.value.program_id == id) {
+			return &it.value;
+		}
+	}
+
 	return get_default_shader();
 }
 
 Texture* Asset_Manager::find_texture(const tchar* name) {
-	ch::String search(name);
-	defer(search.free());
-	Lookup<Texture>* r = loaded_textures.find(search);
-	if (r) return &r->value;
+	for (Lookup<Texture>& it : loaded_textures) {
+		ch::Path fn = it.key.file_name;
+		if (fn.get_filename() == name) {
+			return &it.value;
+		}
+	}
+
 	return nullptr;
 }
