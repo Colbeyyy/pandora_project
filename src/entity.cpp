@@ -36,7 +36,7 @@ void Camera::tick(f32 dt) {
 
 void Camera::draw() {
 	const ch::Vector2 render_pos(ch::round(position.x), ch::round(position.y));
-	Imm_Draw::render_from_pos(position.xy, ((f32)Imm_Draw::back_buffer_height / 2.f));
+	render_from_pos(position.xy, ((f32)back_buffer_height / 2.f));
 
 	Super::draw();
 }
@@ -51,9 +51,9 @@ void Camera::set_to_current() {
 
 ch::Vector2 Camera::get_mouse_position_in_world() const {
 	// @HACK(Chall): Find a better way to do this
-	Imm_Draw::render_from_pos(position.xy, (f32)Imm_Draw::back_buffer_height / 2.f);
+	render_from_pos(position.xy, (f32)back_buffer_height / 2.f);
 
-	const ch::Vector2 back_buffer_size = Imm_Draw::get_back_buffer_draw_size();
+	const ch::Vector2 back_buffer_size = get_back_buffer_draw_size();
 	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
 	ch::Vector2 mouse_pos = input_state.current_mouse_position;
 
@@ -70,11 +70,11 @@ ch::Vector2 Camera::get_mouse_position_in_world() const {
 	const f32 y = 1.f - (2.f * mouse_pos.y) / height;
 
 	const ch::Vector4 clip_coords(x, y, -1.f, 1.f);
-	ch::Vector4 eye_coords = Imm_Draw::projection.inverse() * clip_coords;
+	ch::Vector4 eye_coords = projection.inverse() * clip_coords;
 	eye_coords.z = -1.f;
 	eye_coords.w = 0.f;
 
-	const ch::Vector4 ray_world = Imm_Draw::view.inverse() * eye_coords;
+	const ch::Vector4 ray_world = view.inverse() * eye_coords;
 	const ch::Vector2 world = ray_world.xy;
 
 	return position.xy + world;
@@ -143,7 +143,7 @@ void Player::draw() {
 	const ch::Vector2 draw_pos(ch::round(position.x), ch::round(position.y));
 	Texture* t = asset_manager.find_texture(CH_TEXT("character"));
 	if (t) {
-		Imm_Draw::draw_textured_quad(draw_pos, draw_size, ch::white, *t);
+		draw_textured_quad(draw_pos, draw_size, ch::white, *t);
 	}
 
 	Super::draw();

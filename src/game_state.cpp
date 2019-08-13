@@ -41,7 +41,7 @@ void Game_State::init() {
 
 	asset_manager.init();
 
-	Imm_Draw::init();
+	draw_init();
 
 	ch::Allocator temp_allocator = ch::make_arena_allocator(1024 * 1024);
 	ch::context_allocator = temp_allocator;
@@ -104,15 +104,15 @@ void Game_State::draw_game() {
 	u32 culled = 0;
 	{
 		CH_SCOPED_TIMER(draw_game);
-		Imm_Draw::frame_begin();
+		frame_begin();
 		if (loaded_world) loaded_world->draw();
 		culled = tile_renderer.flush();
-		Imm_Draw::frame_end();
+		frame_end();
 	}
 
 	if (debug_performance)
 	{
-		Imm_Draw::render_right_handed();
+		render_right_handed();
 		const ch::Arena_Allocator_Header* temp_header = ch::context_allocator.get_header<ch::Arena_Allocator_Header>();
 
 		tchar debug_text[4096];
@@ -120,8 +120,8 @@ void Game_State::draw_game() {
 		f32 x = 10.f;
 		f32 y = -20.f;
 
-		Imm_Draw::draw_string(debug_text, x + 2, y - 2, ch::black, font);
-		ch::Vector2 size = Imm_Draw::draw_string(debug_text, x, y, ch::white, font);
+		draw_string(debug_text, x + 2, y - 2, ch::black, font);
+		ch::Vector2 size = draw_string(debug_text, x, y, ch::white, font);
 
 		y -= size.y + FONT_SIZE;
 
@@ -129,15 +129,15 @@ void Game_State::draw_game() {
 			const f64 gap = it.get_gap();
 
 			sprintf(debug_text, CH_TEXT("%s : %f"), it.name, gap);
-			Imm_Draw::draw_string(debug_text, x + 2, y - 2, ch::black, font);
-			size = Imm_Draw::draw_string(debug_text, x, y, ch::white, font);
+			draw_string(debug_text, x + 2, y - 2, ch::black, font);
+			size = draw_string(debug_text, x, y, ch::white, font);
 
 			y -= FONT_SIZE;
 		}
 
 		sprintf(debug_text, CH_TEXT("Tiles Culled: %lu"), culled);
-		Imm_Draw::draw_string(debug_text, x + 2, y - 2, ch::black, font);
-		size = Imm_Draw::draw_string(debug_text, x, y, ch::white, font);
+		draw_string(debug_text, x + 2, y - 2, ch::black, font);
+		size = draw_string(debug_text, x, y, ch::white, font);
 	}
 
 	ch::swap_buffers(window);

@@ -29,12 +29,12 @@ u32 Tile_Renderer::flush() {
 	Texture* t = asset_manager.find_texture(CH_TEXT("rock_tile"));
 	t->set_active();
 	Camera* c = game_state.loaded_world->current_camera;
-	const ch::Vector2 draw_size = Imm_Draw::get_back_buffer_draw_size() / 4.f;
+	const ch::Vector2 draw_size = get_back_buffer_draw_size() / 4.f;
 	AABB render_bounds(c->position.xy, draw_size);
 	
 	u32 culled = 0;
 
-	Imm_Draw::imm_begin();
+	imm_begin();
 	for (const Render_Command& it : commands) {
 		AABB bounds(it.position, it.size);
 		if (!bounds.intersects(render_bounds)) {
@@ -46,9 +46,9 @@ u32 Tile_Renderer::flush() {
 		const f32 y0 = it.position.y - (it.size.y / 2.f);
 		const f32 x1 = x0 + it.size.x;
 		const f32 y1 = y0 + it.size.y;
-		Imm_Draw::imm_textured_quad(x0, y0, x1, y1, ch::white, *t);
+		imm_textured_quad(x0, y0, x1, y1, ch::white, *t);
 	}
-	Imm_Draw::imm_flush();
+	imm_flush();
 	commands.count = 0;
 
 	return culled;
