@@ -19,6 +19,9 @@ enum Texture_Type {
 struct Texture {
 	GLuint id;
 
+	u32 width;
+	u32 height;
+
 	Texture() = default;
 	Texture(const Bitmap& bm);
 
@@ -39,4 +42,14 @@ struct Texture {
 	CH_FORCEINLINE bool is_active() const {
 		return Texture::active_texture == this;
 	}
+};
+
+struct Sprite {
+	Texture* atlas;
+
+	u32 width;
+	u32 height;
+
+	u32 x;
+	u32 y;
 };

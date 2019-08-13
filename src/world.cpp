@@ -1,5 +1,6 @@
 #include "world.h"
 #include "game_state.h"
+#include "tile_renderer.h"
 
 #include <ch_stl/allocator.h>
 
@@ -127,6 +128,22 @@ void World::draw() {
 			e->draw();
 		}
 	}
+
+	tile_renderer.flush();
+
+	const ch::Vector2 mouse_pos = current_camera->get_mouse_position_in_world();
+	Texture* t = asset_manager.find_texture(CH_TEXT("test_tilesheet"));
+	Sprite s;
+	s.atlas = t;
+	s.width = 16;
+	s.height = 16;
+	s.x = 1;
+	s.y = 0;
+
+	ch::Color color = ch::white;
+	color.a = 0.5f;
+
+	draw_sprite(mouse_pos, 16.f, color, s);
 }
 
 World* get_world() {

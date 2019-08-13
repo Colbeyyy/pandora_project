@@ -61,6 +61,8 @@ struct Block : public Entity {
 
 	Block();
 
+	u8 index = 0;
+
 	virtual void draw() override;
 
 };

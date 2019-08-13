@@ -15,8 +15,8 @@ struct Texture;
 
 struct Asset_Manager {
 	ch::Allocator allocator;
-	ch::Array<Lookup<Shader>> loaded_shaders;
-	ch::Array<Lookup<Texture>> loaded_textures;
+	ch::Array<Lookup<Shader*>> loaded_shaders;
+	ch::Array<Lookup<Texture*>> loaded_textures;
 
 	Asset_Manager() = default;
 

@@ -106,7 +106,6 @@ void Game_State::draw_game() {
 		CH_SCOPED_TIMER(draw_game);
 		frame_begin();
 		if (loaded_world) loaded_world->draw();
-		culled = tile_renderer.flush();
 		frame_end();
 	}
 

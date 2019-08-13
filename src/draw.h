@@ -95,9 +95,9 @@ CH_FORCEINLINE void draw_line(ch::Vector2 start, ch::Vector2 end, f32 thickness,
 	imm_flush();
 }
 
-void imm_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Texture& texture);
+void imm_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Texture& texture, f32 z_index = 9.f);
 
-CH_FORCEINLINE void draw_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, Texture& texture) {
+CH_FORCEINLINE void draw_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, Texture& texture, f32 z_index = 9.f) {
 	Shader* shader = asset_manager.find_shader(CH_TEXT("image"));
 	assert(shader);
 	shader->bind();
@@ -105,66 +105,85 @@ CH_FORCEINLINE void draw_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch:
 	texture.set_active();
 
 	imm_begin();
-	imm_textured_quad(x0, y0, x1, y1, color, texture);
+	imm_textured_quad(x0, y0, x1, y1, color, texture, z_index);
 	imm_flush();
 }
 
-CH_FORCEINLINE void draw_textured_quad(ch::Vector2 pos, ch::Vector2 size, const ch::Color& color, Texture& texture) {
+CH_FORCEINLINE void draw_textured_quad(ch::Vector2 pos, ch::Vector2 size, const ch::Color& color, Texture& texture, f32 z_index = 9.f) {
 	const f32 x0 = pos.x - (size.x / 2.f);
 	const f32 y0 = pos.y - (size.y / 2.f);
 	const f32 x1 = x0 + size.x;
 	const f32 y1 = y0 + size.y;
-	draw_textured_quad(x0, y0, x1, y1, color, texture);
+	draw_textured_quad(x0, y0, x1, y1, color, texture, z_index);
 }
 
-void imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, const Font& font);
+void imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index = 9.f);
 
-CH_FORCEINLINE void draw_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, Font& font) {
+CH_FORCEINLINE void draw_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, Font& font, f32 z_index = 9.f) {
 	Shader* shader = asset_manager.find_shader(CH_TEXT("font"));
 	assert(shader);
 	shader->bind();
 	refresh_transform();
 	imm_begin();
-	imm_glyph(glyph, x, y, color, font);
+	imm_glyph(glyph, x, y, color, font, z_index);
 	imm_flush();
 }
 
-Font_Glyph imm_char(tchar c, f32 x, f32 y, const ch::Color& color, const Font& font);
+Font_Glyph imm_char(tchar c, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index = 9.f);
 
-CH_FORCEINLINE void draw_char(tchar c, f32 x, f32 y, const ch::Color& color, Font& font) {
+CH_FORCEINLINE void draw_char(tchar c, f32 x, f32 y, const ch::Color& color, Font& font, f32 z_index = 9.f) {
 	Shader* shader = asset_manager.find_shader(CH_TEXT("font"));
 	assert(shader);
 	shader->bind();
 	refresh_transform();
 	imm_begin();
-	imm_char(c, x, y, color, font);
+	imm_char(c, x, y, color, font, z_index);
 	imm_flush();
 }
 
-ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font);
+ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index = 9.f);
 
-CH_FORCEINLINE ch::Vector2 draw_string(const tchar* str, f32 x, f32 y, const ch::Color& color, Font& font) {
+CH_FORCEINLINE ch::Vector2 draw_string(const tchar* str, f32 x, f32 y, const ch::Color& color, Font& font, f32 z_index = 9.f) {
 	Shader* shader = asset_manager.find_shader(CH_TEXT("font"));
 	assert(shader);
 	shader->bind();
 	refresh_transform();
 	font.bind();
 	imm_begin();
-	const ch::Vector2 result = imm_string(str, x, y, color, font);
+	const ch::Vector2 result = imm_string(str, x, y, color, font, z_index);
 	imm_flush();
 
 	return result;
 }
 
-void imm_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Font& font);
+void imm_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Font& font, f32 z_index = 9.f);
 
-CH_FORCEINLINE void draw_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, Font& font) {
+CH_FORCEINLINE void draw_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, Font& font, f32 z_index = 9.f) {
 	Shader* shader = asset_manager.find_shader(CH_TEXT("font"));
 	assert(shader);
 	shader->bind();
 	refresh_transform();
 	font.bind();
 	imm_begin();
-	imm_font_atlas(x0, y0, x1, y1, color, font);
+	imm_font_atlas(x0, y0, x1, y1, color, font, z_index);
 	imm_flush();
+}
+
+void imm_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sprite& sprite, f32 z_index = 9.f);
+CH_FORCEINLINE void draw_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sprite& sprite, f32 z_index = 9.f) {
+	Shader* shader = asset_manager.find_shader(CH_TEXT("image"));
+	assert(shader);
+	shader->bind();
+	sprite.atlas->set_active();
+	refresh_transform();
+	imm_begin();
+	imm_sprite(x0, y0, x1, y1, color, sprite, z_index);
+	imm_flush();
+}
+CH_FORCEINLINE void draw_sprite(ch::Vector2 pos, ch::Vector2 size, const ch::Color& color, const Sprite& sprite, f32 z_index = 9.f) {
+	const f32 x0 = pos.x - (size.x / 2.f);
+	const f32 y0 = pos.y - (size.y / 2.f);
+	const f32 x1 = x0 + size.x;
+	const f32 y1 = y0 + size.y;
+	draw_sprite(x0, y0, x1, y1, color, sprite, z_index);
 }

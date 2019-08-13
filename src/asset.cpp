@@ -45,9 +45,9 @@ void Asset_Manager::init() {
 			ch::File_Data fd;
 			load_asset(full_path, &fd);
 			if (ext == CH_TEXT("glsl")) {
-				Shader s;
-				if (Shader::load_from_source((const GLchar*)fd.data, &s)) {
-					Lookup<Shader> p;
+				Shader* s = ch_new Shader;
+				if (Shader::load_from_source((const GLchar*)fd.data, s)) {
+					Lookup<Shader*> p;
 					p.key = r;
 					p.value = s;
 					loaded_shaders.push(p);
@@ -62,9 +62,9 @@ void Asset_Manager::init() {
 				bm.data = stbi_load_from_memory(fd.data, (int)fd.size, &bm.width, &bm.height, &bm.num_components, desired_components);
 				defer(stbi_image_free(bm.data));
 				if (bm) {
-					Texture t(bm);
+					Texture* t = ch_new Texture(bm);
 
-					Lookup<Texture> p;
+					Lookup<Texture*> p;
 					p.key = r;
 					p.value = t;
 					loaded_textures.push(p);
@@ -88,22 +88,22 @@ void Asset_Manager::refresh() {
 			const ch::String ext = full_path.get_extension();
 
 			if (ext == CH_TEXT("glsl")) {
-				for (Lookup<Shader>& it : loaded_shaders) {
+				for (Lookup<Shader*>& it : loaded_shaders) {
 					if (ch::streq(it.key.file_name, r.file_name) && it.key.last_write_time < r.last_write_time) {
 						ch::File_Data fd;
 						if (!load_asset(full_path, &fd)) continue;
 
 						Shader s;
 						if (Shader::load_from_source((const GLchar*)fd.data, &s)) {
-							it.value.free();
-							it.value = s;
+							it.value->free();
+							*it.value = s;
 							it.key = r;
 						}
 					}
 				}
 			}
 			else if (ext == CH_TEXT("png")) {
-				for (Lookup<Texture>& it : loaded_textures) {
+				for (Lookup<Texture*>& it : loaded_textures) {
 					if (ch::streq(it.key.file_name, r.file_name) && it.key.last_write_time < r.last_write_time) {
 						ch::File_Data fd;
 						if (!load_asset(full_path, &fd)) continue;
@@ -114,8 +114,8 @@ void Asset_Manager::refresh() {
 						bm.data = stbi_load_from_memory(fd.data, (int)fd.size, &bm.width, &bm.height, &bm.num_components, desired_components);
 						defer(stbi_image_free(bm.data));
 						if (bm) {
-							it.value.free();
-							it.value = Texture(bm);
+							it.value->free();
+							*it.value = Texture(bm);
 							it.key = r;
 						}
 					}
@@ -130,10 +130,10 @@ bool Asset_Manager::load_asset(const tchar* path, ch::File_Data* fd) {
 }
 
 Shader* Asset_Manager::find_shader(const tchar* name) {
-	for (Lookup<Shader>& it : loaded_shaders) {
+	for (Lookup<Shader*>& it : loaded_shaders) {
 		ch::Path fn = it.key.file_name;
 		if (fn.get_filename() == name) {
-			return &it.value;
+			return it.value;
 		}
 	}
 
@@ -141,9 +141,9 @@ Shader* Asset_Manager::find_shader(const tchar* name) {
 }
 
 Shader* Asset_Manager::find_shader(u32 id) {
-	for (Lookup<Shader>& it : loaded_shaders) {
-		if (it.value.program_id == id) {
-			return &it.value;
+	for (Lookup<Shader*>& it : loaded_shaders) {
+		if (it.value->program_id == id) {
+			return it.value;
 		}
 	}
 
@@ -151,10 +151,10 @@ Shader* Asset_Manager::find_shader(u32 id) {
 }
 
 Texture* Asset_Manager::find_texture(const tchar* name) {
-	for (Lookup<Texture>& it : loaded_textures) {
+	for (Lookup<Texture*>& it : loaded_textures) {
 		ch::Path fn = it.key.file_name;
 		if (fn.get_filename() == name) {
-			return &it.value;
+			return it.value;
 		}
 	}
 

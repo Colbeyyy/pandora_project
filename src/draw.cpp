@@ -319,17 +319,17 @@ void imm_border_quad(f32 x0, f32 y0, f32 x1, f32 y1, f32 thickness, const ch::Co
 	}
 }
 
-void imm_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Texture& texture) {
-	imm_vertex(x0, y0, color, ch::Vector2(0.f, 0.f), ch::Vector2(-1.f, 1.f), 9.f);
-	imm_vertex(x0, y1, color, ch::Vector2(0.f, 1.f), ch::Vector2(-1.f, 1.f), 9.f);
-	imm_vertex(x1, y0, color, ch::Vector2(1.f, 0.f), ch::Vector2(1.f, 1.f), 9.f);
+void imm_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Texture& texture, f32 z_index) {
+	imm_vertex(x0, y0, color, ch::Vector2(0.f, 0.f), ch::Vector2(-1.f, 1.f), z_index);
+	imm_vertex(x0, y1, color, ch::Vector2(0.f, 1.f), ch::Vector2(-1.f, 1.f), z_index);
+	imm_vertex(x1, y0, color, ch::Vector2(1.f, 0.f), ch::Vector2(1.f, 1.f), z_index);
 
-	imm_vertex(x0, y1, color, ch::Vector2(0.f, 1.f), ch::Vector2(-1.f, 1.f), 9.f);
+	imm_vertex(x0, y1, color, ch::Vector2(0.f, 1.f), ch::Vector2(-1.f, 1.f), z_index);
 	imm_vertex(x1, y1, color, ch::Vector2(1.f, 1.f), 1.f, 9.f);
-	imm_vertex(x1, y0, color, ch::Vector2(1.f, 0.f), ch::Vector2(1.f, 1.f), 9.f);
+	imm_vertex(x1, y0, color, ch::Vector2(1.f, 0.f), ch::Vector2(1.f, 1.f), z_index);
 }
 
-void imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, const Font& font) {
+void imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index) {
 	const f32 x0 = x + glyph.bearing_x;
 	const f32 y0 = y - glyph.bearing_y;
 	const f32 x1 = x0 + glyph.width;
@@ -340,24 +340,24 @@ void imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, co
 	const ch::Vector2 top_right = ch::Vector2(glyph.x1 / (f32)FONT_ATLAS_DIMENSION, glyph.y1 / (f32)FONT_ATLAS_DIMENSION);
 	const ch::Vector2 top_left = ch::Vector2(glyph.x0 / (f32)FONT_ATLAS_DIMENSION, glyph.y1 / (f32)FONT_ATLAS_DIMENSION);
 
-	imm_vertex(x0, y0, color, bottom_left);
-	imm_vertex(x0, y1, color, top_left);
-	imm_vertex(x1, y0, color, bottom_right);
+	imm_vertex(x0, y0, color, bottom_left, 0.f, z_index);
+	imm_vertex(x0, y1, color, top_left, 0.f, z_index);
+	imm_vertex(x1, y0, color, bottom_right, 0.f, z_index);
 
-	imm_vertex(x0, y1, color, top_left);
-	imm_vertex(x1, y1, color, top_right);
-	imm_vertex(x1, y0, color, bottom_right);
+	imm_vertex(x0, y1, color, top_left, 0.f, z_index);
+	imm_vertex(x1, y1, color, top_right, 0.f, z_index);
+	imm_vertex(x1, y0, color, bottom_right, 0.f, z_index);
 }
 
-Font_Glyph imm_char(tchar c, f32 x, f32 y, const ch::Color& color, const Font& font) {
+Font_Glyph imm_char(tchar c, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index) {
 	const Font_Glyph g = font[c];
 
-	imm_glyph(g, x, y, color, font);
+	imm_glyph(g, x, y, color, font, z_index);
 
 	return g;
 }
 
-ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font) {
+ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index) {
 	const f32 font_height = FONT_SIZE;
 
 	const f32 original_x = x;
@@ -383,7 +383,7 @@ ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, c
 
 		Font_Glyph& glyph = font[str[i]];
 
-		imm_glyph(glyph, x, y, color, font);
+		imm_glyph(glyph, x, y, color, font, z_index);
 
 		x += glyph.advance;
 
@@ -394,6 +394,31 @@ ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, c
 	return ch::Vector2(largest_x, largest_y);
 }
 
-void imm_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Font& font) {
-	imm_textured_quad(x0, y0, x1, y1, color, font.atlas_texture);
+void imm_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Font& font, f32 z_index) {
+	imm_textured_quad(x0, y0, x1, y1, color, font.atlas_texture, z_index);
+}
+
+void imm_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sprite& sprite, f32 z_index) {
+	assert(sprite.atlas);
+
+	const f32 atlas_w = (f32)sprite.atlas->width;
+	const f32 atlas_h = (f32)sprite.atlas->height;
+
+	const f32 atlas_x0 = sprite.x * sprite.width;
+	const f32 atlas_y0 = sprite.y * sprite.height;
+	const f32 atlas_x1 = atlas_x0 + sprite.width;
+	const f32 atlas_y1 = atlas_y0 + sprite.height;
+
+	const ch::Vector2 bottom_right = ch::Vector2(atlas_x1 / atlas_w, atlas_y0 / atlas_h);
+	const ch::Vector2 bottom_left = ch::Vector2(atlas_x0 / atlas_w, atlas_y0 / atlas_h);
+	const ch::Vector2 top_right = ch::Vector2(atlas_x1 / atlas_w, atlas_y1 / atlas_h);
+	const ch::Vector2 top_left = ch::Vector2(atlas_x0 / atlas_w, atlas_y1 / atlas_h);
+
+	imm_vertex(x0, y0, color, bottom_left, 0.f, z_index);
+	imm_vertex(x0, y1, color, top_left, 0.f, z_index);
+	imm_vertex(x1, y0, color, bottom_right, 0.f, z_index);
+
+	imm_vertex(x0, y1, color, top_left, 0.f, z_index);
+	imm_vertex(x1, y1, color, top_right, 0.f, z_index);
+	imm_vertex(x1, y0, color, bottom_right, 0.f, z_index);
 }

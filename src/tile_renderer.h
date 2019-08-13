@@ -5,6 +5,8 @@
 struct Render_Command {
 	ch::Vector2 position;
 	ch::Vector2 size;
+
+	u8 tile_index;
 };
 
 struct Tile_Renderer {
@@ -12,7 +14,7 @@ struct Tile_Renderer {
 
 	Tile_Renderer();
 
-	void push_tile(ch::Vector2 position, ch::Vector2 size);
+	void push_tile(ch::Vector2 position, ch::Vector2 size, u8 tile_index);
 	u32 flush();
 };
 

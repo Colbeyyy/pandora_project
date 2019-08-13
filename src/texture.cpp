@@ -3,6 +3,9 @@
 Texture::Texture(const Bitmap& bm) {
 	glGenTextures(1, &id);
 
+	width = bm.width;
+	height = bm.height;
+
 	bind();
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

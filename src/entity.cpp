@@ -85,7 +85,7 @@ Block::Block() : Super() {
 }
 
 void Block::draw() {
-	tile_renderer.push_tile(position.xy, size);
+	tile_renderer.push_tile(position.xy, size, index);
 	Super::draw();
 }
 
@@ -131,6 +131,7 @@ void Player::tick(f32 dt) {
 		Block* bobby_b = get_world()->spawn_entity<Block>(mouse_pos);
 		bobby_b->size = 16.f;
 		bobby_b->collision_enabled = false;
+		bobby_b->index = 1;
 	}
 
 	collision_tick(dt);
