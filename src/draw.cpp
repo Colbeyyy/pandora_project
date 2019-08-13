@@ -404,10 +404,10 @@ void imm_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sp
 	const f32 atlas_w = (f32)sprite.atlas->width;
 	const f32 atlas_h = (f32)sprite.atlas->height;
 
-	const f32 atlas_x0 = sprite.x * sprite.width;
-	const f32 atlas_y0 = sprite.y * sprite.height;
-	const f32 atlas_x1 = atlas_x0 + sprite.width;
-	const f32 atlas_y1 = atlas_y0 + sprite.height;
+	const f32 atlas_x0 = (f32)(sprite.x * sprite.width);
+	const f32 atlas_y0 = (f32)(sprite.y * sprite.height);
+	const f32 atlas_x1 = (f32)(atlas_x0 + sprite.width);
+	const f32 atlas_y1 = (f32)(atlas_y0 + sprite.height);
 
 	const ch::Vector2 bottom_right = ch::Vector2(atlas_x1 / atlas_w, atlas_y0 / atlas_h);
 	const ch::Vector2 bottom_left = ch::Vector2(atlas_x0 / atlas_w, atlas_y0 / atlas_h);

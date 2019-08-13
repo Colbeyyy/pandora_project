@@ -23,9 +23,7 @@ project "pandora_project"
     cppdialect "C++17"
     systemversion "latest"
     architecture "x64"
-    kind "ConsoleApp"
-
-
+	
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS"
@@ -61,6 +59,7 @@ project "pandora_project"
 		}
 		runtime "Debug"
 		symbols "On"
+		kind "ConsoleApp"
 
 	filter "configurations:Release"
 		defines 
@@ -71,6 +70,8 @@ project "pandora_project"
 		}
 		runtime "Release"
         optimize "On"
+		kind "WindowedApp"
+
         
     filter "system:windows"
 
