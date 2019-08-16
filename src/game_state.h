@@ -10,16 +10,11 @@
 struct World;
 
 struct Game_State {
-
 	ch::Window window;
 	World* loaded_world;
 
-	Entity_Id player_id;
-
 	struct Font font;
 
-	bool debug_collision = false;
-	bool debug_performance = false;
 	f32 dt;
 	u32 fps;
 
@@ -30,8 +25,6 @@ struct Game_State {
 	void process_input();
     void tick_game(f32 dt);
     void draw_game();
-
-	void reset_world();
 };
 
 extern Game_State game_state;

@@ -3,7 +3,6 @@
 #include "collision.h"
 #include "world.h"
 #include "input_state.h"
-#include "tile_renderer.h"
 
 #include <ch_stl/window.h>
 #include <ch_stl/opengl.h>
@@ -47,7 +46,6 @@ void Game_State::init() {
 	ch::context_allocator = temp_allocator;
 
 	loaded_world = ch_new World;
-	reset_world();
 
 	ch::Array<f32> foo(ch::get_heap_allocator());
 	foo.reserve(3);
@@ -85,18 +83,6 @@ void Game_State::process_input() {
 void Game_State::tick_game(f32 dt) {
 	CH_SCOPED_TIMER(tick_game);
 
-	if (input_state.was_key_pressed(CH_KEY_R)) {
-		reset_world();
-	}
-
-	if (input_state.was_key_pressed(CH_KEY_F1)) {
-		debug_collision = !debug_collision;
-	}
-
-	if (input_state.was_key_pressed(CH_KEY_F2)) {
-		debug_performance = !debug_performance;
-	}
-
 	if (loaded_world) loaded_world->tick(dt);
 }
 
@@ -109,67 +95,5 @@ void Game_State::draw_game() {
 		frame_end();
 	}
 
-	if (debug_performance)
-	{
-		render_right_handed();
-		const ch::Arena_Allocator_Header* temp_header = ch::context_allocator.get_header<ch::Arena_Allocator_Header>();
-
-		tchar debug_text[4096];
-		sprintf(debug_text, CH_TEXT("FPS: %i\nTemp Usage: %llu\nEntity Count: %llu"), (s32)ch::round(1.f / dt), temp_header->current, loaded_world->entities.count);
-		f32 x = 10.f;
-		f32 y = -20.f;
-
-		draw_string(debug_text, x + 2, y - 2, ch::black, font);
-		ch::Vector2 size = draw_string(debug_text, x, y, ch::white, font);
-
-		y -= size.y + FONT_SIZE;
-
-		for (const ch::Scoped_Timer& it : ch::scoped_timer_manager.entries) {
-			const f64 gap = it.get_gap();
-
-			sprintf(debug_text, CH_TEXT("%s : %f"), it.name, gap);
-			draw_string(debug_text, x + 2, y - 2, ch::black, font);
-			size = draw_string(debug_text, x, y, ch::white, font);
-
-			y -= FONT_SIZE;
-		}
-
-		sprintf(debug_text, CH_TEXT("Tiles Culled: %lu"), culled);
-		draw_string(debug_text, x + 2, y - 2, ch::black, font);
-		size = draw_string(debug_text, x, y, ch::white, font);
-	}
-
 	ch::swap_buffers(window);
-}
-
-void Game_State::reset_world() {
-	loaded_world->destroy_all();
-
-	Camera* cam = loaded_world->spawn_entity<Camera>(0.f);
-	cam->set_to_current();
-	{
-		f32 current_x = -(16.f * 50);
-		for (usize i = 0; i < 100; i++) {
-			Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(current_x, -32.f));
-
-			const f32 size = 16.f;
-
-			b->size = size;
-			current_x += size;
-		}
-	}
-	{
-		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(32.f, -16.f));
-		b->size = 16.f;
-	}
-	{
-		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(48.f, -16.f));
-		b->size = 16.f;
-	}
-	{
-		Block* b = loaded_world->spawn_entity<Block>(ch::Vector2(48.f, 0.f));
-		b->size = 16.f;
-	}
-	Player* p = loaded_world->spawn_entity<Player>(ch::Vector2(0.f, 0.f));
-	player_id = p->id;
 }
