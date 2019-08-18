@@ -3,7 +3,7 @@
 #include <ch_stl/types.h>
 #include <ch_stl/array.h>
 
-#include "component.h"
+#include "components.h"
 
 using Entity_Id = u64;
 u64 hash(Entity_Id e_id);

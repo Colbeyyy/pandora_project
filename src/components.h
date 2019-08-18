@@ -16,3 +16,6 @@ struct Motion : public Component {
 	ch::Vector2 acceleration;
 };
 
+struct Camera : public Component {
+	f32 orth_size;
+};

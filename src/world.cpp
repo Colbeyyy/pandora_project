@@ -13,18 +13,11 @@ Entity* World::spawn_entity() {
 	Entity e;
 	e.id = get_unique_id();
 	const usize index = entities.push(e.id, e);
-
-	return &entities[index];
-}
-
-Entity* World::find_entity(Entity_Id id) {
-	return entities.find(id);
+	return &entities.buckets[index].value;
 }
 
 void World::tick(f32 dt) {
-	for (System* it : systems) {
-		it->tick(dt);
-	}
+	
 }
 
 void World::draw() {
