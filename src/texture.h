@@ -52,4 +52,6 @@ struct Sprite {
 
 	u32 x;
 	u32 y;
+
+	Sprite(Texture* _atlas, u32 _w, u32 _h, u32 _x, u32 _y) : atlas(_atlas), width(_w), height(_h), x(_x), y(_y) {}
 };

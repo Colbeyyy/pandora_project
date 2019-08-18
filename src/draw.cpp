@@ -18,7 +18,7 @@ ch::Matrix4 view;
 GLuint back_buffer_fbo;
 GLuint back_buffer_color;
 GLuint back_buffer_depth;
-const u32 render_ratio = 5;
+const u32 render_ratio = 4;
 u32 back_buffer_width = 1920 / render_ratio;
 u32 back_buffer_height = 1080 / render_ratio;
 
@@ -119,7 +119,9 @@ void frame_end() {
 		imm_vertex(x1, y0, color, ch::Vector2(1.f, 1.f), 9.f);
 		imm_flush();
 
+		ch::std_out << draw_size.x << " " << draw_size.y << ch::eol;
 	}
+
 }
 
 void refresh_transform() {
@@ -228,7 +230,7 @@ ch::Vector2 get_back_buffer_draw_size() {
 		height = width * ratio;
 	}
 
-	return ch::Vector2(width, height);
+	return ch::round(ch::Vector2(width, height));
 }
 
 void imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, ch::Vector2 normal, f32 z_index /*= 0.f*/) {

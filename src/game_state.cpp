@@ -35,7 +35,7 @@ void Game_State::init() {
 	input_state.bind(&window);
 
 #if CH_PLATFORM_WINDOWS
-	wglSwapIntervalEXT(false);
+	wglSwapIntervalEXT(true);
 #endif
 
 	asset_manager.init();
@@ -49,6 +49,8 @@ void Game_State::init() {
 
 	Camera* cam = loaded_world->spawn_entity<Camera>();
 	cam->set_current();
+
+	loaded_world->tile_grid.tiles.push(ch::Vector2(0.f, 0.f), Tile());
 
 	{
 		assert(Font::load_from_path(CH_TEXT("fonts/FORCED SQUARE.ttf"), &font));
@@ -93,7 +95,7 @@ void Game_State::draw_game() {
 		CH_SCOPED_TIMER(draw_game);
 		frame_begin();
 		if (loaded_world) loaded_world->draw();
-		draw_string(CH_TEXT("fuck"), 0.f, 0.f, ch::white, font);
+		draw_line(0.f, 100.f, 1.f, ch::white);
 		frame_end();
 	}
 

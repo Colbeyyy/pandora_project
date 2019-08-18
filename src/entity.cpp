@@ -30,7 +30,7 @@ Camera::Camera() {
 }
 
 void Camera::get_view(ch::Matrix4* out) const {
-	*out = ch::translate(-position);
+	*out = ch::translate(ch::ceil(-position));
 }
 
 void Camera::get_projection(ch::Matrix4* out) const {
@@ -85,20 +85,25 @@ ch::Vector2 Camera::get_mouse_pos_in_world() const {
 }
 
 void Camera::tick(f32 dt) {
-	const f32 speed = 16.f;
+	const f32 speed = 16.f * 3.f;
+
+	ch::Vector2 dir = 0.f;
+
 	if (input_state.is_key_down(CH_KEY_W)) {
-		position.y += 16 * dt;
+		dir.y = 1.f;
 	}
 
 	if (input_state.is_key_down(CH_KEY_S)) {
-		position.y -= 16 * dt;
+		dir.y = -1.f;
 	}
 
 	if (input_state.is_key_down(CH_KEY_D)) {
-		position.x += 16 * dt;
+		dir.x = 1.f;
 	}
 
 	if (input_state.is_key_down(CH_KEY_A)) {
-		position.x -= 16 * dt;
+		dir.x = -1.f;
 	}
+
+	position += dir.get_normalized() * speed * dt;
 }

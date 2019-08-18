@@ -38,40 +38,6 @@ void World::draw() {
 	if (current_camera) {
 		current_camera->get_view(&view);
 		current_camera->get_projection(&projection);
-
-		const ch::Vector2 mouse_pos = current_camera->get_mouse_pos_in_world();
-		const ch::Vector2 render_pos = tile_grid.round_to_grid(mouse_pos);
-
-		AABB draw_box(current_camera->position, current_camera->size);
-
-		f32 x = draw_box.get_min().x;
-		for (u32 i = 0; i < back_buffer_width; i++) {
-			ch::Vector2 f(x, 0.f);
-			f = tile_grid.round_to_grid(f);
-			f += tile_grid.tile_size / 2.f;
-
-			ch::Vector2 start(f.x, draw_box.get_min().y);
-			ch::Vector2 end(f.x, draw_box.get_max().y);
-			draw_line(start + 0.5f, end + 0.5f, 1.f, ch::white);
-
-			x += tile_grid.tile_size.x;
-		}
-
-		f32 y = draw_box.get_min().y;
-		for (u32 i = 0; i < back_buffer_height; i++) {
-			ch::Vector2 f(0.f, y);
-			f = tile_grid.round_to_grid(f);
-			f += tile_grid.tile_size / 2.f;
-
-			ch::Vector2 start(draw_box.get_min().x, f.y);
-			ch::Vector2 end(draw_box.get_max().x, f.y);
-			draw_line(start - 0.5f, end - 0.5f, 1.f, ch::white);
-
-			y += tile_grid.tile_size.y;
-		}
-	
-		draw_quad(render_pos, tile_grid.tile_size, ch::green);
-
 	}
 
 	using Pair = ch::Hash_Table<Entity_Id, Entity*>::Pair;
@@ -80,6 +46,10 @@ void World::draw() {
 		it.value->draw();
 	}
 
+	for (ch::Hash_Table<ch::Vector2, Tile>::Pair& it : tile_grid.tiles) {
+		tile_renderer.push(it.key, 0);
+	}
+	tile_renderer.flush();
 }
 
 World* get_world() {
