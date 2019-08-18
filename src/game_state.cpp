@@ -47,11 +47,12 @@ void Game_State::init() {
 
 	loaded_world = ch_new World;
 
-	ch::Array<f32> foo(ch::get_heap_allocator());
-	foo.reserve(3);
-	foo.reserve(7);
+	Camera* cam = loaded_world->spawn_entity<Camera>();
+	cam->set_current();
 
-	assert(Font::load_from_os(CH_TEXT("comic.ttf"), &font));
+	{
+		assert(Font::load_from_path(CH_TEXT("fonts/FORCED SQUARE.ttf"), &font));
+	}
 }
 
 void Game_State::loop() {
@@ -92,6 +93,7 @@ void Game_State::draw_game() {
 		CH_SCOPED_TIMER(draw_game);
 		frame_begin();
 		if (loaded_world) loaded_world->draw();
+		draw_string(CH_TEXT("fuck"), 0.f, 0.f, ch::white, font);
 		frame_end();
 	}
 

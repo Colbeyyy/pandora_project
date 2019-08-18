@@ -18,8 +18,9 @@ ch::Matrix4 view;
 GLuint back_buffer_fbo;
 GLuint back_buffer_color;
 GLuint back_buffer_depth;
-u32 back_buffer_width = 320;
-u32 back_buffer_height = 180;
+const u32 render_ratio = 5;
+u32 back_buffer_width = 1920 / render_ratio;
+u32 back_buffer_height = 1080 / render_ratio;
 
 void draw_init() {
 	assert(ch::is_gl_loaded());
@@ -221,8 +222,7 @@ ch::Vector2 get_back_buffer_draw_size() {
 	if (viewport_aspect_ratio >= back_buffer_aspect_ratio) {
 		height = (f32)viewport_size.uy;
 		width = height * back_buffer_aspect_ratio;
-	}
-	else {
+	} else {
 		const f32 ratio = (f32)(back_buffer_height) / (f32)(back_buffer_width);
 		width = (f32)viewport_size.ux;
 		height = width * ratio;

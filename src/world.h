@@ -4,24 +4,34 @@
 #include <ch_stl/hash_table.h>
 
 #include "entity.h"
-#include "component.h"
-#include "system.h"
-
-struct Trace_Details {
-	ch::Array<Entity_Id> e_to_ignore;
-
-	Trace_Details() = default;
-};
+#include "tile.h"
 
 struct World {
-	ch::Array<System*> systems;
-	ch::Hash_Table<Entity_Id, Entity> entities;
-	ch::Array<Component*> components;
+	ch::Hash_Table<Entity_Id, Entity*> entities;
+	ch::Allocator entity_allocator = ch::get_heap_allocator();
+
+	Camera* current_camera = nullptr;
+
+	Tile_Grid tile_grid;
 
 	World();
 
-	Entity* spawn_entity();
-	Entity* find_entity(Entity_Id id);
+	template <typename T>
+	T* spawn_entity() {
+		T* result = ch_new(entity_allocator) T;
+		result->id = get_unique_id();
+		entities.push(result->id, result);
+		return result;
+	}
+
+	template <typename T>
+	T* find_entity(Entity_Id id) {
+		Entity** result = entities.find(id);
+		if (result) return (T*)*result;
+		return nullptr;
+	}
+
+	bool destroy(Entity_Id id);
 
 	void tick(f32 dt);
 	void draw();
