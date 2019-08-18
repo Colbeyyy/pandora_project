@@ -2,6 +2,10 @@
 
 #include <ch_stl/math.h>
 
+#include <ch_stl/types.h>
+#include <ch_stl/array.h>
+
+
 using Entity_Id = u64;
 u64 hash(Entity_Id e_id);
 Entity_Id get_unique_id();
