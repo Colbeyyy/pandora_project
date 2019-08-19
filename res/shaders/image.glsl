@@ -57,6 +57,7 @@ void main() {
 
 	frag_color = vec4(result, 1) * tex_color;
 	frag_color.a *= out_color.a;
+	frag_color = tex_color;
 	// frag_color = vec4(out_uv, length(out_uv), 1.0);
 }
 #endif

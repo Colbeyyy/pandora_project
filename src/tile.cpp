@@ -51,7 +51,7 @@ void Tile_Renderer::flush() {
 		const f32 x1 = x0 + Tile_Grid::tile_size.x;
 		const f32 y1 = y0 + Tile_Grid::tile_size.y;
 
-		Sprite sprite(t, Tile_Grid::tile_size.x, Tile_Grid::tile_size.y, 0, 0);
+		Sprite sprite(t, (u32)Tile_Grid::tile_size.x, (u32)Tile_Grid::tile_size.y, 0, 0);
 
 		imm_sprite(x0, y0, x1, y1, ch::white, sprite);
 	}

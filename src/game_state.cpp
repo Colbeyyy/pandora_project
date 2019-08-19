@@ -20,7 +20,7 @@ const tchar* window_title = CH_TEXT("pandora_project");
 void Game_State::init() {
     assert(ch::load_gl());
     {
-        const u32 width = 1280;
+        const u32 width = 1920;
         const u32 height = (u32)((f32)width * (9.f / 16.f));
         assert(ch::create_gl_window(window_title, width, height, 0, &window));
     }
@@ -47,11 +47,6 @@ void Game_State::init() {
 
 	loaded_world = ch_new World;
 
-	Camera* cam = loaded_world->spawn_entity<Camera>();
-	cam->set_current();
-
-	loaded_world->tile_grid.tiles.push(ch::Vector2(0.f, 0.f), Tile());
-
 	{
 		assert(Font::load_from_path(CH_TEXT("fonts/FORCED SQUARE.ttf"), &font));
 	}
@@ -72,6 +67,8 @@ void Game_State::loop() {
 		ch::scoped_timer_manager.reset();
 		asset_manager.refresh();
 		ch::reset_arena_allocator(&ch::context_allocator);
+
+		Sleep(30);
     }
 }
 
@@ -95,7 +92,6 @@ void Game_State::draw_game() {
 		CH_SCOPED_TIMER(draw_game);
 		frame_begin();
 		if (loaded_world) loaded_world->draw();
-		draw_line(0.f, 100.f, 1.f, ch::white);
 		frame_end();
 	}
 

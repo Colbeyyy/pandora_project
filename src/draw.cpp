@@ -90,9 +90,7 @@ void frame_end() {
 	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
 	glViewport(0, 0, viewport_size.ux, viewport_size.uy);
 
-	render_right_handed();
-	view = ch::translate(0.f);
-	refresh_transform();
+	render_from_pos(0.f, (f32)viewport_size.uy / 2.f);
 
 	{
 		Shader* s = asset_manager.find_shader(CH_TEXT("back_buffer"));
@@ -101,25 +99,7 @@ void frame_end() {
 		refresh_transform();
 
 		ch::Vector2 draw_size = get_back_buffer_draw_size();
-		const f32 width = draw_size.x;
-		const f32 height = draw_size.y;
-
-		const f32 x0 = -width / 2.f;
-		const f32 y0 = height / 2.f;
-		const f32 x1 = x0 + width;
-		const f32 y1 = y0 - height;
-		const ch::Color color = ch::white;
-		imm_begin();
-		imm_vertex(x0, y0, color, ch::Vector2(0.f, 1.f), 9.f);
-		imm_vertex(x0, y1, color, ch::Vector2(0.f, 0.f), 9.f);
-		imm_vertex(x1, y0, color, ch::Vector2(1.f, 1.f), 9.f);
-
-		imm_vertex(x0, y1, color, ch::Vector2(0.f, 0.f), 9.f);
-		imm_vertex(x1, y1, color, ch::Vector2(1.f, 0.f), 9.f);
-		imm_vertex(x1, y0, color, ch::Vector2(1.f, 1.f), 9.f);
-		imm_flush();
-
-		ch::std_out << draw_size.x << " " << draw_size.y << ch::eol;
+		draw_textured_quad(0.f, draw_size, ch::white, tex);
 	}
 
 }
@@ -154,8 +134,8 @@ void render_right_handed() {
 void render_from_pos(ch::Vector2 pos, f32 ortho_size) {
 	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
 	
-	const f32 width = (f32)back_buffer_width;
-	const f32 height = (f32)back_buffer_height;
+	const f32 width = (f32)viewport_size.ux;
+	const f32 height = (f32)viewport_size.uy;
 
 	const f32 aspect_ratio = width / height;
 
@@ -230,7 +210,11 @@ ch::Vector2 get_back_buffer_draw_size() {
 		height = width * ratio;
 	}
 
-	return ch::round(ch::Vector2(width, height));
+	ch::Vector2 result;
+	result.x = (f32)back_buffer_width * render_ratio * 2.f;
+	result.y = (f32)back_buffer_height * render_ratio * 2.f;
+
+	return result;
 }
 
 void imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, ch::Vector2 normal, f32 z_index /*= 0.f*/) {

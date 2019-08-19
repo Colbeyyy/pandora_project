@@ -30,7 +30,7 @@ Camera::Camera() {
 }
 
 void Camera::get_view(ch::Matrix4* out) const {
-	*out = ch::translate(ch::ceil(-position));
+	*out = ch::translate(ch::floor(-position));
 }
 
 void Camera::get_projection(ch::Matrix4* out) const {
@@ -85,7 +85,14 @@ ch::Vector2 Camera::get_mouse_pos_in_world() const {
 }
 
 void Camera::tick(f32 dt) {
-	const f32 speed = 16.f * 3.f;
+	Super::tick(dt);
+
+}
+
+void Player::tick(f32 dt) {
+	Super::tick(dt);
+
+	const f32 speed = 16.f * 1.f;
 
 	ch::Vector2 dir = 0.f;
 
@@ -105,5 +112,19 @@ void Camera::tick(f32 dt) {
 		dir.x = -1.f;
 	}
 
-	position += dir.get_normalized() * speed * dt;
+	position += ch::round(dir * speed * dt);
+
+	if (dir.length_squared() == 0.f) position = ch::round(position);
+
+	ch::std_out << 1.f / dt << ch::eol;
+}
+
+void Player::draw() {
+	Super::draw();
+
+	draw_quad(position, 16.f, ch::white);
+
+	// ch::std_out << ch::round(position) << " " << position << ch::eol;
+
+	// tile_renderer.push(position, 0);
 }

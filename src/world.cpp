@@ -8,6 +8,14 @@
 
 World::World() {
 	entities = ch::Hash_Table<Entity_Id, Entity*>(ch::get_heap_allocator());
+	
+	
+	Camera* cam = spawn_entity<Camera>();
+	current_camera = cam;
+
+	tile_grid.tiles.push(ch::Vector2(0.f, 0.f), Tile());
+
+	Player* p = spawn_entity<Player>();
 }
 
 bool World::destroy(Entity_Id id) {
