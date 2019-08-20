@@ -36,15 +36,9 @@ void Tile_Renderer::flush() {
 
 	refresh_transform();
 
-	Camera* c = get_world()->current_camera;
-	AABB render_bounds(c->position, c->size);
 
 	imm_begin();
 	for (const Render_Command& it : commands) {
-		AABB bounds(it.position, Tile_Grid::tile_size);
-		if (!bounds.intersects(render_bounds)) {
-			continue;
-		}
 
 		const f32 x0 = it.position.x - (Tile_Grid::tile_size.x / 2.f);
 		const f32 y0 = it.position.y - (Tile_Grid::tile_size.y / 2.f);

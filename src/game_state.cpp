@@ -14,19 +14,10 @@ Game_State game_state;
 
 const tchar* window_title = CH_TEXT("pandora_project");
 
-static void pool_allocator_test() {
-	ch::Allocator pool_allocator = ch::make_pool_allocator(1024, 512);
-	defer(ch::free_pool_allocator(&pool_allocator));
-	ch::Pool_Allocator_Header* header = pool_allocator.get_header<ch::Pool_Allocator_Header>();
-
-	u8* buffer = ch_new(pool_allocator) u8[512 * 3];
-
-}
-
 void Game_State::init() {
     assert(ch::load_gl());
     {
-        const u32 width = 1920;
+        const u32 width = 1280;
         const u32 height = (u32)((f32)width * (9.f / 16.f));
         assert(ch::create_gl_window(window_title, width, height, 0, &window));
     }
@@ -48,12 +39,17 @@ void Game_State::init() {
 
 	draw_init();
 
-	pool_allocator_test();
-
-	ch::Allocator temp_allocator = ch::make_arena_allocator(1024 * 1024);
+	ch::Allocator temp_allocator = ch::make_arena_allocator(1024 * 1024 * 512);
 	ch::context_allocator = temp_allocator;
 
 	loaded_world = ch_new World;
+
+	Entity* cam = get_world()->spawn_entity();
+	cam->add_component<Transform_Component>();
+	Camera_Component* cam_c = cam->add_component<Camera_Component>();
+	cam_c->ortho_size = 32.f;
+
+	loaded_world->cam_id = cam->id;
 
 	{
 		assert(Font::load_from_path(CH_TEXT("fonts/FORCED SQUARE.ttf"), &font));
@@ -100,6 +96,7 @@ void Game_State::draw_game() {
 		CH_SCOPED_TIMER(draw_game);
 		frame_begin();
 		if (loaded_world) loaded_world->draw();
+		draw_quad(0.f, 100.f, ch::magenta);
 		frame_end();
 
 		draw_hud();

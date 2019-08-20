@@ -1,55 +1,46 @@
 #pragma once
 
-#include <ch_stl/math.h>
-
 #include <ch_stl/types.h>
 #include <ch_stl/array.h>
 
-
-using Entity_Id = u64;
-u64 hash(Entity_Id e_id);
-Entity_Id get_unique_id();
+#include "components.h"
+#include "entity_id.h"
 
 enum Entity_Flags {
 	EF_MarkedForDestruction = 0x01,
 	EF_Transient = 0x02,
 	EF_NoTick = 0x04,
 	EF_NoDraw = 0x08,
-	EF_NoCollision = 0x10,
 };
 
 struct Entity {
 	Entity_Id id;
 	u32 flags = 0;
+	ch::Array<Component*> components;
 
-	ch::Vector2 position;
-	ch::Vector2 size;
-
-	Entity();
-
-	virtual void tick(f32 dt) {}
-	virtual void draw() {}
+	Entity() {
+		components.allocator = ch::get_heap_allocator();
+	}
 
 	CH_FORCEINLINE void destroy() {
 		flags |= EF_MarkedForDestruction;
 	}
 
 	CH_FORCEINLINE bool is_marked_for_destruction() const { return (flags & EF_MarkedForDestruction) != 0; }
-};
 
-struct Camera : public Entity {
-	using Super = Entity;
+	template <typename T>
+	T* add_component() {
+		return get_world()->add_component_to_entity<T>(id);
+	}
 
-	f32 ortho_size = 32.f;
+	template <typename T>
+	T* find_component() {
+		for (Component* c : components) {
+			if (c->type_id == T::get_type_id()) {
+				return (T*)c;
+			}
+		}
 
-	Camera();
-
-	void get_view(ch::Matrix4* out) const;
-	void get_projection(ch::Matrix4* out) const;
-
-	void set_current();
-
-	ch::Vector2 get_mouse_pos_in_world() const;
-
-	virtual void tick(f32 dt) override;
+		return nullptr;
+	}
 };
