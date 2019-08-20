@@ -210,9 +210,11 @@ ch::Vector2 get_back_buffer_draw_size() {
 		height = width * ratio;
 	}
 
+	const f32 render_target_scale = ch::ceil(width / (f32)back_buffer_width);
+
 	ch::Vector2 result;
-	result.x = (f32)back_buffer_width * render_ratio * 2.f;
-	result.y = (f32)back_buffer_height * render_ratio * 2.f;
+	result.x = (f32)back_buffer_width * render_target_scale;
+	result.y = (f32)back_buffer_height * render_target_scale;
 
 	return result;
 }

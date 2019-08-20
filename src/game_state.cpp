@@ -3,19 +3,25 @@
 #include "collision.h"
 #include "world.h"
 #include "input_state.h"
+#include "hud.h"
 
 #include <ch_stl/window.h>
-#include <ch_stl/opengl.h>
 #include <ch_stl/filesystem.h>
 #include <ch_stl/time.h>
-#include <ch_stl/input.h>
-#include <ch_stl/hash_table.h>
-
-#include <stdio.h>
+#include <ch_stl/pool_allocator.h>
 
 Game_State game_state;
 
 const tchar* window_title = CH_TEXT("pandora_project");
+
+static void pool_allocator_test() {
+	ch::Allocator pool_allocator = ch::make_pool_allocator(1024, 512);
+	defer(ch::free_pool_allocator(&pool_allocator));
+	ch::Pool_Allocator_Header* header = pool_allocator.get_header<ch::Pool_Allocator_Header>();
+
+	u8* buffer = ch_new(pool_allocator) u8[512 * 3];
+
+}
 
 void Game_State::init() {
     assert(ch::load_gl());
@@ -42,6 +48,8 @@ void Game_State::init() {
 
 	draw_init();
 
+	pool_allocator_test();
+
 	ch::Allocator temp_allocator = ch::make_arena_allocator(1024 * 1024);
 	ch::context_allocator = temp_allocator;
 
@@ -67,8 +75,6 @@ void Game_State::loop() {
 		ch::scoped_timer_manager.reset();
 		asset_manager.refresh();
 		ch::reset_arena_allocator(&ch::context_allocator);
-
-		Sleep(30);
     }
 }
 
@@ -84,6 +90,8 @@ void Game_State::tick_game(f32 dt) {
 	CH_SCOPED_TIMER(tick_game);
 
 	if (loaded_world) loaded_world->tick(dt);
+
+	tick_hud(dt);
 }
 
 void Game_State::draw_game() {
@@ -93,6 +101,8 @@ void Game_State::draw_game() {
 		frame_begin();
 		if (loaded_world) loaded_world->draw();
 		frame_end();
+
+		draw_hud();
 	}
 
 	ch::swap_buffers(window);

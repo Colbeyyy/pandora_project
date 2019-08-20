@@ -53,10 +53,3 @@ struct Camera : public Entity {
 
 	virtual void tick(f32 dt) override;
 };
-
-struct Player : public Entity {
-	using Super = Entity;
-
-	virtual void tick(f32 dt) override;
-	virtual void draw() override;
-};

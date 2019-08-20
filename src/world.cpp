@@ -14,8 +14,6 @@ World::World() {
 	current_camera = cam;
 
 	tile_grid.tiles.push(ch::Vector2(0.f, 0.f), Tile());
-
-	Player* p = spawn_entity<Player>();
 }
 
 bool World::destroy(Entity_Id id) {
