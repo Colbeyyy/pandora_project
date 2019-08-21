@@ -16,7 +16,7 @@ struct Shader {
 
 	GLuint texture_loc;
 
-	static GLuint bound_shader;
+	static Shader* bound_shader;
 	static bool load_from_source(const GLchar* source, Shader* out_shader);
 
 	CH_FORCEINLINE operator bool() const { return program_id != 0;}
@@ -25,7 +25,7 @@ struct Shader {
 	void bind();
 	void unbind();
 	CH_FORCEINLINE bool is_bound() const {
-		return Shader::bound_shader == program_id;
+		return Shader::bound_shader == this;
 	}
 };
 

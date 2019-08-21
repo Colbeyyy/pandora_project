@@ -9,7 +9,6 @@ struct System {
 };
 
 struct Camera_System : public System {
-
 	virtual void tick(f32 dt) override;
 };
 

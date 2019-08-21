@@ -1,5 +1,5 @@
 #include "world.h"
-#include "game_state.h"
+#include "game.h"
 #include "draw.h"
 #include "collision.h"
 
@@ -57,5 +57,5 @@ void World::draw() {
 }
 
 World* get_world() {
-	return game_state.loaded_world;
+	return loaded_world;
 }

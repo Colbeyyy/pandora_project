@@ -1,6 +1,6 @@
 #include "shader.h"
 
-GLuint Shader::bound_shader;
+Shader* Shader::bound_shader;
 Shader default_shader;
 
 const GLchar* default_shader_source = R"R(
@@ -100,12 +100,12 @@ void Shader::free() {
 
 void Shader::bind() {
 	glUseProgram(program_id);
-	Shader::bound_shader = program_id;
+	Shader::bound_shader = this;
 }
 
 void Shader::unbind() {
 	glUseProgram(0);
-	Shader::bound_shader = 0;
+	Shader::bound_shader = nullptr;
 }
 
 Shader* get_default_shader() {

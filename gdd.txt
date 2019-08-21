@@ -1,0 +1,10 @@
+-------- GDD --------
+
+* Story 
+	- Story about a girl saving her boyfriend
+
+* Character
+	- Girl
+	- Boyfriend
+	- Villian
+

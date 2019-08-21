@@ -1,5 +1,7 @@
 #include "draw.h"
-#include "game_state.h"
+#include "game.h"
+#include "components.h"
+#include "sprite_renderer.h"
 
 const usize max_verts = 128 * 1024;
 
@@ -22,7 +24,7 @@ const u32 render_ratio = 4;
 u32 back_buffer_width = 1920 / render_ratio;
 u32 back_buffer_height = 1080 / render_ratio;
 
-void draw_init() {
+void init_draw() {
 	assert(ch::is_gl_loaded());
 
 	glGenVertexArrays(1, &imm_vao);
@@ -64,13 +66,13 @@ void draw_init() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void frame_begin() {
+static void frame_begin() {
 	draw_calls = 0;
 	verts_drawn = 0;
 	verts_culled = 0;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, back_buffer_fbo);
-	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
+	const ch::Vector2 viewport_size = the_window.get_viewport_size();
 	glClearColor(ch::black);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, back_buffer_width, back_buffer_height);
@@ -78,7 +80,7 @@ void frame_begin() {
 	render_right_handed();
 }
 
-void frame_end() {
+static void frame_end() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
@@ -87,13 +89,13 @@ void frame_end() {
 	Texture tex;
 	tex.id = back_buffer_color;
 
-	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
+	const ch::Vector2 viewport_size = the_window.get_viewport_size();
 	glViewport(0, 0, viewport_size.ux, viewport_size.uy);
 
 	render_from_pos(0.f, (f32)viewport_size.uy / 2.f);
 
 	{
-		Shader* s = asset_manager.find_shader(CH_TEXT("back_buffer"));
+		Shader* s = find_shader(CH_TEXT("back_buffer"));
 		s->bind();
 		tex.set_active();
 		refresh_transform();
@@ -104,8 +106,32 @@ void frame_end() {
 
 }
 
+void draw_game() {
+	frame_begin();
+
+	{
+		Entity* cam = loaded_world->find_entity(loaded_world->cam_id);
+		Camera_Component* cc = cam->find_component<Camera_Component>();
+		Transform_Component* tc = cam->find_component<Transform_Component>();
+
+		view = ch::translate(-tc->position);
+		projection = cc->get_projection();
+	}
+
+	for (Sprite_Component* it : Component_Iterator<Sprite_Component>(loaded_world)) {
+		Transform_Component* tc = it->get_sibling<Transform_Component>();
+		sprite_renderer.push(tc->position, it->sprite);
+	}
+
+	sprite_renderer.flush();
+
+	frame_end();
+
+	ch::swap_buffers(the_window);
+}
+
 void refresh_transform() {
-	const Shader* current_shader = asset_manager.find_shader(Shader::bound_shader);
+	const Shader* current_shader = Shader::bound_shader;
 	if (!current_shader) return;
 
 	glUniformMatrix4fv(current_shader->view_loc, 1, GL_FALSE, view.elems);
@@ -113,7 +139,7 @@ void refresh_transform() {
 }
 
 void render_right_handed() {
-	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
+	const ch::Vector2 viewport_size = the_window.get_viewport_size();
 
 	const f32 width = (f32)viewport_size.ux;
 	const f32 height = (f32)viewport_size.uy;
@@ -132,7 +158,7 @@ void render_right_handed() {
 }
 
 void render_from_pos(ch::Vector2 pos, f32 ortho_size) {
-	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
+	const ch::Vector2 viewport_size = the_window.get_viewport_size();
 	
 	const f32 width = (f32)viewport_size.ux;
 	const f32 height = (f32)viewport_size.uy;
@@ -153,7 +179,7 @@ void imm_begin() {
 }
 
 void imm_flush() {
-	const Shader* current_shader = asset_manager.find_shader(Shader::bound_shader);
+	const Shader* current_shader = Shader::bound_shader;
 
 	assert(current_shader);
 
@@ -196,7 +222,7 @@ void imm_flush() {
 }
 
 ch::Vector2 get_back_buffer_draw_size() {
-	const ch::Vector2 viewport_size = game_state.window.get_viewport_size();
+	const ch::Vector2 viewport_size = the_window.get_viewport_size();
 	f32 width, height;
 	const f32 back_buffer_aspect_ratio = (f32)(back_buffer_width) / (f32)(back_buffer_height);
 	const f32 viewport_aspect_ratio = (f32)(viewport_size.ux) / (f32)(viewport_size.uy);

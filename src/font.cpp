@@ -1,5 +1,5 @@
 #include "font.h"
-#include "asset.h"
+#include "asset_manager.h"
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb/stb_truetype.h>
@@ -12,7 +12,7 @@ bool Font::load_from_os(const tchar* font_name, Font* out_font) {
 
 bool Font::load_from_path(const tchar* path, Font* out_font) {
 	ch::File_Data fd;
-	if (!asset_manager.load_asset(path, &fd)) return false;
+	if (!load_asset(path, &fd)) return false;
 
 	Font result;
 

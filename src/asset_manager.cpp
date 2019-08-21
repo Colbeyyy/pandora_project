@@ -1,4 +1,4 @@
-#include "asset.h"
+#include "asset_manager.h"
 #include "shader.h"
 #include "texture.h"
 
@@ -7,7 +7,17 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
-Asset_Manager asset_manager;
+
+template <typename T>
+struct Lookup {
+	ch::Directory_Result key;
+	T value;
+};
+
+ch::Allocator allocator;
+
+ch::Array<Lookup<Shader*>> loaded_shaders;
+ch::Array<Lookup<Texture*>> loaded_textures;
 
 static bool set_to_res_path() {
 	ch::Path exe_path = ch::get_app_path();
@@ -21,7 +31,7 @@ static bool set_to_res_path() {
 	return true;
 }
 
-void Asset_Manager::init() {
+void init_am() {
 	assert(ch::is_gl_loaded());
 
 	const usize amount = 1024 * 1024 * 128;
@@ -74,7 +84,7 @@ void Asset_Manager::init() {
 	}
 }
 
-void Asset_Manager::refresh() {
+void refresh_am() {
 	CH_SCOPED_TIMER(asset_manager_refresh);
 	set_to_res_path();
 
@@ -125,11 +135,11 @@ void Asset_Manager::refresh() {
 	}
 }
 
-bool Asset_Manager::load_asset(const tchar* path, ch::File_Data* fd) {
+bool load_asset(const ch::Path& path, ch::File_Data* fd) {
 	return ch::load_file_into_memory(path, fd, allocator);
 }
 
-Shader* Asset_Manager::find_shader(const tchar* name) {
+Shader* find_shader(const tchar* name) {
 	for (Lookup<Shader*>& it : loaded_shaders) {
 		ch::Path fn = it.key.file_name;
 		if (fn.get_filename() == name) {
@@ -140,17 +150,7 @@ Shader* Asset_Manager::find_shader(const tchar* name) {
 	return nullptr;
 }
 
-Shader* Asset_Manager::find_shader(u32 id) {
-	for (Lookup<Shader*>& it : loaded_shaders) {
-		if (it.value->program_id == id) {
-			return it.value;
-		}
-	}
-
-	return get_default_shader();
-}
-
-Texture* Asset_Manager::find_texture(const tchar* name) {
+Texture* find_texture(const tchar* name) {
 	for (Lookup<Texture*>& it : loaded_textures) {
 		ch::Path fn = it.key.file_name;
 		if (fn.get_filename() == name) {

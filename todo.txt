@@ -17,3 +17,9 @@
 	- Batch Tile Renderer
 	- Spritesheet
 	- Sprite batch rendering
+
+* Gameplay
+	- Movement
+	- Items
+	- Weapons
+	- Stats

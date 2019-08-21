@@ -2,26 +2,26 @@
 #include "draw.h"
 #include "world.h"
 #include "components.h"
-#include "input_state.h"
+#include "input.h"
 
 void Camera_System::tick(f32 dt) {
 	World* world = get_world();
 
 	ch::Vector2 dir = 0.f;
 
-	if (input_state.is_key_down(CH_KEY_W)) {
+	if (is_key_down(CH_KEY_W)) {
 		dir.y = 1;
 	}
 
-	if (input_state.is_key_down(CH_KEY_S)) {
+	if (is_key_down(CH_KEY_S)) {
 		dir.y = -1;
 	}
 
-	if (input_state.is_key_down(CH_KEY_D)) {
+	if (is_key_down(CH_KEY_D)) {
 		dir.x = 1;
 	}
 
-	if (input_state.is_key_down(CH_KEY_A)) {
+	if (is_key_down(CH_KEY_A)) {
 		dir.x = -1;
 	}
 
@@ -31,8 +31,6 @@ void Camera_System::tick(f32 dt) {
 		Transform_Component* t = it->get_sibling<Transform_Component>();
 
 		t->position += dir * 16.f * dt;
-		ch::std_out << t->position;
-
 		view = ch::translate(-t->position);
 	}
 }
