@@ -12,8 +12,9 @@ enum Log_Severity {
 	LS_Error   = 0xFF0000FF,
 };
 
-void log(Log_Severity severity, const tchar* fmt, ...);
-void log(const tchar* fmt, ...);
-void log_verbose(const tchar* fmt, ...);
-void log_warning(const tchar* fmt, ...);
-void log_error(const tchar* fmt, ...);
+void log_full(Log_Severity severity, const tchar* fmt, ...);
+
+#define log(str, ...) log_full(LS_Verbose, str, __VA_ARGS__)
+#define log_verbose(str, ...) log_full(LS_Verbose, str, __VA_ARGS__)
+#define log_warning(str, ...) log_full(LS_Warning, str, __VA_ARGS__)
+#define log_error(str, ...) log_full(LS_Error, str, __VA_ARGS__)

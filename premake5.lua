@@ -23,6 +23,7 @@ project "pandora_project"
     cppdialect "C++17"
     systemversion "latest"
     architecture "x64"
+	kind "WindowedApp"
 	
 	defines
 	{
@@ -59,7 +60,6 @@ project "pandora_project"
 		}
 		runtime "Debug"
 		symbols "On"
-		kind "ConsoleApp"
 
 	filter "configurations:Release"
 		defines 
@@ -70,8 +70,6 @@ project "pandora_project"
 		}
 		runtime "Release"
         optimize "On"
-		kind "WindowedApp"
-
         
     filter "system:windows"
 

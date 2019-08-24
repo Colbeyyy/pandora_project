@@ -24,7 +24,7 @@ static void tick_game(f32 dt) {
 }
 
 
-#if CH_PLATFORM_WINDOWS && !BUILD_DEBUG
+#if CH_PLATFORM_WINDOWS
 #define MAIN() WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) 
 #else
 #define MAIN() main() 

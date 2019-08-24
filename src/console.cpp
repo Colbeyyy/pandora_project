@@ -126,10 +126,6 @@ void init_console() {
 	cursor = 0;
 
 	bind_event_listener(Event_Listener(nullptr, console_input, ET_Char_Entered));
-
-	log(LS_Verbose, CH_TEXT("error"));
-	log(LS_Warning, CH_TEXT("fuck"));
-	log(LS_Error, CH_TEXT("shit"));
 }
 
 void tick_console(f32 dt) {
@@ -179,6 +175,7 @@ void draw_console() {
 			const ch::Color color = it.is_log_entry ? it.severity : foreground_color;
 			imm_string(it.message, x, y, it.severity, font);
 			y += bar_height + y_padding;
+			if (y > 0.f) break;
 		}
 	}
 	// @NOTE(CHall): Command Text
@@ -205,7 +202,7 @@ void draw_console() {
 	imm_flush();
 }
 
-void log(Log_Severity severity, const tchar* fmt, ...) {
+void log_full(Log_Severity severity, const tchar* fmt, ...) {
 	Console_Entry it;
 	it.is_log_entry = true;
 	it.time_created = ch::get_local_time();
@@ -216,35 +213,11 @@ void log(Log_Severity severity, const tchar* fmt, ...) {
 
 	va_list args;
 	va_start(args, fmt);
-	sprintf(it.message + offset, fmt, args);
+#if CH_PLATFORM_WINDOWS
+	vsprintf(it.message + offset, fmt, args);
+#else
+	#error need own sprintf
+#endif
 	va_end(args);
 	console_entries.push(it);
-}
-
-void log(const tchar* fmt, ...) {
-	va_list args;
-	va_start(args, fmt);
-	log(LS_Verbose, fmt, args);
-	va_end(args);
-}
-
-void log_verbose(const tchar* fmt, ...) {
-	va_list args;
-	va_start(args, fmt);
-	log(LS_Verbose, fmt, args);
-	va_end(args);
-}
-
-void log_warning(const tchar* fmt, ...) {
-	va_list args;
-	va_start(args, fmt);
-	log(LS_Warning, fmt, args);
-	va_end(args);
-}
-
-void log_error(const tchar* fmt, ...) {
-	va_list args;
-	va_start(args, fmt);
-	log(LS_Error, fmt, args);
-	va_end(args);
 }
