@@ -1,6 +1,14 @@
 -------- TODO --------
 
-* Asset System
+* Console System
+	- Output logging 
+	- Commands
+
+* Gameplay
+	- Movement
+
+* Asset System Refactor
+	- the system needs to be event based and maybe change how assets are allocated
 
 * Audio Engine
 	- dsound?
@@ -9,17 +17,7 @@
 * Gamepad Input
 	- xinput
 
-* ECS
-
-* Level Editor
-
 * Render Engine
 	- Batch Tile Renderer
 	- Spritesheet
 	- Sprite batch rendering
-
-* Gameplay
-	- Movement
-	- Items
-	- Weapons
-	- Stats

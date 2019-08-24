@@ -2,6 +2,7 @@
 #include "draw.h"
 #include "world.h"
 #include "input.h"
+#include "console.h"
 
 #include <ch_stl/filesystem.h>
 #include <ch_stl/time.h>
@@ -17,8 +18,9 @@ World* loaded_world = nullptr;
 static void tick_game(f32 dt) {
 	CH_SCOPED_TIMER(tick_game);
 
+	tick_console(dt);
 	if (loaded_world) loaded_world->tick(dt);
-
+	
 }
 
 
@@ -44,6 +46,7 @@ int MAIN() {
 	init_am();
 	init_draw();
 	init_input();
+	init_console();
 
 	loaded_world = ch_new World;
 
@@ -51,7 +54,6 @@ int MAIN() {
 		Entity* cam = get_world()->spawn_entity();
 		cam->add_component<Transform_Component>();
 		Camera_Component* cam_c = cam->add_component<Camera_Component>();
-		cam_c->ortho_size = 32.f;
 
 		loaded_world->cam_id = cam->id;
 

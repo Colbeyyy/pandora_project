@@ -2,6 +2,7 @@
 #include "game.h"
 #include "components.h"
 #include "sprite_renderer.h"
+#include "console.h"
 
 const usize max_verts = 128 * 1024;
 
@@ -20,9 +21,8 @@ ch::Matrix4 view;
 GLuint back_buffer_fbo;
 GLuint back_buffer_color;
 GLuint back_buffer_depth;
-const u32 render_ratio = 4;
-u32 back_buffer_width = 1920 / render_ratio;
-u32 back_buffer_height = 1080 / render_ratio;
+u32 back_buffer_width = 1920;
+u32 back_buffer_height = 1080;
 
 void init_draw() {
 	assert(ch::is_gl_loaded());
@@ -126,6 +126,8 @@ void draw_game() {
 	sprite_renderer.flush();
 
 	frame_end();
+
+	draw_console();
 
 	ch::swap_buffers(the_window);
 }

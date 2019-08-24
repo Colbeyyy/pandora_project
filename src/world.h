@@ -56,6 +56,10 @@ struct Component_Iterator {
 		}
 	}
 
+	~Component_Iterator() {
+		components.free();
+	}
+
 	T** begin() {
 		return components.begin();
 	}

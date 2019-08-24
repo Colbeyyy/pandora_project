@@ -53,4 +53,5 @@ struct Camera_Component : public TComponent<Camera_Component> {
 
 struct Sprite_Component : public TComponent<Sprite_Component> {
 	Sprite sprite;
+	ch::Vector2 offset;
 };
