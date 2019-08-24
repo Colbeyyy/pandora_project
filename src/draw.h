@@ -143,9 +143,15 @@ CH_FORCEINLINE void draw_char(tchar c, f32 x, f32 y, const ch::Color& color, Fon
 	imm_flush();
 }
 
-ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index = 9.f);
+ch::Vector2 imm_string(const ch::String& str, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index = 9.f);
+CH_FORCEINLINE ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index = 9.f) {
+	ch::String print_string;
+	print_string.data = (tchar*)str;
+	print_string.count = ch::strlen(str);
+	return imm_string(print_string, x, y, color, font, z_index);
+}
 
-CH_FORCEINLINE ch::Vector2 draw_string(const tchar* str, f32 x, f32 y, const ch::Color& color, Font& font, f32 z_index = 9.f) {
+CH_FORCEINLINE ch::Vector2 draw_string(const ch::String& str, f32 x, f32 y, const ch::Color& color, Font& font, f32 z_index = 9.f) {
 	Shader* shader = find_shader(CH_TEXT("font"));
 	assert(shader);
 	shader->bind();
@@ -156,6 +162,13 @@ CH_FORCEINLINE ch::Vector2 draw_string(const tchar* str, f32 x, f32 y, const ch:
 	imm_flush();
 
 	return result;
+}
+
+CH_FORCEINLINE ch::Vector2 draw_string(const tchar* str, f32 x, f32 y, const ch::Color& color, Font& font, f32 z_index = 9.f) {
+	ch::String print_string;
+	print_string.data = (tchar*)str;
+	print_string.count = ch::strlen(str);
+	return draw_string(print_string, x, y, color, font, z_index);
 }
 
 void imm_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Font& font, f32 z_index = 9.f);

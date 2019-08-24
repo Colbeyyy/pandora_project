@@ -373,7 +373,7 @@ Font_Glyph imm_char(tchar c, f32 x, f32 y, const ch::Color& color, const Font& f
 	return g;
 }
 
-ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index) {
+ch::Vector2 imm_string(const ch::String& str, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index) {
 	const f32 font_height = FONT_SIZE;
 
 	const f32 original_x = x;
@@ -382,7 +382,7 @@ ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, c
 	f32 largest_x = 0.f;
 	f32 largest_y = 0.f;
 
-	for (usize i = 0; i < ch::strlen(str); i++) {
+	for (usize i = 0; i < str.count; i++) {
 		if (str[i] == ch::eol) {
 			y -= font_height;
 			x = original_x;

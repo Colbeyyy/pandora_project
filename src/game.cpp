@@ -65,7 +65,7 @@ int MAIN() {
 		Sprite sprite(t, 16, 16, 0, 0);
 		s->sprite = sprite;
 	}
-	assert(Font::load_from_path(CH_TEXT("fonts/FORCED SQUARE.ttf"), &font));
+	assert(Font::load_from_os(CH_TEXT("consola.ttf"), &font));
 	
 	ch::context_allocator = ch::make_arena_allocator(temp_arena_size);
 	the_window.set_visibility(true);
