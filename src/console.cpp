@@ -4,6 +4,8 @@
 #include "game.h"
 #include "font.h"
 
+#include "console_commands.h"
+
 #include <ch_stl/math.h>
 #include <ch_stl/array.h>
 #include <ch_stl/time.h>
@@ -88,6 +90,16 @@ static void reset_console_buffer() {
 	the_command_buffer.insert(0, 0);
 	cursor = 0;
 	selection = 0;
+}
+
+static void process_command(Console_Entry* entry) {
+	const usize message_count = ch::strlen(entry->message);
+	assert(message_count > 0);
+
+	ch::String whole_entry;
+	whole_entry.data = entry->message;
+	whole_entry.count = message_count;
+
 }
 
 static void console_input(void* owner, Input_Event* event) {
@@ -177,6 +189,7 @@ static void console_input(void* owner, Input_Event* event) {
 
 					// @NOTE(CHall): if we found a char then push
 					if (found_char) {
+						process_command(&it);
 						console_entries.push(it);
 					}
 				}
@@ -315,4 +328,8 @@ void console_log(const tchar* fmt, ...) {
 #endif
 	va_end(args);
 	console_entries.push(it);
+}
+
+bool help_command(const ch::String& params) {
+	
 }

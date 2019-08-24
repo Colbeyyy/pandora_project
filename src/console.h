@@ -28,3 +28,5 @@ void console_log(const tchar* fmt, ...);
 #define log_verbose(str, ...) output_log(LS_Verbose, str, __VA_ARGS__)
 #define log_warning(str, ...) output_log(LS_Warning, str, __VA_ARGS__)
 #define log_error(str, ...) output_log(LS_Error, str, __VA_ARGS__)
+
+bool help_command(const ch::String& params);
