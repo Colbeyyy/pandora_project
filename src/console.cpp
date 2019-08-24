@@ -7,6 +7,7 @@
 #include <ch_stl/math.h>
 #include <ch_stl/array.h>
 #include <ch_stl/time.h>
+#include <ch_stl/gap_buffer.h>
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -44,157 +45,12 @@ struct Console_Entry {
 };
 
 ch::Array<Console_Entry> console_entries = ch::get_heap_allocator();
-
-struct Gap_Buffer {
-	tchar* data;
-	usize allocated;
-	tchar* gap;
-	usize gap_size;
-
-	static usize default_gap_size;
-
-	CH_FORCEINLINE usize count() const { return allocated - gap_size; }
-
-	CH_FORCEINLINE tchar& operator[](usize index) {
-		assert(index < count());
-
-		if (data + index < gap) {
-			return data[index];
-		} else {
-			return data[index + gap_size];
-		}
-	}
-
-	CH_FORCEINLINE tchar operator[](usize index) const {
-		assert(index < count());
-
-		if (data + index < gap) {
-			return data[index];
-		}
-		else {
-			return data[index + gap_size];
-		}
-	}
-
-	Gap_Buffer() = default;
-	Gap_Buffer(usize size);
-	void free();
-	void resize(usize new_gap_size);
-	void move_gap_to_index(usize index);
-	tchar* get_index_as_cursor(usize index);
-	void add_char(tchar c, usize index);
-	void remove_at_index(usize index);
-	void remove_between(usize index, usize count);
-};
-
-usize Gap_Buffer::default_gap_size = 512;
-
-static Gap_Buffer the_command_buffer;
+static ch::Gap_Buffer<tchar> the_command_buffer;
 static usize cursor = 0;
 static usize selection = 0;
 
-Gap_Buffer::Gap_Buffer(usize size) {
-	if (size < default_gap_size) size = default_gap_size;
-	allocated = size;
-	data = ch_new tchar[allocated];
-	assert(data);
-
-	gap = data;
-	gap_size = size;
-}
-
-void Gap_Buffer::free() { 
-	if (data) ch_delete data;
-}
-
-void Gap_Buffer::resize(usize new_gap_size) {
-	if (!data) {
-		*this = Gap_Buffer(new_gap_size);
-		return;
-	}
-	assert(data);
-	assert(gap_size == 0);
-
-	const usize old_size = allocated;
-	const usize new_size = old_size + new_gap_size;
-
-	tchar* old_data = data;
-	tchar* new_data = (tchar*)ch::realloc(old_data, new_size * sizeof(tchar));
-	assert(!new_data);
-
-	data = new_data;
-	allocated = new_size;
-	gap = (data + old_size);
-	gap_size = new_gap_size;
-}
-
-void Gap_Buffer::move_gap_to_index(usize index) {
-	assert(index < count());
-
-	tchar* index_ptr = &(*this)[index];
-
-	if (index_ptr < gap) {
-		const usize amount_to_move = gap - index_ptr;
-
-		ch::mem_copy(gap + gap_size - amount_to_move, index_ptr, amount_to_move * sizeof(tchar));
-
-		gap = index_ptr;
-	}
-	else {
-		const usize amount_to_move = index_ptr - (gap + gap_size);
-
-		memcpy(gap, gap + gap_size, amount_to_move * sizeof(tchar));
-
-		gap += amount_to_move;
-	}
-}
-
-tchar* Gap_Buffer::get_index_as_cursor(usize index) {
-	if (data + index <= gap) {
-		return data + index;
-	}
-
-	return data + gap_size + index;
-}
-
-void Gap_Buffer::add_char(tchar c, usize index) {
-	if (gap_size <= 0) {
-		resize(default_gap_size);
-	}
-
-	tchar* cursor = get_index_as_cursor(index);
-
-	if (cursor != gap) move_gap_to_index(index);
-
-	*cursor = c;
-	gap += 1;
-	gap_size -= 1;
-}
-
-void Gap_Buffer::remove_at_index(usize index) {
-	const usize buffer_count = count();
-	assert(index < buffer_count);
-
-	tchar* cursor = get_index_as_cursor(index);
-	if (cursor == data) {
-		return;
-	}
-
-	move_gap_to_index(index);
-
-	gap -= 1;
-	gap_size += 1;
-}
-
-void Gap_Buffer::remove_between(usize index, usize count) {
-	// @SPEED(CHall): this is slow
-	for (usize i = index; i < index + count; i++) {
-		remove_at_index(i);
-	}
-}
-
 static void add_char_to_console_buffer(tchar c) {
-	the_command_buffer.add_char(c, cursor);
+	the_command_buffer.insert(c, cursor);
 	cursor += 1;
 	selection += 1;
 }
@@ -265,7 +121,7 @@ void init_console() {
 	shape_shader = find_shader(CH_TEXT("solid_shape"));
 	text_shader = find_shader(CH_TEXT("font"));
 	console_entries.reserve(1024);
-	the_command_buffer = Gap_Buffer(2048);
+	the_command_buffer = ch::Gap_Buffer<tchar>(2048, ch::get_heap_allocator());
 	add_char_to_console_buffer(0);
 	cursor = 0;
 
