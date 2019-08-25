@@ -30,10 +30,11 @@ static Shader* text_shader;
 
 static const f32 open_speed = 10.f;
 
-static ch::Color background_color = 0x052329FF;
-static ch::Color foreground_color = 0xd6b58dFF;
-static ch::Color cursor_color     = 0x81E38EFF;
-static ch::Color selection_color  = 0x000EFFFF;
+static ch::Color background_color	 = 0x052329FF;
+static ch::Color foreground_color	 = 0xd6b58dFF;
+static ch::Color cursor_color		 = 0x81E38EFF;
+static ch::Color selection_color	 = 0x000EFFFF;
+static ch::Color selected_text_color = ch::white;
 static f32 y_padding = 5.f;
 static f32 x_padding = 5.f;
 
@@ -51,27 +52,60 @@ struct Console_Entry {
 
 ch::Array<Console_Entry> console_entries = ch::get_heap_allocator();
 static ch::Gap_Buffer<tchar> the_command_buffer;
-static usize cursor = 0;
-static usize selection = 0;
+static ssize cursor = 0;
+static ssize selection = 0;
 
 f32 cursor_blink_time = 0.f;
 bool show_cursor = true;
+static bool show_logs = true;
 
 static bool has_selection() {
 	return cursor != selection;
+}
+
+static void set_cursor(ssize new_cursor) {
+	assert(new_cursor == -1 || new_cursor < (ssize)the_command_buffer.count());
+
+	cursor = new_cursor;
+	if (!is_key_down(CH_KEY_SHIFT)) {
+		selection = cursor;
+	}
+}
+
+static ssize seek_dir(bool left) {
+	ssize result = cursor + (!left * 2);
+	if (left) {
+		for (; result > -1; result -= 1) {
+			const tchar c = the_command_buffer[result];
+			if (ch::is_symbol(c) || ch::is_whitespace(c)) {
+				result -= 1;
+				break;
+			}
+		}
+	} else {
+		for (; result < (ssize)the_command_buffer.count() - 1; result += 1) {
+			const tchar c = the_command_buffer[result];
+			if (ch::is_symbol(c) || ch::is_whitespace(c)) {
+				result -= 1;
+				break;
+			}
+		}
+	}
+
+	return result;
 }
 
 static void remove_selection() {
 	assert(has_selection());
 
 	if (cursor > selection) {
-		for (usize i = cursor; i > selection; i--) {
+		for (ssize i = cursor; i > selection; i--) {
 			the_command_buffer.remove_at_index(i);
 		}
 		cursor = selection;
 	} else {
-		for (usize i = selection; i > cursor; i--) {
-			if (i < the_command_buffer.count()) {
+		for (ssize i = selection; i > cursor; i--) {
+			if (i < (ssize)the_command_buffer.count()) {
 				the_command_buffer.remove_at_index(i);
 			}
 		}
@@ -79,20 +113,39 @@ static void remove_selection() {
 	}
 }
 
-static void add_char_to_console_buffer(tchar c) {
+static void add_char_to_command_buffer(tchar c) {
 	if (has_selection()) remove_selection();
 
-	the_command_buffer.insert(c, cursor);
+	the_command_buffer.insert(c, cursor + 1);
 	cursor += 1;
 	selection += 1;
 }
 
-static void reset_console_buffer() {
+static void reset_command_buffer() {
 	the_command_buffer.gap = the_command_buffer.data;
 	the_command_buffer.gap_size = the_command_buffer.allocated;
-	the_command_buffer.insert(0, 0);
-	cursor = 0;
-	selection = 0;
+	cursor = -1;
+	selection = -1;
+}
+
+static void set_console_state(u32 new_cs) {
+	if (new_cs == Console_State::CS_MAX) new_cs = 0;
+	console_state = new_cs;
+
+	switch (console_state) {
+	case Console_State::CS_Closed:
+		target_height = 0.f;
+		break;
+	case Console_State::CS_Small:
+		target_height = FONT_SIZE;
+		break;
+	case Console_State::CS_Full:
+		target_height = 600.f;
+		break;
+	case Console_State::CS_MAX:
+		invalid_code_path;
+		break;
+	}
 }
 
 static void process_command(Console_Entry* entry) {
@@ -111,11 +164,12 @@ static void process_command(Console_Entry* entry) {
 	if (space_index == -1) {
 		params.count = 0;
 	} else {
-		params.advance(space_index + 1);
+		params.advance(space_index);
+		params.eat_whitespace();
 		command_name.count = space_index;
 	}
 
-#define FIND_COMMAND(func, name) if (command_name == name) { func(params); return; } 
+#define FIND_COMMAND(func, name) if (command_name == name) { if (func(params)) set_console_state(CS_Full); else set_console_state(CS_Closed); return; } 
 	CONSOLE_COMMANDS(FIND_COMMAND);
 #undef FIND_COMMAND
 
@@ -131,89 +185,106 @@ static void console_input(void* owner, Input_Event* event) {
 	const bool ctrl_down = is_key_down(CH_KEY_CONTROL);
 
 	if (event->type == ET_Char_Entered) {
-		if (c < 32 && c > 126) return;
+		if (c < 32 || c > 126) return;
 		switch(c) {
-			case '`': {
-				console_state += 1;
-				if (console_state == Console_State::CS_MAX) console_state = 0;
-
-				switch (console_state) {
-				case Console_State::CS_Closed:
-					target_height = 0.f;
-					break;
-				case Console_State::CS_Small:
-					target_height = FONT_SIZE;
-					break;
-				case Console_State::CS_Full:
-					target_height = 600.f;
-					break;
-				case Console_State::CS_MAX:
-					invalid_code_path;
-					break;
-				}
+			case '`': 
+				set_console_state(console_state + 1);
 				return;
-			} break;
 			case ' ':
-				add_char_to_console_buffer(' ');
+				add_char_to_command_buffer(' ');
 				break;
 			default:
 				if (ch::is_whitespace(c)) return;
-				add_char_to_console_buffer(c);
+				add_char_to_command_buffer(c);
 				break;
 		}
 	} else if (event->type == ET_Key_Pressed) {
 		switch (c) {
 			case CH_KEY_LEFT:
-				if (cursor > 0) {
-					cursor -= 1;
-					if (!shift_down) selection = cursor;
+				if (cursor > -1) {
+					const ssize new_cursor = ctrl_down ? seek_dir(true) : cursor - 1;
+					set_cursor(new_cursor);
 				}
 				break;
 			case CH_KEY_RIGHT:
-				if (cursor < the_command_buffer.count() - 1) {
-					cursor += 1;
-					if (!shift_down) selection = cursor;
+				if (cursor < (ssize)the_command_buffer.count() - 1) {
+					const ssize new_cursor = ctrl_down ? seek_dir(false) : cursor + 1;
+					set_cursor(new_cursor);
 				}
 				break;
+			case CH_KEY_HOME:
+				set_cursor(-1);
+				break;
+			case CH_KEY_END:
+				set_cursor(the_command_buffer.count() - 1);
+				break;
 			case CH_KEY_BACKSPACE:
-				if (cursor > 0) {
+				if (cursor > -1 || has_selection()) {
 					if (has_selection()) remove_selection();
 					else {
-						the_command_buffer.remove_at_index(cursor);
-						cursor -= 1;
-						selection -= 1;
+						if (ctrl_down) {
+							cursor = seek_dir(true);
+							if (has_selection()) remove_selection();
+						} else {
+							the_command_buffer.remove_at_index(cursor);
+							cursor -= 1;
+							selection -= 1;
+						}
 					}
 				}
 				break;
 			case CH_KEY_DELETE:
-				if (cursor < the_command_buffer.count() - 1) {
+				if (cursor < (ssize)the_command_buffer.count() - 1 || has_selection()) {
 					if (has_selection()) remove_selection();
 					else {
-						the_command_buffer.remove_at_index(cursor + 1);
+						if (ctrl_down) {
+							cursor = seek_dir(false);
+							if (has_selection()) remove_selection();
+						} else {
+							the_command_buffer.remove_at_index(cursor + 1);
+						}
 					}
 				}
 				break;
 			case CH_KEY_ENTER: {
-				if (the_command_buffer.count() > 0) {
-					Console_Entry it;
+				Console_Entry it;
 
-					bool found_char = false;
-					for (usize i = 0; i < the_command_buffer.count() - 1; i++) {
-						tchar tcb = the_command_buffer[i];
-						it.message[i] = tcb;
-						if (ch::is_letter(tcb)) found_char = true;
-					}
-					it.message[the_command_buffer.count() - 1] = 0;
+				bool found_char = false;
+				for (usize i = 0; i < the_command_buffer.count(); i++) {
+					tchar tcb = the_command_buffer[i];
+					it.message[i] = tcb;
+					if (ch::is_letter(tcb)) found_char = true;
+				}
+				it.message[the_command_buffer.count()] = 0;
 
-					reset_console_buffer();
+				reset_command_buffer();
 
-					// @NOTE(CHall): if we found a char then push
-					if (found_char) {
-						console_entries.push(it);
-						process_command(&it);
+				console_entries.push(it);
+				// @NOTE(CHall): if we found a char then process
+				if (found_char) {
+					process_command(&it);
+				}
+			} break;
+			case 'V': {
+				if (!ctrl_down) break;
+				ch::String clipboard;
+				if (ch::copy_from_clipboard(the_window, &clipboard)) {
+					for (usize i = 0; i < clipboard.count; i++) {
+						const tchar c = clipboard[i];
+						if (c == '\n' || c == '\r' || c == ch::eos || c == '\t') continue;
+						add_char_to_command_buffer(c);
 					}
 				}
 			} break;
+			case 'C':
+				if (!ctrl_down) break;
+				output_log(LS_Warning, CH_TEXT("Sorry! Copying from is the command buffer is currently not supported"));
+				break;
+			case 'X':
+				if (!ctrl_down) break;
+				output_log(LS_Warning, CH_TEXT("Sorry! Copying from is the command buffer is currently not supported"));
+				reset_command_buffer();
+				break;
 		}
 	}
 
@@ -226,7 +297,7 @@ void init_console() {
 	text_shader = find_shader(CH_TEXT("font"));
 	console_entries.reserve(1024);
 	the_command_buffer = ch::Gap_Buffer<tchar>(2048, ch::get_heap_allocator());
-	reset_console_buffer();
+	reset_command_buffer();
 
 	bind_event_listener(Event_Listener(nullptr, console_input, ET_None));
 }
@@ -292,7 +363,7 @@ void draw_console() {
 			
 			if (!it.is_log_entry) {
 				offset_x += imm_string(CH_TEXT("> "), x, y, color, font).x;
-			}
+			} else if (!show_logs) continue;
 			
 			imm_string(it.message, x + offset_x, y, color, font);
 			y += bar_height + y_padding;
@@ -320,20 +391,22 @@ void draw_console() {
 			const tchar c = the_command_buffer[i];
 			const Font_Glyph& glyph = c == ch::eos ? font[' '] : font[c];
 
-			const bool is_in_selection = (cursor > selection && i >= selection && i < cursor) || (cursor < selection && i < selection && i >= cursor);
+			const bool is_in_selection = (cursor > selection && (ssize)i >= selection + 1 && (ssize)i < cursor + 1) || (cursor < selection && (ssize)i < selection + 1 && (ssize)i >= cursor + 1);
 			if (is_in_selection) {
 				draw_rect_at_char(x, y, glyph, selection_color);
 			}
 
-			const bool is_in_cursor = i == cursor && show_cursor;
+			const bool is_in_cursor = i == cursor + 1 && show_cursor;
 			if (is_in_cursor) {
 				draw_rect_at_char(x, y, glyph, cursor_color);
 			}
 
-			const ch::Color color = (is_in_selection && !is_in_cursor) ? ch::white : background_color;
+			const ch::Color color = (is_in_selection && !is_in_cursor) ? selected_text_color : background_color;
 			imm_glyph(glyph, x, y, color, font);
 			x += glyph.advance;
 		}
+
+		if (cursor + 1 == the_command_buffer.count() && show_cursor) draw_rect_at_char(x, y, font[' '], cursor_color);
 	}
 	imm_flush();
 }
@@ -378,7 +451,7 @@ bool help_command(const ch::String& params) {
 bool output_log_command(const ch::String& params) {
 	if (!params.count) {
 		console_log(CH_TEXT("log command requires some text following it. Example: \"log hello world\""));
-		return false;
+		return true;
 	}
 
 	log(CH_TEXT("%.*s"), params.count, params.data);
@@ -388,8 +461,39 @@ bool output_log_command(const ch::String& params) {
 bool clear_command(const ch::String& params) {
 	if (params.count) {
 		console_log(CH_TEXT("clear should not have any params"));
-		return false;
+		return true;
 	}
 	console_entries.count = 0;
+	return true;
+}
+
+bool toggle_show_logs(const ch::String& params) {
+	if (params.count) {
+		console_log(CH_TEXT("toggle_show_logs should not have any params"));
+		return true;
+	}
+
+	show_logs = !show_logs;
+	return true;
+}
+
+bool set_show_logs(const ch::String& params) {
+	if (!params.count) {
+		console_log(CH_TEXT("set_show_logs requires one single param of either true or false"));
+		console_log(CH_TEXT("Example: \"set_show_logs false\""));
+		return true;
+	}
+
+	ch::String lower_case = params;
+	lower_case.to_lowercase();
+
+	if (lower_case == CH_TEXT("true") || lower_case == CH_TEXT("1")) {
+		show_logs = true;
+	} else if (lower_case == CH_TEXT("false") || lower_case == CH_TEXT("0")) {
+		show_logs = false;
+	} else {
+		console_log(CH_TEXT("unrecognized param \"%.*s\""), params.count, params.data);
+	}
+
 	return true;
 }

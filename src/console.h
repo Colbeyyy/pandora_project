@@ -32,3 +32,5 @@ void console_log(const tchar* fmt, ...);
 bool help_command(const ch::String& params);
 bool output_log_command(const ch::String& params);
 bool clear_command(const ch::String& params);
+bool toggle_show_logs(const ch::String& params);
+bool set_show_logs(const ch::String& params);
