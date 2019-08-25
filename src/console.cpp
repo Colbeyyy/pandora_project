@@ -370,6 +370,8 @@ void console_log(const tchar* fmt, ...) {
 }
 
 bool help_command(const ch::String& params) {
+	console_log(CH_TEXT("@TODO(CHall): add help command stuff"));
+
 	return true;
 }
 
