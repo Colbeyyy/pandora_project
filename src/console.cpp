@@ -174,6 +174,7 @@ static void process_command(Console_Entry* entry) {
 #undef FIND_COMMAND
 
 	console_log(CH_TEXT("Command not found \"%.*s\""), command_name.count, command_name.data);
+	set_console_state(CS_Full);
 }
 
 static void console_input(void* owner, Input_Event* event) {
@@ -268,6 +269,7 @@ static void console_input(void* owner, Input_Event* event) {
 			case 'V': {
 				if (!ctrl_down) break;
 				ch::String clipboard;
+				defer(clipboard.free());
 				if (ch::copy_from_clipboard(the_window, &clipboard)) {
 					for (usize i = 0; i < clipboard.count; i++) {
 						const tchar c = clipboard[i];
@@ -415,7 +417,7 @@ void output_log(Log_Severity severity, const tchar* fmt, ...) {
 	Console_Entry it(severity);
 
 	const u32 hour = it.time_created.hour > 12 ? it.time_created.hour - 12 : it.time_created.hour;
-	const usize offset = sprintf(it.message, CH_TEXT("[%lu:%lu:%lu]"), hour, it.time_created.minute, it.time_created.second);
+	const usize offset = ch::sprintf(it.message, CH_TEXT("[%lu:%lu:%lu]"), hour, it.time_created.minute, it.time_created.second);
 
 	va_list args;
 	va_start(args, fmt);

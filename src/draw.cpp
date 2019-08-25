@@ -2,6 +2,7 @@
 #include "game.h"
 #include "components.h"
 #include "sprite_renderer.h"
+#include "hud.h"
 #include "console.h"
 
 const usize max_verts = 128 * 1024;
@@ -127,6 +128,7 @@ void draw_game() {
 
 	frame_end();
 
+	draw_hud();
 	draw_console();
 
 	ch::swap_buffers(the_window);

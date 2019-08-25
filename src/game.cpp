@@ -3,6 +3,7 @@
 #include "world.h"
 #include "input.h"
 #include "console.h"
+#include "hud.h"
 
 #include <ch_stl/filesystem.h>
 #include <ch_stl/time.h>
@@ -20,6 +21,7 @@ static void tick_game(f32 dt) {
 
 	tick_console(dt);
 	if (loaded_world) loaded_world->tick(dt);
+	tick_hud(dt);
 	
 }
 

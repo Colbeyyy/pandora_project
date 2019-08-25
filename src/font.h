@@ -4,7 +4,7 @@
 
 #define NUM_CHARACTERS 95
 #define FONT_ATLAS_DIMENSION 2048
-#define FONT_SIZE 30.f;
+#define FONT_SIZE 30.f
 
 struct Font_Glyph {
 	f32 width, height;
