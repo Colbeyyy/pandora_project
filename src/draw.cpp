@@ -240,13 +240,7 @@ ch::Vector2 get_back_buffer_draw_size() {
 		height = width * ratio;
 	}
 
-	const f32 render_target_scale = ch::ceil(width / (f32)back_buffer_width);
-
-	ch::Vector2 result;
-	result.x = (f32)back_buffer_width * render_target_scale;
-	result.y = (f32)back_buffer_height * render_target_scale;
-
-	return result;
+	return ch::Vector2(width, height);
 }
 
 void imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, ch::Vector2 normal, f32 z_index /*= 0.f*/) {

@@ -1,18 +1,11 @@
 -------- TODO --------
 
-* Console System
-	- Output logging 
-	- Commands
-
-* Gameplay
-	- Movement
-
-* Asset System Refactor
-	- the system needs to be event based and maybe change how assets are allocated
-
 * Audio Engine
 	- dsound?
 	- xaudio2?
+
+* Asset System Refactor
+	- the system needs to be event based and maybe change how assets are allocated
 
 * Gamepad Input
 	- xinput
@@ -21,3 +14,6 @@
 	- Batch Tile Renderer
 	- Spritesheet
 	- Sprite batch rendering
+
+* Gameplay
+	- Movement
