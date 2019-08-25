@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ch_stl/types.h>
+#include <ch_stl/string.h>
 
 void init_console();
 void tick_console(f32 dt);
@@ -30,3 +30,5 @@ void console_log(const tchar* fmt, ...);
 #define log_error(str, ...) output_log(LS_Error, str, __VA_ARGS__)
 
 bool help_command(const ch::String& params);
+bool output_log_command(const ch::String& params);
+bool clear_command(const ch::String& params);

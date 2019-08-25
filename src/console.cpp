@@ -54,6 +54,9 @@ static ch::Gap_Buffer<tchar> the_command_buffer;
 static usize cursor = 0;
 static usize selection = 0;
 
+f32 cursor_blink_time = 0.f;
+bool show_cursor = true;
+
 static bool has_selection() {
 	return cursor != selection;
 }
@@ -96,10 +99,27 @@ static void process_command(Console_Entry* entry) {
 	const usize message_count = ch::strlen(entry->message);
 	assert(message_count > 0);
 
-	ch::String whole_entry;
-	whole_entry.data = entry->message;
-	whole_entry.count = message_count;
+	ch::String command;
+	command.data = entry->message;
+	command.count = message_count;
+	command.eat_whitespace();
 
+	const ssize space_index = command.find_from_left(' ');
+	ch::String command_name = command;
+	ch::String params = command;
+
+	if (space_index == -1) {
+		params.count = 0;
+	} else {
+		params.advance(space_index + 1);
+		command_name.count = space_index;
+	}
+
+#define FIND_COMMAND(func, name) if (command_name == name) { func(params); return; } 
+	CONSOLE_COMMANDS(FIND_COMMAND);
+#undef FIND_COMMAND
+
+	console_log(CH_TEXT("Command not found \"%.*s\""), command_name.count, command_name.data);
 }
 
 static void console_input(void* owner, Input_Event* event) {
@@ -111,7 +131,7 @@ static void console_input(void* owner, Input_Event* event) {
 	const bool ctrl_down = is_key_down(CH_KEY_CONTROL);
 
 	if (event->type == ET_Char_Entered) {
-		if (c < 32) return;
+		if (c < 32 && c > 126) return;
 		switch(c) {
 			case '`': {
 				console_state += 1;
@@ -189,13 +209,16 @@ static void console_input(void* owner, Input_Event* event) {
 
 					// @NOTE(CHall): if we found a char then push
 					if (found_char) {
-						process_command(&it);
 						console_entries.push(it);
+						process_command(&it);
 					}
 				}
 			} break;
 		}
 	}
+
+	show_cursor = true;
+	cursor_blink_time = 0.f;
 }
 
 void init_console() {
@@ -210,6 +233,17 @@ void init_console() {
 
 void tick_console(f32 dt) {
 	current_height = ch::interp_to(current_height, target_height, dt, open_speed);
+	
+	u32 blink_time;
+	if (!ch::get_caret_blink_time(&blink_time)) {
+		cursor_blink_time = 0.f;
+		show_cursor = true;
+	}
+	cursor_blink_time += dt;
+	if (cursor_blink_time > (f32)blink_time / 1000.f) {
+		show_cursor = !show_cursor;
+		cursor_blink_time = 0.f;
+	}
 }
 
 void draw_console() {
@@ -252,8 +286,15 @@ void draw_console() {
 		f32 y = -current_height + bar_height + y_padding * 2.f;
 		for (usize i = console_entries.count - 1; i < -1; i -= 1) {
 			const Console_Entry& it = console_entries[i];
+			
 			const ch::Color color = it.is_log_entry ? it.severity : foreground_color;
-			imm_string(it.message, x, y, color, font);
+			f32 offset_x = 0.f;
+			
+			if (!it.is_log_entry) {
+				offset_x += imm_string(CH_TEXT("> "), x, y, color, font).x;
+			}
+			
+			imm_string(it.message, x + offset_x, y, color, font);
 			y += bar_height + y_padding;
 			if (y > 0.f) break;
 		}
@@ -273,6 +314,8 @@ void draw_console() {
 
 		f32 x = x_padding;
 		f32 y = -current_height + bar_height - font.ascent;
+		x += imm_string(CH_TEXT("> "), x, y, background_color, font).x;
+
 		for(usize i = 0; i < the_command_buffer.count(); i++) {
 			const tchar c = the_command_buffer[i];
 			const Font_Glyph& glyph = c == ch::eos ? font[' '] : font[c];
@@ -282,7 +325,7 @@ void draw_console() {
 				draw_rect_at_char(x, y, glyph, selection_color);
 			}
 
-			const bool is_in_cursor = i == cursor;
+			const bool is_in_cursor = i == cursor && show_cursor;
 			if (is_in_cursor) {
 				draw_rect_at_char(x, y, glyph, cursor_color);
 			}
@@ -290,10 +333,6 @@ void draw_console() {
 			const ch::Color color = (is_in_selection && !is_in_cursor) ? ch::white : background_color;
 			imm_glyph(glyph, x, y, color, font);
 			x += glyph.advance;
-		}
-
-		if (cursor == the_command_buffer.count()) {
-			draw_rect_at_char(x, y, font[' '], cursor_color);
 		}
 	}
 	imm_flush();
@@ -331,5 +370,24 @@ void console_log(const tchar* fmt, ...) {
 }
 
 bool help_command(const ch::String& params) {
-	
+	return true;
+}
+
+bool output_log_command(const ch::String& params) {
+	if (!params.count) {
+		console_log(CH_TEXT("log command requires some text following it. Example: \"log hello world\""));
+		return false;
+	}
+
+	log(CH_TEXT("%.*s"), params.count, params.data);
+	return true;
+}
+
+bool clear_command(const ch::String& params) {
+	if (params.count) {
+		console_log(CH_TEXT("clear should not have any params"));
+		return false;
+	}
+	console_entries.count = 0;
+	return true;
 }
