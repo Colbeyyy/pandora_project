@@ -8,9 +8,9 @@ struct System {
 	virtual void tick(f32 dt) {}
 };
 
-struct Sprite_System : public System {
+struct Camera_System : public System {
 	virtual void tick(f32 dt) override;
 };
 
 #define ALL_SYSTEMS(macro) \
-macro(Sprite_System)
+macro(Camera_System)

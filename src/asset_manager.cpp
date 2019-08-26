@@ -1,6 +1,7 @@
 #include "asset_manager.h"
 #include "shader.h"
 #include "texture.h"
+#include "console.h"
 
 #include <ch_stl/time.h>
 
@@ -56,12 +57,15 @@ void init_am() {
 			load_asset(full_path, &fd);
 			if (ext == CH_TEXT("glsl")) {
 				Shader* s = ch_new Shader;
+				Lookup<Shader*> p = {};
+				p.key = r;
 				if (Shader::load_from_source((const GLchar*)fd.data, s)) {
-					Lookup<Shader*> p;
-					p.key = r;
 					p.value = s;
-					loaded_shaders.push(p);
+					o_log(CH_TEXT("loaded shader %s"), full_path);
+				} else {
+					o_log_error(CH_TEXT("failed to load shader %s"), full_path);
 				}
+				loaded_shaders.push(p);
 			}
 			else if (ext == CH_TEXT("png")) {
 				const s32 desired_components = (s32)BT_RGBA;
@@ -71,14 +75,16 @@ void init_am() {
 				Bitmap bm;
 				bm.data = stbi_load_from_memory(fd.data, (int)fd.size, &bm.width, &bm.height, &bm.num_components, desired_components);
 				defer(stbi_image_free(bm.data));
+				Lookup<Texture*> p = {};
+				p.key = r;
 				if (bm) {
 					Texture* t = ch_new Texture(bm);
-
-					Lookup<Texture*> p;
-					p.key = r;
 					p.value = t;
-					loaded_textures.push(p);
+					o_log(CH_TEXT("loaded texture %s"), full_path);
+				} else {
+					o_log_error(CH_TEXT("failed to load texture %s"), full_path);
 				}
+				loaded_textures.push(p);
 			}
 		}
 	}
@@ -105,10 +111,13 @@ void refresh_am() {
 
 						Shader s;
 						if (Shader::load_from_source((const GLchar*)fd.data, &s)) {
-							it.value->free();
+							if (it.value) it.value->free();
 							*it.value = s;
-							it.key = r;
+							o_log(CH_TEXT("shader reloaded %s"), full_path);
+						} else {
+							o_log_error(CH_TEXT("shader failed to reload %s"), full_path);
 						}
+						it.key = r;
 					}
 				}
 			}
@@ -124,10 +133,13 @@ void refresh_am() {
 						bm.data = stbi_load_from_memory(fd.data, (int)fd.size, &bm.width, &bm.height, &bm.num_components, desired_components);
 						defer(stbi_image_free(bm.data));
 						if (bm) {
-							it.value->free();
+							if (it.value) it.value->free();
 							*it.value = Texture(bm);
-							it.key = r;
+							o_log(CH_TEXT("reloaded texture %s"), full_path);
+						} else {
+							o_log_error(CH_TEXT("failed to reload texture %s"), full_path);
 						}
+						it.key = r;
 					}
 				}
 			}
@@ -142,18 +154,18 @@ bool load_asset(const ch::Path& path, ch::File_Data* fd) {
 Shader* find_shader(const tchar* name) {
 	for (Lookup<Shader*>& it : loaded_shaders) {
 		ch::Path fn = it.key.file_name;
-		if (fn.get_filename() == name) {
+		if (fn.get_filename() == name && it.value) {
 			return it.value;
 		}
 	}
 
-	return nullptr;
+	return get_default_shader();
 }
 
 Texture* find_texture(const tchar* name) {
 	for (Lookup<Texture*>& it : loaded_textures) {
 		ch::Path fn = it.key.file_name;
-		if (fn.get_filename() == name) {
+		if (fn.get_filename() == name && it.value) {
 			return it.value;
 		}
 	}

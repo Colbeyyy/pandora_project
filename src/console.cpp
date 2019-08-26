@@ -169,7 +169,7 @@ static void process_command(Console_Entry* entry) {
 		command_name.count = space_index;
 	}
 
-#define FIND_COMMAND(func, name) if (command_name == name) { if (func(params)) set_console_state(CS_Full); else set_console_state(CS_Closed); return; } 
+#define FIND_COMMAND(func, name, help) if (command_name == name) { if (func(params)) set_console_state(CS_Full); else set_console_state(CS_Closed); return; } 
 	CONSOLE_COMMANDS(FIND_COMMAND);
 #undef FIND_COMMAND
 
@@ -264,6 +264,8 @@ static void console_input(void* owner, Input_Event* event) {
 				// @NOTE(CHall): if we found a char then process
 				if (found_char) {
 					process_command(&it);
+				} else {
+					set_console_state(CS_Full);
 				}
 			} break;
 			case 'V': {
@@ -445,7 +447,10 @@ void console_log(const tchar* fmt, ...) {
 }
 
 bool help_command(const ch::String& params) {
-	console_log(CH_TEXT("@TODO(CHall): add help command stuff"));
+
+#define FIND_COMMAND(func, name, help) if (name != CH_TEXT("help")) console_log(CH_TEXT("%s : %s"), name, help);
+	CONSOLE_COMMANDS(FIND_COMMAND);
+#undef FIND_COMMAND
 
 	return true;
 }
@@ -456,7 +461,7 @@ bool output_log_command(const ch::String& params) {
 		return true;
 	}
 
-	log(CH_TEXT("%.*s"), params.count, params.data);
+	o_log(CH_TEXT("%.*s"), params.count, params.data);
 	return true;
 }
 

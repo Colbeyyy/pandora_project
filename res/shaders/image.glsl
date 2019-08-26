@@ -18,7 +18,7 @@ vec2 round(vec2 v) {
 }
 
 void main() {
-    gl_Position =  projection * view * vec4(round(position), -z_index, 1.0);
+    gl_Position = projection * view * vec4((round(position) + 0.5), -z_index, 1.0);
 
 	out_position = position;
 	out_color = color;

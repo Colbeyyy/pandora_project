@@ -4,6 +4,8 @@
 #include "sprite_renderer.h"
 #include "hud.h"
 #include "console.h"
+#include "tile.h"
+#include "debug.h"
 
 const usize max_verts = 128 * 1024;
 
@@ -22,8 +24,9 @@ ch::Matrix4 view;
 GLuint back_buffer_fbo;
 GLuint back_buffer_color;
 GLuint back_buffer_depth;
-u32 back_buffer_width = 1920;
-u32 back_buffer_height = 1080;
+const u32 render_ratio = 4;
+u32 back_buffer_width = 1920 / render_ratio;
+u32 back_buffer_height = 1080 / render_ratio;
 
 void init_draw() {
 	assert(ch::is_gl_loaded());
@@ -114,18 +117,20 @@ void draw_game() {
 		Entity* cam = loaded_world->find_entity(loaded_world->cam_id);
 		Camera_Component* cc = cam->find_component<Camera_Component>();
 		Transform_Component* tc = cam->find_component<Transform_Component>();
-
 		view = ch::translate(-tc->position);
 		projection = cc->get_projection();
+
+		if (show_tile_grid) {
+			Tile_Grid::debug_draw_grid(tc->position);
+		}
 	}
 
 	for (Sprite_Component* it : Component_Iterator<Sprite_Component>(loaded_world)) {
 		Transform_Component* tc = it->get_sibling<Transform_Component>();
-		sprite_renderer.push(tc->position, it->sprite);
+		const ch::Vector2 draw_pos = ch::round(tc->position + it->offset);
+		sprite_renderer.push(draw_pos, it->sprite);
 	}
-
 	sprite_renderer.flush();
-
 	frame_end();
 
 	draw_hud();
@@ -229,7 +234,7 @@ ch::Vector2 get_back_buffer_draw_size() {
 	const ch::Vector2 viewport_size = the_window.get_viewport_size();
 	f32 width, height;
 	const f32 back_buffer_aspect_ratio = (f32)(back_buffer_width) / (f32)(back_buffer_height);
-	const f32 viewport_aspect_ratio = (f32)(viewport_size.ux) / (f32)(viewport_size.uy);
+ 	const f32 viewport_aspect_ratio = (f32)(viewport_size.ux) / (f32)(viewport_size.uy);
 
 	if (viewport_aspect_ratio >= back_buffer_aspect_ratio) {
 		height = (f32)viewport_size.uy;
@@ -240,7 +245,13 @@ ch::Vector2 get_back_buffer_draw_size() {
 		height = width * ratio;
 	}
 
-	return ch::Vector2(width, height);
+	const f32 render_target_scale = ch::ceil(width / (f32)back_buffer_width);
+
+	ch::Vector2 result;
+	result.x = (f32)back_buffer_width * render_target_scale;
+	result.y = (f32)back_buffer_height * render_target_scale;
+
+	return result;
 }
 
 void imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, ch::Vector2 normal, f32 z_index /*= 0.f*/) {

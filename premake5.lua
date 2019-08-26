@@ -34,6 +34,9 @@ project "pandora_project"
     {
         "src/*.h",
         "src/*.cpp",
+		"res/**.glsl",
+		"todo.txt",
+		"gdd.txt"
     }
 
     includedirs

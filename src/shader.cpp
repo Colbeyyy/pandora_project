@@ -65,6 +65,7 @@ bool Shader::load_from_source(const GLchar* source, Shader* out_shader) {
 		glGetShaderInfoLog(vertex_id, sizeof(vert_errors), &ignored, vert_errors);
 		glGetShaderInfoLog(frag_id, sizeof(frag_errors), &ignored, frag_errors);
 		glGetProgramInfoLog(program_id, sizeof(program_errors), &ignored, program_errors);
+
 		return false;
 	}
 

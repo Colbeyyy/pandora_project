@@ -4,6 +4,7 @@
 #include "input.h"
 #include "console.h"
 #include "hud.h"
+#include "debug.h"
 
 #include <ch_stl/filesystem.h>
 #include <ch_stl/time.h>
@@ -22,9 +23,7 @@ static void tick_game(f32 dt) {
 	tick_console(dt);
 	if (loaded_world) loaded_world->tick(dt);
 	tick_hud(dt);
-	
 }
-
 
 #if CH_PLATFORM_WINDOWS
 #define MAIN() WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) 
@@ -49,6 +48,7 @@ int MAIN() {
 	init_draw();
 	init_input();
 	init_console();
+	init_debug();
 
 	loaded_world = ch_new World;
 
@@ -56,6 +56,7 @@ int MAIN() {
 		Entity* cam = get_world()->spawn_entity();
 		cam->add_component<Transform_Component>();
 		Camera_Component* cam_c = cam->add_component<Camera_Component>();
+		cam_c->ortho_size = (f32)back_buffer_height / 2.f;
 
 		loaded_world->cam_id = cam->id;
 
