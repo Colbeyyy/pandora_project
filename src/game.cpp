@@ -12,7 +12,7 @@
 #include <ch_stl/pool_allocator.h>
 
 ch::Window the_window;
-const tchar* window_title = CH_TEXT("pandora_project");
+const tchar* window_title = CH_TEXT("newport");
 Font font;
 const usize temp_arena_size = 1024 * 1024 * 512;
 
@@ -54,15 +54,19 @@ int MAIN() {
 	loaded_world = ch_new World;
 
 	{
-		spawn_camera(0.f);
+		spawn_camera(ch::Vector2(0.f, 50.f));
 		spawn_player(ch::Vector2(0.f, 100.f));
 		const f32 tile_size = Tile_Grid::tile_size.x;
 		const usize num_tiles = 32;
 		for (usize i = 0; i < num_tiles; i++) {
-			const f32 x = ((f32)i * 16.f) - ((f32)num_tiles / 2.f);
+			const f32 x = ((f32)i * 16.f) - ((f32)num_tiles * tile_size / 2.f);
 			const f32 y = 0.f;
-			spawn_tile(ch::Vector2(x, y), 0);
+			const ch::Vector2 pos = Tile_Grid::round_to_grid(ch::Vector2(x, y));
+			spawn_tile(pos, 0);
 		}
+
+		spawn_tile(ch::Vector2(16.f, 16.f));
+		spawn_tile(ch::Vector2(16.f, 32.f));
 	}
 	
 	assert(Font::load_from_os(CH_TEXT("consola.ttf"), &font));

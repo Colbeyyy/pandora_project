@@ -134,15 +134,16 @@ Entity* spawn_player(ch::Vector2 position) {
 	Transform_Component* tc = result->add_component<Transform_Component>();
 	Sprite_Component* sc = result->add_component<Sprite_Component>();
 	Collider_Component* cc = result->add_component<Collider_Component>();
+	Player_Movement_Component* pmc = result->add_component<Player_Movement_Component>();
 	Physics_Component* pc = result->add_component<Physics_Component>();
 
+	pc->simulate_physics = false;
 	tc->position = position;
 	Texture* t = find_texture(CH_TEXT("character"));
 	Sprite s(t, 16, 32, 0, 0);
 	sc->sprite = s;
-	// sc->offset.y = 16.f;
 
-	cc->collider.size = ch::Vector2(16.f, 32.f);
+	cc->collider.size = ch::Vector2(14.f, 32.f);
 
 	return result;
 }

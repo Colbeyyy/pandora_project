@@ -61,8 +61,19 @@ struct Sprite_Component : public TComponent<Sprite_Component> {
 struct Physics_Component : public TComponent<Physics_Component> {
 	ch::Vector2 velocity;
 	ch::Vector2 acceleration;
+	bool simulate_physics = true;
 };
 
 struct Collider_Component : public TComponent<Collider_Component> {
 	AABB collider;
+};
+
+struct Player_Movement_Component : public TComponent<Player_Movement_Component> {
+	bool on_wall = false;
+	bool on_ground = false;
+	u8 num_jumps = 0;
+	const u8 max_jumps = 2;
+	const f32 walk_speed = 16.f * 2.f;
+	const f32 sprint_speed = 16.f * 4.f;
+	const f32 jump_y_velocity = 16.f * 4.f;
 };
