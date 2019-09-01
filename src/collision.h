@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ch_stl/math.h>
+#include "entity_id.h"
 
 struct AABB {
 
@@ -31,7 +32,7 @@ struct Entity;
 struct Hit_Result {
 	ch::Vector2 impact;
 	ch::Vector2 normal;
-	Entity* entity;
+	Entity_Id entity;
 };
 
 bool line_intersect(ch::Vector2 a1, ch::Vector2 a2, ch::Vector2 b1, ch::Vector2 b2, ch::Vector2* out_vec);

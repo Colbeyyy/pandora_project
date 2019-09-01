@@ -2,6 +2,7 @@
 
 #include <ch_stl/math.h>
 #include "texture.h"
+#include "collision.h"
 
 #include "entity_id.h"
 
@@ -10,7 +11,7 @@ enum Component_Type {
 };
 
 struct Component {
-	usize type_id;
+	u64 type_id;
 	Entity_Id owner_id;
 
 	template <typename T>
@@ -25,13 +26,13 @@ struct Component {
 		return nullptr;
 	}
 
-	static usize type_id_counter;
+	static u64 type_id_counter;
 };
 
 template <typename T>
 struct TComponent : public Component {
-	CH_FORCEINLINE static usize get_type_id() {
-		static usize type_id = type_id_counter += 1;
+	CH_FORCEINLINE static u64 get_type_id() {
+		static u64 type_id = type_id_counter += 1;
 		return type_id;
 	}
 
@@ -54,4 +55,14 @@ struct Camera_Component : public TComponent<Camera_Component> {
 struct Sprite_Component : public TComponent<Sprite_Component> {
 	Sprite sprite;
 	ch::Vector2 offset;
+	bool flip_horz = false;
+};
+
+struct Physics_Component : public TComponent<Physics_Component> {
+	ch::Vector2 velocity;
+	ch::Vector2 acceleration;
+};
+
+struct Collider_Component : public TComponent<Collider_Component> {
+	AABB collider;
 };

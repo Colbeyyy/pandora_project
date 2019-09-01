@@ -3,8 +3,8 @@
 
 Sprite_Renderer sprite_renderer;
 
-usize Sprite_Renderer::push(ch::Vector2 position, Sprite sprite) {
-	Render_Command rc(position, sprite);
+usize Sprite_Renderer::push(ch::Vector2 position, Sprite sprite, bool flip_horz) {
+	Render_Command rc(position, sprite, flip_horz);
 	return commands.push(rc);
 }
 
@@ -14,6 +14,7 @@ void Sprite_Renderer::flush() {
 	Shader* s = find_shader(CH_TEXT("image"));
 	s->bind();
 	Texture* t = commands[0].sprite.atlas;
+	if (!t) return;
 	t->set_active();
 	refresh_transform();
 
@@ -30,7 +31,7 @@ void Sprite_Renderer::flush() {
 		const f32 y0 = it.position.y - (f32)(it.sprite.height / 2);
 		const f32 x1 = x0 + (f32)it.sprite.width;
 		const f32 y1 = y0 + (f32)it.sprite.height;
-		imm_sprite(x0, y0, x1, y1, ch::white, it.sprite);
+		imm_sprite(x0, y0, x1, y1, ch::white, it.sprite, it.flip_horz);
 	}
 	imm_flush();
 

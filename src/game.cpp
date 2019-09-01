@@ -5,6 +5,7 @@
 #include "console.h"
 #include "hud.h"
 #include "debug.h"
+#include "tile.h"
 
 #include <ch_stl/filesystem.h>
 #include <ch_stl/time.h>
@@ -34,7 +35,7 @@ static void tick_game(f32 dt) {
 int MAIN() {
 	assert(ch::load_gl());
 	{
-		const u32 width = 1280;
+		const u32 width = 1920;
 		const u32 height = (u32)((f32)width * (9.f / 16.f));
 		assert(ch::create_gl_window(window_title, width, height, 0, &the_window));
 	}
@@ -53,21 +54,17 @@ int MAIN() {
 	loaded_world = ch_new World;
 
 	{
-		Entity* cam = get_world()->spawn_entity();
-		cam->add_component<Transform_Component>();
-		Camera_Component* cam_c = cam->add_component<Camera_Component>();
-		cam_c->ortho_size = (f32)back_buffer_height / 2.f;
-
-		loaded_world->cam_id = cam->id;
-
-		Entity* sp = get_world()->spawn_entity();
-		sp->add_component<Transform_Component>();
-		Sprite_Component* s = sp->add_component<Sprite_Component>();
-
-		Texture* t = find_texture(CH_TEXT("test_tilesheet"));
-		Sprite sprite(t, 16, 16, 0, 0);
-		s->sprite = sprite;
+		spawn_camera(0.f);
+		spawn_player(ch::Vector2(0.f, 100.f));
+		const f32 tile_size = Tile_Grid::tile_size.x;
+		const usize num_tiles = 32;
+		for (usize i = 0; i < num_tiles; i++) {
+			const f32 x = ((f32)i * 16.f) - ((f32)num_tiles / 2.f);
+			const f32 y = 0.f;
+			spawn_tile(ch::Vector2(x, y), 0);
+		}
 	}
+	
 	assert(Font::load_from_os(CH_TEXT("consola.ttf"), &font));
 	
 	ch::context_allocator = ch::make_arena_allocator(temp_arena_size);

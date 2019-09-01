@@ -113,24 +113,77 @@ static void frame_end() {
 void draw_game() {
 	frame_begin();
 
+	// @NOTE(CHall): Grab the cam and try to render from it;
 	{
 		Entity* cam = loaded_world->find_entity(loaded_world->cam_id);
-		Camera_Component* cc = cam->find_component<Camera_Component>();
-		Transform_Component* tc = cam->find_component<Transform_Component>();
-		view = ch::translate(-tc->position);
-		projection = cc->get_projection();
+		ch::Vector2 cam_position = 0.f;
+		if (cam) {
+			Camera_Component* cc = cam->find_component<Camera_Component>();
+			Transform_Component* tc = cam->find_component<Transform_Component>();
+			cam_position = tc->position;
+			cc->ortho_size = (f32)back_buffer_height / 2.f;
+			projection = cc->get_projection();
+		} else {
+			projection = ch::identity();
+			o_log_error(CH_TEXT("There is not a camera set as the active cam"));
+		}
+
+		view = ch::translate(-cam_position);
 
 		if (show_tile_grid) {
-			Tile_Grid::debug_draw_grid(tc->position);
+			Tile_Grid::debug_draw_grid(cam_position);
 		}
 	}
 
 	for (Sprite_Component* it : Component_Iterator<Sprite_Component>(loaded_world)) {
 		Transform_Component* tc = it->get_sibling<Transform_Component>();
 		const ch::Vector2 draw_pos = ch::round(tc->position + it->offset);
-		sprite_renderer.push(draw_pos, it->sprite);
+		sprite_renderer.push(draw_pos, it->sprite, it->flip_horz);
 	}
 	sprite_renderer.flush();
+
+	if (show_transform_origin) {
+		Shader* s = find_shader(CH_TEXT("solid_shape"));
+		s->bind();
+		refresh_transform();
+		imm_begin();
+		for (Transform_Component* it : Component_Iterator<Transform_Component>(loaded_world)) {
+			const ch::Color color = ch::white;
+
+			const ch::Vector2 position = it->position;
+			const ch::Vector2 size = 1.f;
+
+			const f32 x0 = position.x - (size.x / 2.f);
+			const f32 y0 = position.y - (size.y / 2.f);
+			const f32 x1 = x0 + size.x;
+			const f32 y1 = y0 + size.y;
+
+			imm_quad(x0, y0, x1, y1, color);
+		}
+		imm_flush();
+	}
+
+	if (show_collider_debug) {
+		Shader* s = find_shader(CH_TEXT("solid_shape"));
+		s->bind();
+		refresh_transform();
+		imm_begin();
+		for (Collider_Component* it : Component_Iterator<Collider_Component>(loaded_world)) {
+			const ch::Color color = ch::green;
+
+			const ch::Vector2 min = it->collider.get_min();
+			const ch::Vector2 max = it->collider.get_max();
+
+			const f32 x0 = min.x;
+			const f32 y0 = min.y;
+			const f32 x1 = max.x;
+			const f32 y1 = max.y;
+
+			imm_border_quad(x0, y0, x1, y1, 1.f, color);
+		}
+		imm_flush();
+	}
+
 	frame_end();
 
 	draw_hud();
@@ -421,7 +474,7 @@ void imm_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, cons
 	imm_textured_quad(x0, y0, x1, y1, color, font.atlas_texture, z_index);
 }
 
-void imm_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sprite& sprite, f32 z_index) {
+void imm_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sprite& sprite, bool flip_horz, f32 z_index) {
 	assert(sprite.atlas);
 
 	const f32 atlas_w = (f32)sprite.atlas->width;
@@ -437,11 +490,21 @@ void imm_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sp
 	const ch::Vector2 top_right = ch::Vector2(atlas_x1 / atlas_w, atlas_y1 / atlas_h);
 	const ch::Vector2 top_left = ch::Vector2(atlas_x0 / atlas_w, atlas_y1 / atlas_h);
 
-	imm_vertex(x0, y0, color, bottom_left, 0.f, z_index);
-	imm_vertex(x0, y1, color, top_left, 0.f, z_index);
-	imm_vertex(x1, y0, color, bottom_right, 0.f, z_index);
+	if (flip_horz) {
+		imm_vertex(x0, y0, color, bottom_right, 0.f, z_index);
+		imm_vertex(x0, y1, color, top_right, 0.f, z_index);
+		imm_vertex(x1, y0, color, bottom_left, 0.f, z_index);
 
-	imm_vertex(x0, y1, color, top_left, 0.f, z_index);
-	imm_vertex(x1, y1, color, top_right, 0.f, z_index);
-	imm_vertex(x1, y0, color, bottom_right, 0.f, z_index);
+		imm_vertex(x0, y1, color, top_right, 0.f, z_index);
+		imm_vertex(x1, y1, color, top_left, 0.f, z_index);
+		imm_vertex(x1, y0, color, bottom_left, 0.f, z_index);
+	} else {
+		imm_vertex(x0, y0, color, bottom_left, 0.f, z_index);
+		imm_vertex(x0, y1, color, top_left, 0.f, z_index);
+		imm_vertex(x1, y0, color, bottom_right, 0.f, z_index);
+
+		imm_vertex(x0, y1, color, top_left, 0.f, z_index);
+		imm_vertex(x1, y1, color, top_right, 0.f, z_index);
+		imm_vertex(x1, y0, color, bottom_right, 0.f, z_index);
+	}
 }

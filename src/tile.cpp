@@ -2,6 +2,7 @@
 #include "draw.h"
 
 const ch::Vector2 Tile_Grid::tile_size = 16.f;
+const ch::Vector2 Tile_Chunk::chunk_size = 16.f;
 
 ch::Vector2 Tile_Grid::round_to_grid(ch::Vector2 pos) {
 	pos /= tile_size;

@@ -9,6 +9,11 @@
 #include "components.h"
 #include "systems.h"
 
+struct Trace_Details {
+	ch::Array<Entity_Id> e_to_ignore;
+
+};
+
 struct World {
 	ch::Hash_Table<Entity_Id, Entity> entities;
 	ch::Array<Component*> components;
@@ -39,7 +44,10 @@ struct World {
 	}
 
 	void tick(f32 dt);
-	void draw();
+
+	bool line_trace(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, const Trace_Details& trace_details);
+	bool aabb_sweep(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, ch::Vector2 size, const Trace_Details& trace_details);
+	bool aabb_multi_sweep(ch::Array<Hit_Result>* out_results, ch::Vector2 start, ch::Vector2 end, ch::Vector2 size, const Trace_Details& trace_details);
 };
 
 World* get_world();
@@ -76,3 +84,7 @@ struct Component_Iterator {
 		return components.cend();
 	}
 };
+
+Entity* spawn_player(ch::Vector2 position);
+Entity* spawn_tile(ch::Vector2 position, u32 tile = 0);
+Entity* spawn_camera(ch::Vector2 position);

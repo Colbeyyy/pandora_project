@@ -184,21 +184,21 @@ CH_FORCEINLINE void draw_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Co
 	imm_flush();
 }
 
-void imm_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sprite& sprite, f32 z_index = 9.f);
-CH_FORCEINLINE void draw_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sprite& sprite, f32 z_index = 9.f) {
+void imm_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sprite& sprite, bool flip_horz = false, f32 z_index = 9.f);
+CH_FORCEINLINE void draw_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sprite& sprite, bool flip_horz = false, f32 z_index = 9.f) {
 	Shader* shader = find_shader(CH_TEXT("image"));
 	assert(shader);
 	shader->bind();
 	sprite.atlas->set_active();
 	refresh_transform();
 	imm_begin();
-	imm_sprite(x0, y0, x1, y1, color, sprite, z_index);
+	imm_sprite(x0, y0, x1, y1, color, sprite, flip_horz, z_index);
 	imm_flush();
 }
-CH_FORCEINLINE void draw_sprite(ch::Vector2 pos, ch::Vector2 size, const ch::Color& color, const Sprite& sprite, f32 z_index = 9.f) {
+CH_FORCEINLINE void draw_sprite(ch::Vector2 pos, ch::Vector2 size, const ch::Color& color, const Sprite& sprite, bool flip_horz = false, f32 z_index = 9.f) {
 	const f32 x0 = pos.x - (size.x / 2.f);
 	const f32 y0 = pos.y - (size.y / 2.f);
 	const f32 x1 = x0 + size.x;
 	const f32 y1 = y0 + size.y;
-	draw_sprite(x0, y0, x1, y1, color, sprite, z_index);
+	draw_sprite(x0, y0, x1, y1, color, sprite, flip_horz, z_index);
 }

@@ -3,6 +3,17 @@
 #include "texture.h"
 #include <ch_stl/math.h>
 
+struct Tile {
+	u32 x;
+	u32 y;
+};
+
+struct Tile_Chunk {
+	ch::Array<Tile> tiles;
+
+	static const ch::Vector2 chunk_size;
+};
+
 struct Tile_Grid {
 	Texture* tiles_texture;
 

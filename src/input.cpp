@@ -4,12 +4,12 @@
 #include <ch_stl/array.h>
 
 ch::Vector2 current_mouse_position;
-bool exit_requested = false;
-bool keys_down[255];
-bool keys_pressed[255];
+static bool exit_requested = false;
+static bool keys_down[255];
+static bool keys_pressed[255];
 
-bool mb_down[3];
-bool mb_pressed[3];
+static bool mb_down[3];
+static bool mb_pressed[3];
 
 ch::Array<Event_Listener> listeners = ch::get_heap_allocator();
 
@@ -146,6 +146,10 @@ void process_input() {
 	}
 	else {
 		current_mouse_position = -1.f;
+	}
+
+	if (was_key_pressed(CH_KEY_ESCAPE)) {
+		exit_requested = true;
 	}
 }
 

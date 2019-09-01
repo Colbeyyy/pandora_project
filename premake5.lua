@@ -1,6 +1,6 @@
-workspace "pandora_project"
+workspace "newport"
     architecture "x64"
-    startproject "pandora_project"
+    startproject "newport"
     
     configurations
     {
@@ -16,7 +16,7 @@ workspace "pandora_project"
 	include "libs/ch_stl"
 
 
-project "pandora_project"
+project "newport"
     language "C++"
 	dependson "ch_stl"
 

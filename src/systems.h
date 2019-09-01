@@ -8,9 +8,18 @@ struct System {
 	virtual void tick(f32 dt) {}
 };
 
-struct Camera_System : public System {
-	virtual void tick(f32 dt) override;
+struct Collider_System : System {
+	virtual void tick(f32 dt);
 };
 
-#define ALL_SYSTEMS(macro) \
-macro(Camera_System)
+struct Physics_System : System {
+	virtual void tick(f32 dt);
+};
+
+struct Movement_System : System {
+	virtual void tick(f32 dt);
+};
+
+#define ALL_SYSTEMS(macro) macro(Collider_System) \
+macro(Physics_System) \
+macro(Movement_System)
