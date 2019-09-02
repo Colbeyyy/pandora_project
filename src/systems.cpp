@@ -24,7 +24,7 @@ void Physics_System::tick(f32 dt) {
 		const ch::Vector2 end = start + it->velocity * dt;
 
 		ch::Array<Hit_Result> results;
-		if (get_world()->aabb_multi_sweep(&results, start, end, cc->collider.size, td)) {
+		if (get_world()->aabb_multi_sweep(&results, start, end, cc->get_collider().size, td)) {
 			ch::Vector2 best_pos = 0.f;
 			for (Hit_Result& result : results) {
 				const ch::Vector2 d = ch::abs(result.impact - end);
@@ -65,7 +65,7 @@ void Player_Movement_System::tick(f32 dt) {
 			pc->velocity.y -= 16.f * 9.8f * dt;
 		}
 
-		if (it->num_jumps < it->max_jumps && was_key_pressed(CH_KEY_SPACE)) {
+		if (it->can_jump() && was_key_pressed(CH_KEY_SPACE)) {
 			if (pc->velocity.y > 0) {
 				pc->velocity.y += it->jump_y_velocity;
 			} else {
@@ -108,7 +108,7 @@ void Player_Movement_System::tick(f32 dt) {
 		it->on_ground = false;
 
 		ch::Array<Hit_Result> results;
-		if (get_world()->aabb_multi_sweep(&results, start, end, cc->collider.size, td)) {
+		if (get_world()->aabb_multi_sweep(&results, start, end, cc->get_collider().size, td)) {
 			ch::Vector2 best_pos = 0.f;
 			for (Hit_Result& result : results) {
 				const ch::Vector2 d = ch::abs(result.impact - end);
@@ -126,12 +126,20 @@ void Player_Movement_System::tick(f32 dt) {
 				new_velocity -= ch::abs(result.normal) * new_velocity;
 
 				if (dot_up > 0.7f) {
-					it->on_ground = false;
+					it->on_ground = true;
 					it->num_jumps = 0;
 				}
 
 				if (ch::abs(dot_right) > 0.7f && pc->velocity.x != 0.f) {
 					it->on_wall = true;
+				}
+
+				Entity* hit_entity = get_world()->find_entity(result.entity);
+				if (hit_entity) {
+					Jump_Pad_Component* jpc = hit_entity->find_component<Jump_Pad_Component>();
+					if (jpc && dot_up > 0.7f) {
+						new_velocity.y = jpc->jump_y_velocity;
+					}
 				}
 			}
 			new_position += best_pos;
@@ -139,12 +147,5 @@ void Player_Movement_System::tick(f32 dt) {
 
 		tc->position = new_position;
 		pc->velocity = new_velocity;
-	}
-}
-
-void Collider_System::tick(f32 dt) {
-	for (Collider_Component* it : Component_Iterator<Collider_Component>(get_world())) {
-		Transform_Component* tc = it->get_sibling<Transform_Component>();
-		it->collider.position = tc->position;
 	}
 }

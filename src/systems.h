@@ -8,10 +8,6 @@ struct System {
 	virtual void tick(f32 dt) {}
 };
 
-struct Collider_System : System {
-	virtual void tick(f32 dt);
-};
-
 struct Physics_System : System {
 	virtual void tick(f32 dt);
 };
@@ -20,6 +16,6 @@ struct Player_Movement_System : System {
 	virtual void tick(f32 dt);
 };
 
-#define ALL_SYSTEMS(macro) macro(Collider_System) \
+#define ALL_SYSTEMS(macro) \
 macro(Physics_System) \
 macro(Player_Movement_System)

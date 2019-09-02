@@ -65,15 +65,27 @@ struct Physics_Component : public TComponent<Physics_Component> {
 };
 
 struct Collider_Component : public TComponent<Collider_Component> {
-	AABB collider;
+	ch::Vector2 size;
+	ch::Vector2 offset;
+	bool is_blocking = true;
+
+	AABB get_collider() const;
 };
 
 struct Player_Movement_Component : public TComponent<Player_Movement_Component> {
 	bool on_wall = false;
 	bool on_ground = false;
 	u8 num_jumps = 0;
-	const u8 max_jumps = 2;
+	const u8 max_jumps = 1;
 	const f32 walk_speed = 16.f * 2.f;
 	const f32 sprint_speed = 16.f * 4.f;
 	const f32 jump_y_velocity = 16.f * 4.f;
+
+	CH_FORCEINLINE bool can_jump() const {
+		return (on_wall || on_ground) && num_jumps < max_jumps;
+	}
+};
+
+struct Jump_Pad_Component : public TComponent<Jump_Pad_Component> {
+	const f32 jump_y_velocity = 16.f * 7.f;
 };

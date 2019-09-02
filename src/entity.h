@@ -17,6 +17,7 @@ struct Entity {
 	Entity_Id id;
 	u32 flags = 0;
 	ch::Array<Component*> components;
+	const tchar* name;
 
 	Entity() {
 		components.allocator = ch::get_heap_allocator();

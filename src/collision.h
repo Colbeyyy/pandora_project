@@ -13,8 +13,6 @@ struct AABB {
 
 	CH_FORCEINLINE operator bool() const { return (bool)size; }
 
-	void debug_draw(const ch::Color& color = ch::green);
-
 	CH_FORCEINLINE ch::Vector2 get_min() const {
 		return position - (size / 2.f);
 	}
@@ -32,7 +30,7 @@ struct Entity;
 struct Hit_Result {
 	ch::Vector2 impact;
 	ch::Vector2 normal;
-	Entity_Id entity;
+	Entity_Id entity = 0;
 };
 
 bool line_intersect(ch::Vector2 a1, ch::Vector2 a2, ch::Vector2 b1, ch::Vector2 b2, ch::Vector2* out_vec);

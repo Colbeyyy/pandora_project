@@ -1,11 +1,4 @@
 #include "collision.h"
-#include "draw.h"
-
-void AABB::debug_draw(const ch::Color& color) {
-	draw_border_quad(position, size, 0.5f, color);
-	const ch::Vector2 draw_size = 4.f;
-	draw_border_quad(position, draw_size, 0.5f, color);
-}
 
 bool AABB::intersects(const AABB& box, AABB* out) const {
 	const ch::Vector2 my_min = get_min();

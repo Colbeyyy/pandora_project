@@ -21,6 +21,7 @@ void Sprite_Renderer::flush() {
 	imm_begin();
 	for (Render_Command& it : commands) {
 		if (it.sprite.atlas != t) {
+			if (!it.sprite.atlas) continue;
 			imm_flush();
 			t = it.sprite.atlas;
 			t->bind();

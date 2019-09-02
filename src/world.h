@@ -28,7 +28,7 @@ struct World {
 
 	World();
 
-	Entity* spawn_entity();
+	Entity* spawn_entity(const tchar* name = CH_TEXT(""));
 	Entity* find_entity(Entity_Id id);
 	bool free_entity(Entity_Id id);
 
@@ -44,6 +44,8 @@ struct World {
 	}
 
 	void tick(f32 dt);
+
+	ch::Vector2 screen_space_to_world_space(ch::Vector2 pos);
 
 	bool line_trace(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, const Trace_Details& trace_details);
 	bool aabb_sweep(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, ch::Vector2 size, const Trace_Details& trace_details);
@@ -88,3 +90,4 @@ struct Component_Iterator {
 Entity* spawn_player(ch::Vector2 position);
 Entity* spawn_tile(ch::Vector2 position, u32 tile = 0);
 Entity* spawn_camera(ch::Vector2 position);
+Entity* spawn_jump_pad(ch::Vector2 position);

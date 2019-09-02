@@ -6,6 +6,7 @@
 #include "console.h"
 #include "tile.h"
 #include "debug.h"
+#include "input.h"
 
 const usize max_verts = 128 * 1024;
 
@@ -113,6 +114,8 @@ static void frame_end() {
 void draw_game() {
 	frame_begin();
 
+	const ch::Vector2 mouse_in_world = get_world()->screen_space_to_world_space(current_mouse_position);
+
 	// @NOTE(CHall): Grab the cam and try to render from it;
 	{
 		Entity* cam = loaded_world->find_entity(loaded_world->cam_id);
@@ -148,17 +151,21 @@ void draw_game() {
 		refresh_transform();
 		imm_begin();
 		for (Transform_Component* it : Component_Iterator<Transform_Component>(loaded_world)) {
-			const ch::Color color = ch::white;
+			ch::Color color = ch::white;
 
-			const ch::Vector2 position = it->position;
-			const ch::Vector2 size = 1.f;
+			const ch::Vector2 position = ch::round(it->position);
+			const ch::Vector2 size = 3.f;
+
+			const AABB origin_box(position, size);
+			if (origin_box.intersects(mouse_in_world)) color = ch::magenta;
 
 			const f32 x0 = position.x - (size.x / 2.f);
 			const f32 y0 = position.y - (size.y / 2.f);
 			const f32 x1 = x0 + size.x;
 			const f32 y1 = y0 + size.y;
 
-			imm_quad(x0, y0, x1, y1, color);
+			imm_quad(x0, y0, x1, y1, ch::gray);
+			imm_border_quad(x0, y0, x1, y1, 1.f, color);
 		}
 		imm_flush();
 	}
@@ -169,10 +176,14 @@ void draw_game() {
 		refresh_transform();
 		imm_begin();
 		for (Collider_Component* it : Component_Iterator<Collider_Component>(loaded_world)) {
-			const ch::Color color = ch::green;
+			const AABB collider = it->get_collider();
+			
+			ch::Color color = ch::green;
 
-			const ch::Vector2 min = it->collider.get_min();
-			const ch::Vector2 max = it->collider.get_max();
+			if (collider.intersects(mouse_in_world)) color = ch::magenta;
+
+			const ch::Vector2 min = collider.get_min();
+			const ch::Vector2 max = collider.get_max();
 
 			const f32 x0 = min.x;
 			const f32 y0 = min.y;
@@ -298,13 +309,7 @@ ch::Vector2 get_back_buffer_draw_size() {
 		height = width * ratio;
 	}
 
-	const f32 render_target_scale = ch::ceil(width / (f32)back_buffer_width);
-
-	ch::Vector2 result;
-	result.x = (f32)back_buffer_width * render_target_scale;
-	result.y = (f32)back_buffer_height * render_target_scale;
-
-	return result;
+	return ch::Vector2(width, height);
 }
 
 void imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, ch::Vector2 normal, f32 z_index /*= 0.f*/) {
@@ -328,7 +333,7 @@ void imm_vertex(f32 x, f32 y, const ch::Color& color, ch::Vector2 uv, ch::Vector
 
 	imm_vertex_count += 1;
 }
-
+ 
 void imm_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, f32 z_index /*= 0.f*/) {
 	imm_vertex(x0, y0, color, ch::Vector2(-1.f, -1.f), z_index);
 	imm_vertex(x0, y1, color, ch::Vector2(-1.f, -1.f), z_index);
