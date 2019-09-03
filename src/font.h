@@ -36,3 +36,11 @@ struct Font {
 	static bool load_from_os(const tchar* font_name, Font* out_font);
 	static bool load_from_path(const tchar* path, Font* out_font);
 };
+
+ch::Vector2 get_text_size(const ch::String& text);
+CH_FORCEINLINE ch::Vector2 get_text_size(const tchar* text) {
+	ch::String s;
+	s.data = (tchar*)text;
+	s.count = ch::strlen(text);
+	return get_text_size(s);
+}

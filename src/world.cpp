@@ -58,8 +58,6 @@ ch::Vector2 World::screen_space_to_world_space(ch::Vector2 pos) {
 	Entity* camera = find_entity(cam_id);
 	if (!camera) return 0.f;
 
-
-
 	const ch::Vector2 back_buffer_size = get_back_buffer_draw_size();
 	const ch::Vector2 viewport_size = the_window.get_viewport_size();
 
@@ -87,6 +85,42 @@ ch::Vector2 World::screen_space_to_world_space(ch::Vector2 pos) {
 	eye_coords.w = 0.f;
 
 	const ch::Vector4 ray_world = cam_view.inverse() * eye_coords;
+	const ch::Vector2 world = ray_world.xy;
+
+	return tc->position + world;
+}
+
+ch::Vector2 World::world_space_to_screen_space(ch::Vector2 pos) {
+	Entity* camera = find_entity(cam_id);
+	if (!camera) return 0.f;
+
+	const ch::Vector2 back_buffer_size = get_back_buffer_draw_size();
+	const ch::Vector2 viewport_size = the_window.get_viewport_size();
+
+	const f32 width = back_buffer_size.x;
+	const f32 height = back_buffer_size.y;
+
+	const f32 offset_x = (f32)viewport_size.ux - width;
+	const f32 offset_y = (f32)viewport_size.uy - height;
+
+	pos.x -= offset_x / 2.f;
+	pos.y -= offset_y / 2.f;
+
+	const f32 x = (2.f * pos.x) / width - 1.f;
+	const f32 y = 1.f - (2.f * pos.y) / height;
+
+	Camera_Component* cc = camera->find_component<Camera_Component>();
+	Transform_Component* tc = camera->find_component<Transform_Component>();
+
+	ch::Matrix4 cam_projection = cc->get_projection();
+	ch::Matrix4 cam_view = ch::translate(-tc->position);
+
+	const ch::Vector4 clip_coords(x, y, -1.f, 1.f);
+	ch::Vector4 eye_coords = cam_projection * clip_coords;
+	eye_coords.z = -1.f;
+	eye_coords.w = 0.f;
+
+	const ch::Vector4 ray_world = cam_view * eye_coords;
 	const ch::Vector2 world = ray_world.xy;
 
 	return tc->position + world;

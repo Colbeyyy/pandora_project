@@ -1,6 +1,9 @@
 #include "font.h"
 #include "asset_manager.h"
 
+// @HACK
+#include "game.h"
+
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb/stb_truetype.h>
 
@@ -73,4 +76,39 @@ bool Font::load_from_path(const tchar* path, Font* out_font) {
 
 	*out_font = result;
 	return true;
+}
+
+ch::Vector2 get_text_size(const ch::String& text) {
+	const f32 font_height = FONT_SIZE;
+
+	const f32 original_x = 0.f;
+	const f32 original_y = 0.f;
+
+	f32 x = original_x;
+	f32 y = original_y;
+
+	f32 largest_x = 0.f;
+	f32 largest_y = 0.f;
+
+	for (usize i = 0; i < text.count; i++) {
+		if (text[i] == ch::eol) {
+			y -= font_height;
+			x = original_x;
+			continue;
+		}
+
+		if (text[i] == '\t') {
+			Font_Glyph space_glyph = font[' '];
+			x += space_glyph.advance * 4.f;
+			continue;
+		}
+
+		Font_Glyph& glyph = font[text[i]];
+		x += glyph.advance;
+
+		if (ch::abs(x - original_x) > ch::abs(largest_x)) largest_x = x - original_x;
+		if (ch::abs(y - original_y) > ch::abs(largest_y)) largest_y = x - original_y;
+	}
+
+	return ch::Vector2(largest_x, largest_y);
 }

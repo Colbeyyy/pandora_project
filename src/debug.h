@@ -6,3 +6,4 @@ extern bool show_transform_origin;
 extern bool show_collider_debug;
 
 void init_debug();
+void tick_debug(f32 dt);

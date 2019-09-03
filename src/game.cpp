@@ -3,9 +3,9 @@
 #include "world.h"
 #include "input.h"
 #include "console.h"
-#include "hud.h"
 #include "debug.h"
 #include "tile.h"
+#include "gui.h"
 
 #include <ch_stl/filesystem.h>
 #include <ch_stl/time.h>
@@ -22,9 +22,9 @@ World* loaded_world = nullptr;
 static void tick_game(f32 dt) {
 	CH_SCOPED_TIMER(tick_game);
 
-	tick_console(dt);
 	if (loaded_world) loaded_world->tick(dt);
-	tick_hud(dt);
+	tick_console(dt);
+	tick_debug(dt);
 }
 
 #if CH_PLATFORM_WINDOWS

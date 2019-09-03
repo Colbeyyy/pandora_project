@@ -1,5 +1,15 @@
 #include "collision.h"
 
+AABB::AABB(f32 x0, f32 y0, f32 x1, f32 y1) {
+	const f32 width = x1 - x0;
+	const f32 height = y1 - y0;
+
+	size.x = ch::abs(width);
+	size.y = ch::abs(height);
+	position.x = x0 + width / 2.f;
+	position.y = y0 + height / 2.f;
+}
+
 bool AABB::intersects(const AABB& box, AABB* out) const {
 	const ch::Vector2 my_min = get_min();
 	const ch::Vector2 my_max = get_max();
@@ -26,7 +36,7 @@ bool AABB::intersects(ch::Vector2 point) const {
 	const ch::Vector2 min = get_min();
 	const ch::Vector2 max = get_max();
 
-	return !(point.x < min.x || point.x > max.x || point.y < min.y || point.y > max.y);
+	return !(point.x <= min.x || point.x >= max.x || point.y <= min.y || point.y >= max.y);
 }
 
 bool line_intersect(ch::Vector2 a1, ch::Vector2 a2, ch::Vector2 b1, ch::Vector2 b2, ch::Vector2* out_vec) {

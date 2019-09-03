@@ -10,6 +10,7 @@ struct AABB {
 
 	AABB() = default;
 	AABB(ch::Vector2 _pos, ch::Vector2 _size) : position(_pos), size(_size) {}
+	AABB(f32 x0, f32 y0, f32 x1, f32 y1);
 
 	CH_FORCEINLINE operator bool() const { return (bool)size; }
 

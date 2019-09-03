@@ -46,6 +46,7 @@ struct World {
 	void tick(f32 dt);
 
 	ch::Vector2 screen_space_to_world_space(ch::Vector2 pos);
+	ch::Vector2 world_space_to_screen_space(ch::Vector2 pos);
 
 	bool line_trace(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, const Trace_Details& trace_details);
 	bool aabb_sweep(Hit_Result* out_result, ch::Vector2 start, ch::Vector2 end, ch::Vector2 size, const Trace_Details& trace_details);
