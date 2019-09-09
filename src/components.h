@@ -76,6 +76,15 @@ struct Player_Movement_Component : public TComponent<Player_Movement_Component> 
 	bool on_wall = false;
 	bool on_ground = false;
 	u8 num_jumps = 0;
+	
+	ch::Vector2 origin;
+	f32 arm_length;
+	f32 angle;
+	f32 a_velocity;
+	f32 a_acceleration;
+
+	const f32 damping = 0.1f;
+
 	const u8 max_jumps = 1;
 	const f32 walk_speed = 16.f * 2.f;
 	const f32 sprint_speed = 16.f * 4.f;

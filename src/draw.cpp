@@ -138,6 +138,11 @@ void draw_game() {
 		}
 	}
 
+	for (Player_Movement_Component* it : Component_Iterator<Player_Movement_Component>(loaded_world)) {
+		Transform_Component* tc = it->get_sibling<Transform_Component>();
+		draw_line(it->origin, tc->position, 1.f, ch::white);
+	}
+
 	for (Sprite_Component* it : Component_Iterator<Sprite_Component>(loaded_world)) {
 		Transform_Component* tc = it->get_sibling<Transform_Component>();
 		const ch::Vector2 draw_pos = ch::round(tc->position + it->offset);

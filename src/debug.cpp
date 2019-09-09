@@ -41,6 +41,7 @@ void init_debug() {
 
 void tick_debug(f32 dt) {
 	Vertical_Layout layout(0.f, 0.f, FONT_SIZE + 2.f);
+
 	if (show_debug_memory) {
 		{
 			tchar buffer[128];

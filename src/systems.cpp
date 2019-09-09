@@ -4,6 +4,7 @@
 #include "components.h"
 #include "input.h"
 #include "console.h"
+#include "gui.h"
 
 void Physics_System::tick(f32 dt) {
 	for (Physics_Component* it : Component_Iterator<Physics_Component>(get_world())) {
@@ -56,13 +57,14 @@ void Player_Movement_System::tick(f32 dt) {
 		Collider_Component* cc = it->get_sibling<Collider_Component>();
 		Sprite_Component* sc = it->get_sibling<Sprite_Component>();
 
+#if 0
 		pc->velocity.x = 0.f;
 
 		if (it->on_wall && pc->velocity.y < 0.f) {
 			pc->velocity.y = -16.f * 2.f;
 			it->num_jumps = 0;
 		} else {
-			pc->velocity.y -= 16.f * 9.8f * dt;
+			pc->velocity.y -= 16.f * 9.8f * dt * 2.f;
 		}
 
 		if (it->can_jump() && was_key_pressed(CH_KEY_SPACE)) {
@@ -147,5 +149,24 @@ void Player_Movement_System::tick(f32 dt) {
 
 		tc->position = new_position;
 		pc->velocity = new_velocity;
+#else
+		
+		const f32 g = -9.8f * 16.f;
+		const f32 arm_length = it->arm_length;
+
+		it->a_acceleration = (-1.f * g / arm_length) * ch::sin(it->angle);
+		it->a_velocity += it->a_acceleration * dt;
+		it->a_velocity = ch::interp_to(it->a_velocity, 0.f, dt, it->damping);
+		it->angle += it->a_velocity * dt;
+
+		tchar temp[512];
+		ch::sprintf(temp, CH_TEXT("%f %f %f"), it->a_acceleration, it->a_velocity, it->angle * ch::to_deg);
+		gui_text(temp, 0.f, -20.f, ch::white);
+
+		sc->flip_horz = it->a_velocity > 0.f;
+
+		tc->position = ch::Vector2(arm_length * ch::sin(it->angle), arm_length * ch::cos(it->angle)) + it->origin;
+	
+#endif
 	}
 }

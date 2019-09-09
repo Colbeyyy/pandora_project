@@ -80,7 +80,7 @@ int MAIN() {
 
 	{
 		spawn_camera(ch::Vector2(0.f, 50.f));
-		spawn_player(ch::Vector2(0.f, 100.f));
+		spawn_player(ch::Vector2(0.f, 16.f * 10.f));
 		const f32 tile_size = Tile_Grid::tile_size;
 		const usize num_tiles = 32;
 		for (usize i = 0; i < num_tiles; i++) {

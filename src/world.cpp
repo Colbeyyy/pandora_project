@@ -218,7 +218,10 @@ Entity* spawn_player(ch::Vector2 position) {
 	Physics_Component* pc = result->add_component<Physics_Component>();
 
 	pc->simulate_physics = false;
-	tc->position = position;
+	pmc->origin = position;
+	pmc->angle = ch::pi / 4.f;
+	pmc->arm_length = 5.f * 16.f;
+
 	Texture* t = find_texture(CH_TEXT("character"));
 	Sprite s(t, 16, 32, 0, 0);
 	sc->sprite = s;
