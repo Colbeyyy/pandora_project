@@ -13,7 +13,7 @@
 #include <ch_stl/os.h>
 
 ch::Window the_window;
-const tchar* window_title = CH_TEXT("newport");
+const char* window_title = "newport";
 Font font;
 const usize temp_arena_size = 1024 * 1024 * 512;
 
@@ -47,9 +47,9 @@ int MAIN() {
 	
 #if CH_PLATFORM_WINDOWS
 	ch::Library shcore_lib;
-	if (ch::load_library(CH_TEXT("shcore.dll"), &shcore_lib)) {
+	if (ch::load_library("shcore.dll", &shcore_lib)) {
 		defer(shcore_lib.free());
-		Set_Process_DPI_Awareness SetProcessDpiAwareness = shcore_lib.get_function<Set_Process_DPI_Awareness>(CH_TEXT("SetProcessDpiAwareness"));
+		Set_Process_DPI_Awareness SetProcessDpiAwareness = shcore_lib.get_function<Set_Process_DPI_Awareness>("SetProcessDpiAwareness");
 
 		if (SetProcessDpiAwareness) {
 			SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE);
@@ -77,25 +77,8 @@ int MAIN() {
 	init_debug();
 
 	loaded_world = ch_new World;
-
-	{
-		spawn_camera(ch::Vector2(0.f, 50.f));
-		spawn_player(ch::Vector2(0.f, 16.f * 10.f));
-		const f32 tile_size = Tile_Grid::tile_size;
-		const usize num_tiles = 32;
-		for (usize i = 0; i < num_tiles; i++) {
-			const f32 x = ((f32)i * 16.f) - ((f32)num_tiles * tile_size / 2.f);
-			const f32 y = 0.f;
-			const ch::Vector2 pos = Tile_Grid::round_to_grid(ch::Vector2(x, y));
-			spawn_tile(pos, 0);
-		}
-
-		spawn_tile(ch::Vector2(16.f, 16.f));
-		spawn_tile(ch::Vector2(16.f, 32.f));
-		spawn_jump_pad(ch::Vector2(0.f, 16.f));
-	}
 	
-	assert(Font::load_from_os(CH_TEXT("consola.ttf"), &font));
+	assert(Font::load_from_os("consola.ttf", &font));
 	
 	ch::context_allocator = ch::make_arena_allocator(temp_arena_size);
 	the_window.set_visibility(true);

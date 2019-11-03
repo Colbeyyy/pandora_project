@@ -92,7 +92,7 @@ static void push_text(const ch::String& text, f32 x, f32 y, const ch::Color& col
 	commands.push(rc);
 }
 
-static void push_text(const tchar* tstr, f32 x, f32 y, const ch::Color& color, f32 z_index = 9.f) {
+static void push_text(const char* tstr, f32 x, f32 y, const ch::Color& color, f32 z_index = 9.f) {
 	Render_Command rc;
 	rc.type = RT_Text;
 	rc.color = color;
@@ -107,7 +107,7 @@ void gui_text(const ch::String& text, f32 x, f32 y, const ch::Color& color) {
 	push_text(text, x, y, color);
 }
 
-void gui_text(const tchar* text, f32 x, f32 y, const ch::Color& color) {
+void gui_text(const char* text, f32 x, f32 y, const ch::Color& color) {
 	gui_text(ch::String(text), x, y, color);
 }
 
@@ -135,7 +135,7 @@ bool gui_button(const ch::String& text, f32 x0, f32 y0, f32 x1, f32 y1) {
 	return mouse_over && lmb_was_down;
 }
 
-bool gui_button(const tchar* text, f32 x0, f32 y0, f32 x1, f32 y1) {
+bool gui_button(const char* text, f32 x0, f32 y0, f32 x1, f32 y1) {
 	ch::String s(text);
 	return gui_button(s, x0, y0, x1, y1);
 }

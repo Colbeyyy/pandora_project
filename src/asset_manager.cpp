@@ -25,7 +25,7 @@ static bool set_to_res_path() {
 
 	exe_path.remove_until_directory();
 	exe_path.remove_until_directory();
-	exe_path.append(CH_TEXT("res"));
+	exe_path.append("res");
 
 	if (!ch::set_current_path(exe_path)) return false;
 
@@ -55,19 +55,19 @@ void init_am() {
 
 			ch::File_Data fd;
 			load_asset(full_path, &fd);
-			if (ext == CH_TEXT("glsl")) {
+			if (ext == "glsl") {
 				Shader* s = ch_new Shader;
 				Lookup<Shader*> p = {};
 				p.key = r;
 				if (Shader::load_from_source((const GLchar*)fd.data, s)) {
 					p.value = s;
-					o_log(CH_TEXT("loaded shader %s"), full_path);
+					o_log("loaded shader %s", full_path);
 				} else {
-					o_log_error(CH_TEXT("failed to load shader %s"), full_path);
+					o_log_error("failed to load shader %s", full_path);
 				}
 				loaded_shaders.push(p);
 			}
-			else if (ext == CH_TEXT("png")) {
+			else if (ext == "png") {
 				const s32 desired_components = (s32)BT_RGBA;
 
 				stbi_set_flip_vertically_on_load(true);
@@ -80,9 +80,9 @@ void init_am() {
 				if (bm) {
 					Texture* t = ch_new Texture(bm);
 					p.value = t;
-					o_log(CH_TEXT("loaded texture %s"), full_path);
+					o_log("loaded texture %s", full_path);
 				} else {
-					o_log_error(CH_TEXT("failed to load texture %s"), full_path);
+					o_log_error("failed to load texture %s", full_path);
 				}
 				loaded_textures.push(p);
 			}
@@ -103,7 +103,7 @@ void refresh_am() {
 			full_path.append(r.file_name);
 			const ch::String ext = full_path.get_extension();
 
-			if (ext == CH_TEXT("glsl")) {
+			if (ext == "glsl") {
 				for (Lookup<Shader*>& it : loaded_shaders) {
 					if (ch::streq(it.key.file_name, r.file_name) && it.key.last_write_time < r.last_write_time) {
 						ch::File_Data fd;
@@ -113,15 +113,15 @@ void refresh_am() {
 						if (Shader::load_from_source((const GLchar*)fd.data, &s)) {
 							if (it.value) it.value->free();
 							*it.value = s;
-							o_log(CH_TEXT("shader reloaded %s"), full_path);
+							o_log("shader reloaded %s", full_path);
 						} else {
-							o_log_error(CH_TEXT("shader failed to reload %s"), full_path);
+							o_log_error("shader failed to reload %s", full_path);
 						}
 						it.key = r;
 					}
 				}
 			}
-			else if (ext == CH_TEXT("png")) {
+			else if (ext == "png") {
 				for (Lookup<Texture*>& it : loaded_textures) {
 					if (ch::streq(it.key.file_name, r.file_name) && it.key.last_write_time < r.last_write_time) {
 						ch::File_Data fd;
@@ -135,9 +135,9 @@ void refresh_am() {
 						if (bm) {
 							if (it.value) it.value->free();
 							*it.value = Texture(bm);
-							o_log(CH_TEXT("reloaded texture %s"), full_path);
+							o_log("reloaded texture %s", full_path);
 						} else {
-							o_log_error(CH_TEXT("failed to reload texture %s"), full_path);
+							o_log_error("failed to reload texture %s", full_path);
 						}
 						it.key = r;
 					}
@@ -151,7 +151,7 @@ bool load_asset(const ch::Path& path, ch::File_Data* fd) {
 	return ch::load_file_into_memory(path, fd, allocator);
 }
 
-Shader* find_shader(const tchar* name) {
+Shader* find_shader(const char* name) {
 	for (Lookup<Shader*>& it : loaded_shaders) {
 		ch::Path fn = it.key.file_name;
 		if (fn.get_filename() == name && it.value) {
@@ -162,7 +162,7 @@ Shader* find_shader(const tchar* name) {
 	return get_default_shader();
 }
 
-Texture* find_texture(const tchar* name) {
+Texture* find_texture(const char* name) {
 	for (Lookup<Texture*>& it : loaded_textures) {
 		ch::Path fn = it.key.file_name;
 		if (fn.get_filename() == name && it.value) {

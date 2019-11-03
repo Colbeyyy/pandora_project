@@ -48,7 +48,7 @@ CH_FORCEINLINE void imm_vertex(ch::Vector2 xy, const ch::Color& color, ch::Vecto
 void imm_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, f32 z_index = 9.f);
 
 CH_FORCEINLINE void draw_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, f32 z_index = 9.f) {
-	Shader* shader = find_shader(CH_TEXT("solid_shape"));
+	Shader* shader = find_shader("solid_shape");
 	assert(shader);
 	shader->bind();
 	refresh_transform();
@@ -68,7 +68,7 @@ CH_FORCEINLINE void draw_quad(ch::Vector2 pos, ch::Vector2 size, const ch::Color
 void imm_border_quad(f32 x0, f32 y0, f32 x1, f32 y1, f32 thickness, const ch::Color& color, f32 z_index = 9.f);
 
 CH_FORCEINLINE void draw_border_quad(f32 x0, f32 y0, f32 x1, f32 y1, f32 thickness, const ch::Color& color, f32 z_index = 9.f) {
-	Shader* shader = find_shader(CH_TEXT("solid_shape"));
+	Shader* shader = find_shader("solid_shape");
 	assert(shader);
 	shader->bind();
 	refresh_transform();
@@ -88,7 +88,7 @@ CH_FORCEINLINE void draw_border_quad(ch::Vector2 pos, ch::Vector2 size, f32 thic
 void imm_line(ch::Vector2 start, ch::Vector2 end, f32 thickness, const ch::Color& color, f32 z_index = 9.f);
 
 CH_FORCEINLINE void draw_line(ch::Vector2 start, ch::Vector2 end, f32 thickness, const ch::Color& color, f32 z_index = 9.f) {
-	Shader* shader = find_shader(CH_TEXT("solid_shape"));
+	Shader* shader = find_shader("solid_shape");
 	assert(shader);
 	shader->bind();
 	refresh_transform();
@@ -100,7 +100,7 @@ CH_FORCEINLINE void draw_line(ch::Vector2 start, ch::Vector2 end, f32 thickness,
 void imm_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Texture& texture, f32 z_index = 9.f);
 
 CH_FORCEINLINE void draw_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, Texture& texture, f32 z_index = 9.f) {
-	Shader* shader = find_shader(CH_TEXT("image"));
+	Shader* shader = find_shader("image");
 	assert(shader);
 	shader->bind();
 	refresh_transform();
@@ -122,7 +122,7 @@ CH_FORCEINLINE void draw_textured_quad(ch::Vector2 pos, ch::Vector2 size, const 
 void imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index = 9.f);
 
 CH_FORCEINLINE void draw_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, Font& font, f32 z_index = 9.f) {
-	Shader* shader = find_shader(CH_TEXT("font"));
+	Shader* shader = find_shader("font");
 	assert(shader);
 	shader->bind();
 	refresh_transform();
@@ -131,10 +131,10 @@ CH_FORCEINLINE void draw_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::
 	imm_flush();
 }
 
-Font_Glyph imm_char(tchar c, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index = 9.f);
+Font_Glyph imm_char(char c, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index = 9.f);
 
-CH_FORCEINLINE void draw_char(tchar c, f32 x, f32 y, const ch::Color& color, Font& font, f32 z_index = 9.f) {
-	Shader* shader = find_shader(CH_TEXT("font"));
+CH_FORCEINLINE void draw_char(char c, f32 x, f32 y, const ch::Color& color, Font& font, f32 z_index = 9.f) {
+	Shader* shader = find_shader("font");
 	assert(shader);
 	shader->bind();
 	refresh_transform();
@@ -144,15 +144,15 @@ CH_FORCEINLINE void draw_char(tchar c, f32 x, f32 y, const ch::Color& color, Fon
 }
 
 ch::Vector2 imm_string(const ch::String& str, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index = 9.f);
-CH_FORCEINLINE ch::Vector2 imm_string(const tchar* str, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index = 9.f) {
+CH_FORCEINLINE ch::Vector2 imm_string(const char* str, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index = 9.f) {
 	ch::String print_string;
-	print_string.data = (tchar*)str;
+	print_string.data = (char*)str;
 	print_string.count = ch::strlen(str);
 	return imm_string(print_string, x, y, color, font, z_index);
 }
 
 CH_FORCEINLINE ch::Vector2 draw_string(const ch::String& str, f32 x, f32 y, const ch::Color& color, Font& font, f32 z_index = 9.f) {
-	Shader* shader = find_shader(CH_TEXT("font"));
+	Shader* shader = find_shader("font");
 	assert(shader);
 	shader->bind();
 	refresh_transform();
@@ -164,9 +164,9 @@ CH_FORCEINLINE ch::Vector2 draw_string(const ch::String& str, f32 x, f32 y, cons
 	return result;
 }
 
-CH_FORCEINLINE ch::Vector2 draw_string(const tchar* str, f32 x, f32 y, const ch::Color& color, Font& font, f32 z_index = 9.f) {
+CH_FORCEINLINE ch::Vector2 draw_string(const char* str, f32 x, f32 y, const ch::Color& color, Font& font, f32 z_index = 9.f) {
 	ch::String print_string;
-	print_string.data = (tchar*)str;
+	print_string.data = (char*)str;
 	print_string.count = ch::strlen(str);
 	return draw_string(print_string, x, y, color, font, z_index);
 }
@@ -174,7 +174,7 @@ CH_FORCEINLINE ch::Vector2 draw_string(const tchar* str, f32 x, f32 y, const ch:
 void imm_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Font& font, f32 z_index = 9.f);
 
 CH_FORCEINLINE void draw_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, Font& font, f32 z_index = 9.f) {
-	Shader* shader = find_shader(CH_TEXT("font"));
+	Shader* shader = find_shader("font");
 	assert(shader);
 	shader->bind();
 	refresh_transform();
@@ -186,7 +186,7 @@ CH_FORCEINLINE void draw_font_atlas(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Co
 
 void imm_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sprite& sprite, bool flip_horz = false, f32 z_index = 9.f);
 CH_FORCEINLINE void draw_sprite(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, const Sprite& sprite, bool flip_horz = false, f32 z_index = 9.f) {
-	Shader* shader = find_shader(CH_TEXT("image"));
+	Shader* shader = find_shader("image");
 	assert(shader);
 	shader->bind();
 	sprite.atlas->set_active();

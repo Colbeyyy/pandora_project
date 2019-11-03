@@ -44,14 +44,14 @@ struct Console_Entry {
 	bool is_log_entry = false;
 	ch::Date_Time time_created;
 	Log_Severity severity;
-	tchar message[message_size];
+	char message[message_size];
 
 	Console_Entry() : is_log_entry(false), time_created(ch::get_local_time()) {}
 	Console_Entry(Log_Severity _severity) : is_log_entry(true), time_created(ch::get_local_time()), severity(_severity) {}
 };
 
 ch::Array<Console_Entry> console_entries = ch::get_heap_allocator();
-static ch::Gap_Buffer<tchar> the_command_buffer;
+static ch::Gap_Buffer<char> the_command_buffer;
 static ssize cursor = 0;
 static ssize selection = 0;
 
@@ -76,7 +76,7 @@ static ssize seek_dir(bool left) {
 	ssize result = cursor + (!left * 2);
 	if (left) {
 		for (; result > -1; result -= 1) {
-			const tchar c = the_command_buffer[result];
+			const char c = the_command_buffer[result];
 			if (ch::is_symbol(c) || ch::is_whitespace(c)) {
 				result -= 1;
 				break;
@@ -84,7 +84,7 @@ static ssize seek_dir(bool left) {
 		}
 	} else {
 		for (; result < (ssize)the_command_buffer.count() - 1; result += 1) {
-			const tchar c = the_command_buffer[result];
+			const char c = the_command_buffer[result];
 			if (ch::is_symbol(c) || ch::is_whitespace(c)) {
 				result -= 1;
 				break;
@@ -113,7 +113,7 @@ static void remove_selection() {
 	}
 }
 
-static void add_char_to_command_buffer(tchar c) {
+static void add_char_to_command_buffer(char c) {
 	if (has_selection()) remove_selection();
 
 	the_command_buffer.insert(c, cursor + 1);
@@ -173,7 +173,7 @@ static void process_command(Console_Entry* entry) {
 	CONSOLE_COMMANDS(FIND_COMMAND);
 #undef FIND_COMMAND
 
-	console_log(CH_TEXT("Command not found \"%.*s\""), command_name.count, command_name.data);
+	console_log("Command not found \"%.*s\"", command_name.count, command_name.data);
 	set_console_state(CS_Full);
 }
 
@@ -252,7 +252,7 @@ static void console_input(void* owner, Input_Event* event) {
 
 				bool found_char = false;
 				for (usize i = 0; i < the_command_buffer.count(); i++) {
-					tchar tcb = the_command_buffer[i];
+					char tcb = the_command_buffer[i];
 					it.message[i] = tcb;
 					if (ch::is_letter(tcb)) found_char = true;
 				}
@@ -274,7 +274,7 @@ static void console_input(void* owner, Input_Event* event) {
 				defer(clipboard.free());
 				if (ch::copy_from_clipboard(the_window, &clipboard)) {
 					for (usize i = 0; i < clipboard.count; i++) {
-						const tchar c = clipboard[i];
+						const char c = clipboard[i];
 						if (c == '\n' || c == '\r' || c == ch::eos || c == '\t') continue;
 						add_char_to_command_buffer(c);
 					}
@@ -282,11 +282,11 @@ static void console_input(void* owner, Input_Event* event) {
 			} break;
 			case 'C':
 				if (!ctrl_down) break;
-				output_log(LS_Warning, CH_TEXT("Sorry! Copying from is the command buffer is currently not supported"));
+				output_log(LS_Warning, "Sorry! Copying from is the command buffer is currently not supported");
 				break;
 			case 'X':
 				if (!ctrl_down) break;
-				output_log(LS_Warning, CH_TEXT("Sorry! Copying from is the command buffer is currently not supported"));
+				output_log(LS_Warning, "Sorry! Copying from is the command buffer is currently not supported");
 				reset_command_buffer();
 				break;
 		}
@@ -297,10 +297,10 @@ static void console_input(void* owner, Input_Event* event) {
 }
 
 void init_console() {
-	shape_shader = find_shader(CH_TEXT("solid_shape"));
-	text_shader = find_shader(CH_TEXT("font"));
+	shape_shader = find_shader("solid_shape");
+	text_shader = find_shader("font");
 	console_entries.reserve(1024);
-	the_command_buffer = ch::Gap_Buffer<tchar>(2048, ch::get_heap_allocator());
+	the_command_buffer = ch::Gap_Buffer<char>(2048, ch::get_heap_allocator());
 	reset_command_buffer();
 
 	bind_event_listener(Event_Listener(nullptr, console_input, ET_None));
@@ -366,7 +366,7 @@ void draw_console() {
 			f32 offset_x = 0.f;
 			
 			if (!it.is_log_entry) {
-				offset_x += imm_string(CH_TEXT("> "), x, y, color, font).x;
+				offset_x += imm_string("> ", x, y, color, font).x;
 			} else if (!show_logs) continue;
 			
 			imm_string(it.message, x + offset_x, y, color, font);
@@ -389,10 +389,10 @@ void draw_console() {
 
 		f32 x = x_padding;
 		f32 y = -current_height + bar_height - font.ascent;
-		x += imm_string(CH_TEXT("> "), x, y, background_color, font).x;
+		x += imm_string("> ", x, y, background_color, font).x;
 
 		for(usize i = 0; i < the_command_buffer.count(); i++) {
-			const tchar c = the_command_buffer[i];
+			const char c = the_command_buffer[i];
 			const Font_Glyph& glyph = c == ch::eos ? font[' '] : font[c];
 
 			const bool is_in_selection = (cursor > selection && (ssize)i >= selection + 1 && (ssize)i < cursor + 1) || (cursor < selection && (ssize)i < selection + 1 && (ssize)i >= cursor + 1);
@@ -415,11 +415,11 @@ void draw_console() {
 	imm_flush();
 }
 
-void output_log(Log_Severity severity, const tchar* fmt, ...) {
+void output_log(Log_Severity severity, const char* fmt, ...) {
 	Console_Entry it(severity);
 
 	const u32 hour = it.time_created.hour > 12 ? it.time_created.hour - 12 : it.time_created.hour;
-	const usize offset = ch::sprintf(it.message, CH_TEXT("[%lu:%lu:%lu]"), hour, it.time_created.minute, it.time_created.second);
+	const usize offset = ch::sprintf(it.message, "[%lu:%lu:%lu]", hour, it.time_created.minute, it.time_created.second);
 
 	va_list args;
 	va_start(args, fmt);
@@ -432,7 +432,7 @@ void output_log(Log_Severity severity, const tchar* fmt, ...) {
 	console_entries.push(it);
 }
 
-void console_log(const tchar* fmt, ...) {
+void console_log(const char* fmt, ...) {
 	Console_Entry it;
 
 	va_list args;
@@ -448,7 +448,7 @@ void console_log(const tchar* fmt, ...) {
 
 bool help_command(const ch::String& params) {
 
-#define FIND_COMMAND(func, name, help) if (name != CH_TEXT("help")) console_log(CH_TEXT("%s : %s"), name, help);
+#define FIND_COMMAND(func, name, help) if (name != "help") console_log("%s : %s", name, help);
 	CONSOLE_COMMANDS(FIND_COMMAND);
 #undef FIND_COMMAND
 
@@ -457,17 +457,17 @@ bool help_command(const ch::String& params) {
 
 bool output_log_command(const ch::String& params) {
 	if (!params.count) {
-		console_log(CH_TEXT("log command requires some text following it. Example: \"log hello world\""));
+		console_log("log command requires some text following it. Example: \"log hello world\"");
 		return true;
 	}
 
-	o_log(CH_TEXT("%.*s"), params.count, params.data);
+	o_log("%.*s", params.count, params.data);
 	return true;
 }
 
 bool clear_command(const ch::String& params) {
 	if (params.count) {
-		console_log(CH_TEXT("clear should not have any params"));
+		console_log("clear should not have any params");
 		return true;
 	}
 	console_entries.count = 0;
@@ -476,7 +476,7 @@ bool clear_command(const ch::String& params) {
 
 bool toggle_show_logs(const ch::String& params) {
 	if (params.count) {
-		console_log(CH_TEXT("toggle_show_logs should not have any params"));
+		console_log("toggle_show_logs should not have any params");
 		return true;
 	}
 
@@ -486,20 +486,20 @@ bool toggle_show_logs(const ch::String& params) {
 
 bool set_show_logs(const ch::String& params) {
 	if (!params.count) {
-		console_log(CH_TEXT("set_show_logs requires one single param of either true or false"));
-		console_log(CH_TEXT("Example: \"set_show_logs false\""));
+		console_log("set_show_logs requires one single param of either true or false");
+		console_log("Example: \"set_show_logs false\"");
 		return true;
 	}
 
 	ch::String lower_case = params;
 	lower_case.to_lowercase();
 
-	if (lower_case == CH_TEXT("true") || lower_case == CH_TEXT("1")) {
+	if (lower_case == "true" || lower_case == "1") {
 		show_logs = true;
-	} else if (lower_case == CH_TEXT("false") || lower_case == CH_TEXT("0")) {
+	} else if (lower_case == "false" || lower_case == "0") {
 		show_logs = false;
 	} else {
-		console_log(CH_TEXT("unrecognized param \"%.*s\""), params.count, params.data);
+		console_log("unrecognized param \"%.*s\"", params.count, params.data);
 	}
 
 	return true;

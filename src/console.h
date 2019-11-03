@@ -17,12 +17,12 @@ enum Log_Severity {
  * Has severity and time stamp
  * Severity is used for color
  */
-void output_log(Log_Severity severity, const tchar* fmt, ...);
+void output_log(Log_Severity severity, const char* fmt, ...);
 /**
  * Used by commands for outputting a log into the console for help info etc
  * Has time stamp 
  */
-void console_log(const tchar* fmt, ...);
+void console_log(const char* fmt, ...);
 
 #define o_log(str, ...) output_log(LS_Verbose, str, __VA_ARGS__)
 #define o_log_verbose(str, ...) output_log(LS_Verbose, str, __VA_ARGS__)

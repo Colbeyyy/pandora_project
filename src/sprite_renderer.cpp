@@ -11,7 +11,7 @@ usize Sprite_Renderer::push(ch::Vector2 position, Sprite sprite, bool flip_horz)
 void Sprite_Renderer::flush() {
 	if (!commands.count) return;
 
-	Shader* s = find_shader(CH_TEXT("image"));
+	Shader* s = find_shader("image");
 	s->bind();
 	Texture* t = commands[0].sprite.atlas;
 	if (!t) return;

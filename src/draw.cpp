@@ -1,6 +1,5 @@
 #include "draw.h"
 #include "game.h"
-#include "components.h"
 #include "sprite_renderer.h"
 #include "console.h"
 #include "tile.h"
@@ -100,7 +99,7 @@ static void frame_end() {
 	render_from_pos(0.f, (f32)viewport_size.uy / 2.f);
 
 	{
-		Shader* s = find_shader(CH_TEXT("back_buffer"));
+		Shader* s = find_shader("back_buffer");
 		s->bind();
 		tex.set_active();
 		refresh_transform();
@@ -114,91 +113,7 @@ static void frame_end() {
 void draw_game() {
 	frame_begin();
 
-	const ch::Vector2 mouse_in_world = get_world()->screen_space_to_world_space(current_mouse_position);
-
-	// @NOTE(CHall): Grab the cam and try to render from it;
-	{
-		Entity* cam = loaded_world->find_entity(loaded_world->cam_id);
-		ch::Vector2 cam_position = 0.f;
-		if (cam) {
-			Camera_Component* cc = cam->find_component<Camera_Component>();
-			Transform_Component* tc = cam->find_component<Transform_Component>();
-			cam_position = tc->position;
-			cc->ortho_size = (f32)back_buffer_height / 2.f;
-			projection = cc->get_projection();
-		} else {
-			projection = ch::identity();
-			o_log_error(CH_TEXT("There is not a camera set as the active cam"));
-		}
-
-		view = ch::translate(-cam_position);
-
-		if (show_tile_grid) {
-			Tile_Grid::debug_draw_grid(cam_position);
-		}
-	}
-
-	for (Player_Movement_Component* it : Component_Iterator<Player_Movement_Component>(loaded_world)) {
-		Transform_Component* tc = it->get_sibling<Transform_Component>();
-		draw_line(it->origin, tc->position, 1.f, ch::white);
-	}
-
-	for (Sprite_Component* it : Component_Iterator<Sprite_Component>(loaded_world)) {
-		Transform_Component* tc = it->get_sibling<Transform_Component>();
-		const ch::Vector2 draw_pos = ch::round(tc->position + it->offset);
-		sprite_renderer.push(draw_pos, it->sprite, it->flip_horz);
-	}
-	sprite_renderer.flush();
-
-	if (show_transform_origin) {
-		Shader* s = find_shader(CH_TEXT("solid_shape"));
-		s->bind();
-		refresh_transform();
-		imm_begin();
-		for (Transform_Component* it : Component_Iterator<Transform_Component>(loaded_world)) {
-			ch::Color color = ch::white;
-
-			const ch::Vector2 position = ch::round(it->position);
-			const ch::Vector2 size = 3.f;
-
-			const AABB origin_box(position, size);
-			if (origin_box.intersects(mouse_in_world)) color = ch::magenta;
-
-			const f32 x0 = position.x - (size.x / 2.f);
-			const f32 y0 = position.y - (size.y / 2.f);
-			const f32 x1 = x0 + size.x;
-			const f32 y1 = y0 + size.y;
-
-			imm_quad(x0, y0, x1, y1, ch::gray);
-			imm_border_quad(x0, y0, x1, y1, 1.f, color);
-		}
-		imm_flush();
-	}
-
-	if (show_collider_debug) {
-		Shader* s = find_shader(CH_TEXT("solid_shape"));
-		s->bind();
-		refresh_transform();
-		imm_begin();
-		for (Collider_Component* it : Component_Iterator<Collider_Component>(loaded_world)) {
-			const AABB collider = it->get_collider();
-			
-			ch::Color color = ch::green;
-
-			if (collider.intersects(mouse_in_world)) color = ch::magenta;
-
-			const ch::Vector2 min = collider.get_min();
-			const ch::Vector2 max = collider.get_max();
-
-			const f32 x0 = min.x;
-			const f32 y0 = min.y;
-			const f32 x1 = max.x;
-			const f32 y1 = max.y;
-
-			imm_border_quad(x0, y0, x1, y1, 1.f, color);
-		}
-		imm_flush();
-	}
+	// const ch::Vector2 mouse_in_world = get_world()->screen_space_to_world_space(current_mouse_position);
 
 	frame_end();
 
@@ -435,7 +350,7 @@ void imm_glyph(const Font_Glyph& glyph, f32 x, f32 y, const ch::Color& color, co
 	imm_vertex(x1, y0, color, bottom_right, 0.f, z_index);
 }
 
-Font_Glyph imm_char(tchar c, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index) {
+Font_Glyph imm_char(char c, f32 x, f32 y, const ch::Color& color, const Font& font, f32 z_index) {
 	const Font_Glyph g = font[c];
 
 	imm_glyph(g, x, y, color, font, z_index);

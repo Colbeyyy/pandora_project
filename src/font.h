@@ -33,14 +33,14 @@ struct Font {
 		return glyphs[index - 32];
 	}
 
-	static bool load_from_os(const tchar* font_name, Font* out_font);
-	static bool load_from_path(const tchar* path, Font* out_font);
+	static bool load_from_os(const char* font_name, Font* out_font);
+	static bool load_from_path(const char* path, Font* out_font);
 };
 
 ch::Vector2 get_text_size(const ch::String& text);
-CH_FORCEINLINE ch::Vector2 get_text_size(const tchar* text) {
+CH_FORCEINLINE ch::Vector2 get_text_size(const char* text) {
 	ch::String s;
-	s.data = (tchar*)text;
+	s.data = (char*)text;
 	s.count = ch::strlen(text);
 	return get_text_size(s);
 }

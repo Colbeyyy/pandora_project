@@ -13,7 +13,7 @@ bool show_fps = false;
 
 
 static void debug_input(void* owner, Input_Event* event) {
-	const tchar c = event->c;
+	const char c = event->c;
 
 	switch (c) {
 		case CH_KEY_F1:
@@ -44,8 +44,8 @@ void tick_debug(f32 dt) {
 
 	if (show_debug_memory) {
 		{
-			tchar buffer[128];
-			ch::sprintf(buffer, CH_TEXT("Num Allocations: %llu"), ch::get_num_allocations());
+			char buffer[128];
+			ch::sprintf(buffer, "Num Allocations: %llu", ch::get_num_allocations());
 			gui_text(buffer, layout.at_x, layout.at_y, ch::white);
 			layout.row();
 		}
@@ -54,16 +54,16 @@ void tick_debug(f32 dt) {
 			defer(bytes_string.free());
 			ch::bytes_to_string(ch::get_total_allocated(), &bytes_string);
 
-			tchar buffer[128];
-			ch::sprintf(buffer, CH_TEXT("Total Allocated: %.*s"), bytes_string.count, bytes_string.data);
+			char buffer[128];
+			ch::sprintf(buffer, "Total Allocated: %.*s", bytes_string.count, bytes_string.data);
 			gui_text(buffer, layout.at_x, layout.at_y, ch::white);
 			layout.row(); 
 		}
 	}
 
 	if (show_fps) {
-		tchar buffer[1024];
-		ch::sprintf(buffer, CH_TEXT("FPS: %i"), (s32)(1.f / dt));
+		char buffer[1024];
+		ch::sprintf(buffer, "FPS: %i", (s32)(1.f / dt));
 		gui_text(buffer, layout.at_x, layout.at_y, ch::white);
 		layout.row();
 	}
