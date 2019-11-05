@@ -29,7 +29,9 @@ struct Font {
 	CH_FORCEINLINE bool is_bound() const { return atlas_texture.is_active(); }
 
 	CH_FORCEINLINE Font_Glyph operator[](usize index) const {
-		assert(index < NUM_CHARACTERS + 32);
+		if (index >= NUM_CHARACTERS + 32) {
+			return glyphs['?' - 32];
+		}
 		return glyphs[index - 32];
 	}
 

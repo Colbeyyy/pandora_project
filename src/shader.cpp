@@ -91,6 +91,8 @@ bool Shader::load_from_source(const GLchar* source, Shader* out_shader) {
 	result.projection_loc = glGetUniformLocation(program_id, "projection");
 	result.view_loc = glGetUniformLocation(program_id, "view");
 	result.texture_loc = glGetUniformLocation(program_id, "ftex");
+	result.time_loc = glGetUniformLocation(program_id, "time");
+	result.screen_size_loc = glGetUniformLocation(program_id, "screen_size");
 	result.position_loc = 0;
 	result.color_loc = 1;
 	result.uv_loc = 2;

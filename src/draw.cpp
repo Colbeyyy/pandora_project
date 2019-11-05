@@ -68,6 +68,8 @@ void init_draw() {
 
 	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	wglSwapIntervalEXT(false);
 }
 
 static void frame_begin() {
@@ -139,6 +141,8 @@ void refresh_transform() {
 
 	glUniformMatrix4fv(current_shader->view_loc, 1, GL_FALSE, view.elems);
 	glUniformMatrix4fv(current_shader->projection_loc, 1, GL_FALSE, projection.elems);
+	glUniform1f(current_shader->time_loc, time);
+	glUniform2f(current_shader->screen_size_loc, (f32)back_buffer_width, (f32)back_buffer_height);
 }
 
 void render_right_handed() {
@@ -375,11 +379,12 @@ ch::Vector2 imm_string(const ch::String& str, f32 x, f32 y, const ch::Color& col
 	const f32 original_y = y;
 
 	f32 largest_x = 0.f;
-	f32 largest_y = 0.f;
+	f32 largest_y = font_height;
 
 	for (usize i = 0; i < str.count; i++) {
-		if (str[i] == ch::eol) {
+		if (str[i] == ch::eol || str[i] == '\r') {
 			y -= font_height;
+			largest_y += font_height;
 			x = original_x;
 			verts_culled += 6;
 			continue;
@@ -399,7 +404,6 @@ ch::Vector2 imm_string(const ch::String& str, f32 x, f32 y, const ch::Color& col
 		x += glyph.advance;
 
 		if (ch::abs(x - original_x) > ch::abs(largest_x)) largest_x = x - original_x;
-		if (ch::abs(y - original_y) > ch::abs(largest_y)) largest_y = x - original_y;
 	}
 
 	return ch::Vector2(largest_x, largest_y);

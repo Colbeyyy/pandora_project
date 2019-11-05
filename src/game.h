@@ -9,3 +9,4 @@
 extern ch::Window the_window;
 extern Font font;
 extern World* loaded_world;
+extern float time;

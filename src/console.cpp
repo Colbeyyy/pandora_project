@@ -252,9 +252,9 @@ static void console_input(void* owner, Input_Event* event) {
 
 				bool found_char = false;
 				for (usize i = 0; i < the_command_buffer.count(); i++) {
-					char tcb = the_command_buffer[i];
-					it.message[i] = tcb;
-					if (ch::is_letter(tcb)) found_char = true;
+					const char cc = the_command_buffer[i];
+					it.message[i] = cc;
+					if (ch::is_letter(cc)) found_char = true;
 				}
 				it.message[the_command_buffer.count()] = 0;
 
@@ -368,12 +368,13 @@ void draw_console() {
 			if (!it.is_log_entry) {
 				offset_x += imm_string("> ", x, y, color, font).x;
 			} else if (!show_logs) continue;
-			
+
 			imm_string(it.message, x + offset_x, y, color, font);
 			y += bar_height + y_padding;
 			if (y > 0.f) break;
 		}
 	}
+
 	// @NOTE(CHall): Command Text
 	{
 		auto draw_rect_at_char = [](f32 x, f32 y, const Font_Glyph& g, const ch::Color& color) {
@@ -416,20 +417,29 @@ void draw_console() {
 }
 
 void output_log(Log_Severity severity, const char* fmt, ...) {
-	Console_Entry it(severity);
-
-	const u32 hour = it.time_created.hour > 12 ? it.time_created.hour - 12 : it.time_created.hour;
-	const usize offset = ch::sprintf(it.message, "[%lu:%lu:%lu]", hour, it.time_created.minute, it.time_created.second);
+	char output_buffer[message_size];
 
 	va_list args;
 	va_start(args, fmt);
-#if CH_PLATFORM_WINDOWS
-	vsprintf(it.message + offset, fmt, args);
-#else
-	#error need own sprintf
-#endif
+	const int size = vsprintf(output_buffer, fmt, args);
 	va_end(args);
-	console_entries.push(it);
+
+	Console_Entry it(severity);
+	const u32 hour = it.time_created.hour > 12 ? it.time_created.hour - 12 : it.time_created.hour;
+	const usize offset = ch::sprintf(it.message, "[%lu:%lu:%lu]", hour, it.time_created.minute, it.time_created.second);
+
+	usize output_buffer_offset = 0;
+
+	for (int i = 0; i < size + 1; i++) {
+		const char c = output_buffer[i];
+
+		if ((c == ch::eol || c == '\r' || c == 0) && output_buffer_offset < i) {
+			ch::mem_copy(it.message + offset, output_buffer + output_buffer_offset, i - output_buffer_offset);
+			it.message[offset + i - output_buffer_offset] = 0;
+			output_buffer_offset = i + 1;
+			console_entries.push(it);
+		}
+	}
 }
 
 void console_log(const char* fmt, ...) {
@@ -437,11 +447,7 @@ void console_log(const char* fmt, ...) {
 
 	va_list args;
 	va_start(args, fmt);
-#if CH_PLATFORM_WINDOWS
 	vsprintf(it.message, fmt, args);
-#else
-#error need own sprintf
-#endif
 	va_end(args);
 	console_entries.push(it);
 }

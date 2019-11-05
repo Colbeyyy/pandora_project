@@ -16,6 +16,9 @@ struct Shader {
 
 	GLuint texture_loc;
 
+	GLint time_loc;
+	GLint screen_size_loc;
+
 	static Shader* bound_shader;
 	static bool load_from_source(const GLchar* source, Shader* out_shader);
 

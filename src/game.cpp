@@ -19,12 +19,16 @@ const usize temp_arena_size = 1024 * 1024 * 512;
 
 World* loaded_world = nullptr;
 
+float time = 0.f;
+
 static void tick_game(f32 dt) {
 	CH_SCOPED_TIMER(tick_game);
 
 	if (loaded_world) loaded_world->tick(dt);
 	tick_console(dt);
 	tick_debug(dt);
+
+	time += dt;
 }
 
 #if CH_PLATFORM_WINDOWS
