@@ -4,12 +4,12 @@
 #include "game.h"
 #include "font.h"
 
-#include "console_commands.h"
-
 #include <ch_stl/math.h>
 #include <ch_stl/array.h>
 #include <ch_stl/time.h>
 #include <ch_stl/gap_buffer.h>
+
+#include "console_commands.h"
 
 #include <stdio.h>
 #include <stdarg.h>

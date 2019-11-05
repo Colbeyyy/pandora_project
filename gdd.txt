@@ -1,7 +1,0 @@
--------- GDD --------
-
-Characters:
-Emily
-
-Mechanics:
-Platformer with swinging grapple

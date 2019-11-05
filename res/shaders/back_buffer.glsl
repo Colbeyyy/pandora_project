@@ -27,11 +27,40 @@ in vec4 out_color;
 in vec2 out_uv;
 in vec2 out_normal;
 
-uniform sampler2D ftex;
+float distance_from_sphere(in vec3 point, in vec3 center, float radius) {
+	return length(point - center) - radius;
+}
+
+#define NUM_STEPS 100
+#define MIN_HIT_DISTANCE = 0.001
+#define MAX_TRACE_DISTANCE = 1000.0
+
+vec3 ray_march(in vec3 orig, in vec3 dir) {
+	float distance = 0.0;
+
+	for (int i = 0; i < NUM_STEPS; i++) {
+		vec3 current_pos = orig + (dir * distance);
+
+		float to_closest = distance_from_sphere(current_pos, vec3(0.0), 1.0);
+
+		if (to_closest < MIN_HIT_DISTANCE) {
+			return vec3(1.0, 0.0, 0.0);
+		}
+
+		if (distance > MAX_TRACE_DISTANCE) {
+			break;
+		}
+
+		distance += to_closest;
+	}
+
+	return vec3(0.0);
+}
 
 void main() {
-	vec4 tex_color = texture(ftex, out_uv);
 
-	frag_color = tex_color * out_color;
+	vec2 uv = out_uv.xy * 2.0 - 1.0;
+
+	frag_color = vec4(uv, 0.f, 1.f);
 }
 #endif

@@ -1,4 +1,5 @@
 #include "shader.h"
+#include "console.h"
 
 Shader* Shader::bound_shader;
 Shader default_shader;
@@ -15,7 +16,7 @@ uniform mat4 view;
 out vec4 out_color;
 void main() {
     gl_Position =  projection * view * vec4(position, -z_index, 1.0);
-	out_color = color;
+	out_color = vec4(1.0, 0.0, 1.0, 1.0);
 }
 #endif
 
@@ -65,6 +66,19 @@ bool Shader::load_from_source(const GLchar* source, Shader* out_shader) {
 		glGetShaderInfoLog(vertex_id, sizeof(vert_errors), &ignored, vert_errors);
 		glGetShaderInfoLog(frag_id, sizeof(frag_errors), &ignored, frag_errors);
 		glGetProgramInfoLog(program_id, sizeof(program_errors), &ignored, program_errors);
+
+		if (vert_errors[0] != 0)
+		{
+			o_log_error(vert_errors);
+		}
+		if (frag_errors[0] != 0)
+		{
+			o_log_error(frag_errors);
+		}
+		if (program_errors[0] != 0)
+		{
+			o_log_error(program_errors);
+		}
 
 		return false;
 	}

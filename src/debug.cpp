@@ -4,6 +4,7 @@
 #include "world.h"
 #include "gui.h"
 #include "font.h"
+#include "console.h"
 
 bool show_tile_grid = false;
 bool show_transform_origin = false;
@@ -67,4 +68,14 @@ void tick_debug(f32 dt) {
 		gui_text(buffer, layout.at_x, layout.at_y, ch::white);
 		layout.row();
 	}
+}
+
+bool toggle_fps(const ch::String& params) {
+	if (params) {
+		console_log("toggle_fps should not have any params");
+		return false;
+	}
+
+	show_fps = !show_fps;
+	return true;
 }

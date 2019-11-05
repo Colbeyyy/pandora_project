@@ -105,7 +105,15 @@ static void frame_end() {
 		refresh_transform();
 
 		ch::Vector2 draw_size = get_back_buffer_draw_size();
-		draw_textured_quad(0.f, draw_size, ch::white, tex);
+
+		const f32 x0 = 0.f - (draw_size.x / 2.f);
+		const f32 y0 = 0.f - (draw_size.y / 2.f);
+		const f32 x1 = x0 + draw_size.x;
+		const f32 y1 = y0 + draw_size.y;
+
+		imm_begin();
+		imm_textured_quad(x0, y0, x1, y1, ch::white, tex);
+		imm_flush();
 	}
 
 }
@@ -113,7 +121,9 @@ static void frame_end() {
 void draw_game() {
 	frame_begin();
 
-	// const ch::Vector2 mouse_in_world = get_world()->screen_space_to_world_space(current_mouse_position);
+	render_from_pos(0.f, back_buffer_width / 2.f);
+
+	draw_quad(0.f, 200.f, ch::white);
 
 	frame_end();
 
