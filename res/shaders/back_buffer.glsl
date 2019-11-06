@@ -60,14 +60,16 @@ float test_the_world(in vec3 pos) {
 
 	float time_speed = 2.0;
 
-	float sphere1 = distance_from_sphere(pos, vec3(sin(time * time_speed) * 2, cos(time * time_speed) * 3, 0.0), 1.0);
+	float sphere1 = distance_from_sphere(pos, vec3(sin(time * time_speed + 30) * 2,cos(time * time_speed) * 2, 0.0), 0.1);
+
+	float sphere3 = distance_from_sphere(pos, vec3(sin(time * time_speed + 20) * 2, cos(time * time_speed) * 2, 0.0), 0.1);
 
 	float sphere2 = distance_from_sphere(pos, vec3(sin(time * time_speed) * 1.5, cos(time * time_speed) * 1.5, 0.0), 1.0) + displacement;
 	float box = distance_from_box(pos, vec3(1.0));
 
 	// return box + displacement;
 
-	return smin(sphere1, sphere2, 1);
+	return smin(smin(sphere1, sphere2, 1), sphere3, 1);
 }
 
 vec3 calculate_normal(in vec3 pos) {
@@ -102,10 +104,13 @@ vec4 ray_march(in vec3 orig, in vec3 dir) {
 			vec3 light_dir = normalize(pos - light_orig);
 
 			float diffuse_intensity = max(0.0, dot(normal, light_dir));
-			vec3 ambient = vec3(0.3);
+			diffuse_intensity = diffuse_intensity > 0.2 ? 1.0 : 0.0;
 
-			float reflection_intensity = max(0.0, dot(normal, normalize(orig - pos)));
-			vec3 color = mix(vec3(0.0, 0.7, 0.8), vec3(1.0, 0.3, 1.0), reflection_intensity);
+			vec3 ambient = vec3(0.0, 0.6, 0.7);
+
+			float reflection_intensity = max(0.0, dot(normal, vec3(0, 1, 0)));
+			reflection_intensity = reflection_intensity > 0.5 ? 1.0 : 0.0;
+			vec3 color = mix(vec3(0.0, 0.7, 0.8), vec3(0.0, 0.8, 0.9), reflection_intensity);
 
 			vec3 final = mix(ambient, color, diffuse_intensity);
 
