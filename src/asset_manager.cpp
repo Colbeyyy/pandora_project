@@ -57,34 +57,18 @@ void init_am() {
 			load_asset(full_path, &fd);
 			if (ext == "glsl") {
 				Shader* s = ch_new Shader;
+				
 				Lookup<Shader*> p = {};
 				p.key = r;
+
 				if (Shader::load_from_source((const GLchar*)fd.data, s)) {
 					p.value = s;
 					o_log("loaded shader %s", full_path);
 				} else {
 					o_log_error("failed to load shader %s", full_path);
 				}
+
 				loaded_shaders.push(p);
-			}
-			else if (ext == "png") {
-				const s32 desired_components = (s32)BT_RGBA;
-
-				stbi_set_flip_vertically_on_load(true);
-
-				Bitmap bm;
-				bm.data = stbi_load_from_memory(fd.data, (int)fd.size, &bm.width, &bm.height, &bm.num_components, desired_components);
-				defer(stbi_image_free(bm.data));
-				Lookup<Texture*> p = {};
-				p.key = r;
-				if (bm) {
-					Texture* t = ch_new Texture(bm);
-					p.value = t;
-					o_log("loaded texture %s", full_path);
-				} else {
-					o_log_error("failed to load texture %s", full_path);
-				}
-				loaded_textures.push(p);
 			}
 		}
 	}
@@ -109,36 +93,20 @@ void refresh_am() {
 						ch::File_Data fd;
 						if (!load_asset(full_path, &fd)) continue;
 
-						Shader s;
-						if (Shader::load_from_source((const GLchar*)fd.data, &s)) {
-							if (it.value) it.value->free();
-							*it.value = s;
+						Shader* s = ch_new Shader;
+						if (Shader::load_from_source((const GLchar*)fd.data, s)) {
+							if (it.value) {
+								it.value->free();
+								ch_delete it.value;
+							}
+
+							it.value = s;
+							
 							o_log("shader reloaded %s", full_path);
 						} else {
 							o_log_error("shader failed to reload %s", full_path);
 						}
-						it.key = r;
-					}
-				}
-			}
-			else if (ext == "png") {
-				for (Lookup<Texture*>& it : loaded_textures) {
-					if (ch::streq(it.key.file_name, r.file_name) && it.key.last_write_time < r.last_write_time) {
-						ch::File_Data fd;
-						if (!load_asset(full_path, &fd)) continue;
 
-						const s32 desired_components = (s32)BT_RGBA;
-						stbi_set_flip_vertically_on_load(true);
-						Bitmap bm;
-						bm.data = stbi_load_from_memory(fd.data, (int)fd.size, &bm.width, &bm.height, &bm.num_components, desired_components);
-						defer(stbi_image_free(bm.data));
-						if (bm) {
-							if (it.value) it.value->free();
-							*it.value = Texture(bm);
-							o_log("reloaded texture %s", full_path);
-						} else {
-							o_log_error("failed to reload texture %s", full_path);
-						}
 						it.key = r;
 					}
 				}

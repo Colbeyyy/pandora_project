@@ -452,7 +452,19 @@ void console_log(const char* fmt, ...) {
 	console_entries.push(it);
 }
 
+void handle_uneeded_params(const char* command) {
+	char buffer[255];
+	ch::sprintf(buffer, "%s should not have any params", command);
+
+	console_log(buffer);
+}
+
 bool help_command(const ch::String& params) {
+	if (params)
+	{
+		handle_uneeded_params("help");
+		return true;
+	}
 
 #define FIND_COMMAND(func, name, help) if (name != "help") console_log("%s : %s", name, help);
 	CONSOLE_COMMANDS(FIND_COMMAND);
@@ -472,8 +484,8 @@ bool output_log_command(const ch::String& params) {
 }
 
 bool clear_command(const ch::String& params) {
-	if (params.count) {
-		console_log("clear should not have any params");
+	if (params) {
+		handle_uneeded_params("clear");
 		return true;
 	}
 	console_entries.count = 0;
@@ -482,7 +494,7 @@ bool clear_command(const ch::String& params) {
 
 bool toggle_show_logs(const ch::String& params) {
 	if (params.count) {
-		console_log("toggle_show_logs should not have any params");
+		handle_uneeded_params("toggle_show_logs");
 		return true;
 	}
 
@@ -491,7 +503,7 @@ bool toggle_show_logs(const ch::String& params) {
 }
 
 bool set_show_logs(const ch::String& params) {
-	if (!params.count) {
+	if (!params) {
 		console_log("set_show_logs requires one single param of either true or false");
 		console_log("Example: \"set_show_logs false\"");
 		return true;
@@ -509,4 +521,14 @@ bool set_show_logs(const ch::String& params) {
 	}
 
 	return true;
+}
+
+bool reset(const ch::String& params) {
+	if (params) {
+		handle_uneeded_params("reset");
+		return true;
+	}
+
+	time = 0.f;
+	return false;
 }

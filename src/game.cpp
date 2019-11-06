@@ -13,7 +13,7 @@
 #include <ch_stl/os.h>
 
 ch::Window the_window;
-const char* window_title = "newport";
+const char* window_title = "Shader Playground";
 Font font;
 const usize temp_arena_size = 1024 * 1024 * 512;
 

@@ -25,8 +25,8 @@ GLuint back_buffer_fbo;
 GLuint back_buffer_color;
 GLuint back_buffer_depth;
 const u32 render_ratio = 4;
-u32 back_buffer_width = 1920 / render_ratio;
-u32 back_buffer_height = 1080 / render_ratio;
+u32 back_buffer_width = 4096;
+u32 back_buffer_height = 4096;
 
 void init_draw() {
 	assert(ch::is_gl_loaded());
@@ -89,7 +89,7 @@ static void frame_begin() {
 static void frame_end() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+	glClearColor(0xFDEFEAFF);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Texture tex;

@@ -29,8 +29,11 @@ void console_log(const char* fmt, ...);
 #define o_log_warning(str, ...) output_log(LS_Warning, str, __VA_ARGS__)
 #define o_log_error(str, ...) output_log(LS_Error, str, __VA_ARGS__)
 
+void handle_uneeded_params(const char* command);
+
 bool help_command(const ch::String& params);
 bool output_log_command(const ch::String& params);
 bool clear_command(const ch::String& params);
 bool toggle_show_logs(const ch::String& params);
 bool set_show_logs(const ch::String& params);
+bool reset(const ch::String& params);
