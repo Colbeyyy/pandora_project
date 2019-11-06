@@ -30,27 +30,44 @@ in vec2 out_normal;
 uniform float time;
 uniform vec2 screen_size;
 
-float distance_from_sphere(in vec3 point, in vec3 center, float radius) {
+float distance_from_sphere(vec3 point, vec3 center, float radius) {
 	return length(point - center) - radius;
+}
+
+float distance_from_box(vec3 point, vec3 bounds) {
+	vec3 q = abs(point) - bounds;
+	return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
+}
+
+float smin(float a, float b, float k) {
+	float h = max(k - abs(a - b), 0.0) / k;
+	return min(a, b) - h * h * k * (1.0 / 4.0);
 }
 
 float test_the_world(in vec3 pos) {	
 	float scale = 5.0;
 	
 	vec3 raw = pos;
-	raw.x += time * 2;
-	raw.y -= time;
+	raw.x += time;
+	raw.y += time;
 	raw.y += time;
 
 	vec3 up = vec3(1.0, 0.0, 0.0);
 	
 
-	float displacement = sin(scale * raw.x) * sin(scale * raw.y) * sin(scale * raw.z) * 0.25;
+	float strength = 0.2;
+	float displacement = (sin(scale * raw.x) * sin(scale * raw.y) * sin(scale * raw.z)) * strength;
 
-	float sphere = distance_from_sphere(pos, vec3(0.0), 1.0);
+	float time_speed = 2.0;
 
-	float strength = 0.5;
-	return sphere + displacement * strength;
+	float sphere1 = distance_from_sphere(pos, vec3(sin(time * time_speed) * 2, cos(time * time_speed) * 3, 0.0), 1.0);
+
+	float sphere2 = distance_from_sphere(pos, vec3(sin(time * time_speed) * 1.5, cos(time * time_speed) * 1.5, 0.0), 1.0) + displacement;
+	float box = distance_from_box(pos, vec3(1.0));
+
+	// return box + displacement;
+
+	return smin(sphere1, sphere2, 1);
 }
 
 vec3 calculate_normal(in vec3 pos) {
@@ -85,9 +102,12 @@ vec4 ray_march(in vec3 orig, in vec3 dir) {
 			vec3 light_dir = normalize(pos - light_orig);
 
 			float diffuse_intensity = max(0.0, dot(normal, light_dir));
-			vec3 ambient = vec3(0.0, 0.1, 0.1);
+			vec3 ambient = vec3(0.3);
 
-			vec3 final = vec3(1.0, 0.7, 0.4) * diffuse_intensity + ambient;
+			float reflection_intensity = max(0.0, dot(normal, normalize(orig - pos)));
+			vec3 color = mix(vec3(0.0, 0.7, 0.8), vec3(1.0, 0.3, 1.0), reflection_intensity);
+
+			vec3 final = mix(ambient, color, diffuse_intensity);
 
 			return vec4(final, 1.0);
 		}
@@ -104,7 +124,7 @@ vec4 ray_march(in vec3 orig, in vec3 dir) {
 void main() {
 	vec2 uv = out_uv.xy * 2.0 - 1.0;
 
-	vec3 cam_pos = vec3(0, 0, -5);
+	vec3 cam_pos = vec3(0, 1, -5);
 	vec3 ray_orig = cam_pos;
 	vec3 ray_dir = vec3(uv, 1.0);
 
