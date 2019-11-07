@@ -39,6 +39,36 @@ float distance_from_box(vec3 point, vec3 bounds) {
 	return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 }
 
+#define BULB_POWER 10
+#define BULB_ITERATIONS 15
+#define BULB_BAILOUT 2
+
+float distance_from_mandelbulb(vec3 pos) {
+	vec3 z = pos;
+	float dr = 1.0;
+	float r = 0.0;
+	for (int i = 0; i < BULB_ITERATIONS ; i++) {
+		r = length(z);
+		if (r > BULB_BAILOUT) break;
+		
+		// convert to polar coordinates
+		float theta = acos(z.z/r);
+		float phi = atan(z.y,z.x);
+		dr = pow( r, BULB_POWER-1.0) * BULB_POWER*dr + 1.0;
+		
+		// scale and rotate the point
+		float zr = pow(r, BULB_POWER);
+		theta = theta * BULB_POWER;
+		phi = phi * BULB_POWER;
+		
+		// convert back to cartesian coordinates
+		z = zr * vec3(sin(theta) * cos(phi), sin(phi) * sin(theta), cos(theta));
+		z+=pos;
+	}
+	return 0.5 * log(r) * r / dr;
+}
+
+
 float smin(float a, float b, float k) {
 	float h = max(k - abs(a - b), 0.0) / k;
 	return min(a, b) - h * h * k * (1.0 / 4.0);
@@ -67,7 +97,9 @@ float test_the_world(in vec3 pos) {
 	float sphere2 = distance_from_sphere(pos, vec3(sin(time * time_speed) * 1.5, cos(time * time_speed) * 1.5, 0.0), 1.0) + displacement;
 	float box = distance_from_box(pos, vec3(1.0));
 
-	// return box + displacement;
+	// return box + displacement;'
+
+	// return distance_from_mandelbulb(pos + vec3(sin(time) * 1.0));
 
 	return smin(smin(sphere1, sphere2, 1), sphere3, 1);
 }
