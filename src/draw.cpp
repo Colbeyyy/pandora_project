@@ -67,7 +67,9 @@ void init_draw() {
 	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	wglSwapIntervalEXT(false);
+#if CH_PLATFORM_WINDOWS
+	wglSwapIntervalEXT(true);
+#endif
 }
 
 static void frame_begin() {
