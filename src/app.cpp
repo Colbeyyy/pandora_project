@@ -1,10 +1,8 @@
-#include "game.h"
+#include "app.h"
 #include "draw.h"
-#include "world.h"
 #include "input.h"
 #include "console.h"
 #include "debug.h"
-#include "tile.h"
 #include "gui.h"
 
 #include <ch_stl/filesystem.h>
@@ -17,14 +15,11 @@ const char* window_title = "Shader Playground";
 Font font;
 const usize temp_arena_size = 1024 * 1024 * 512;
 
-World* loaded_world = nullptr;
-
 float time = 0.f;
 
 static void tick_game(f32 dt) {
 	CH_SCOPED_TIMER(tick_game);
 
-	if (loaded_world) loaded_world->tick(dt);
 	tick_console(dt);
 	tick_debug(dt);
 
@@ -79,8 +74,6 @@ int MAIN() {
 	init_input();
 	init_console();
 	init_debug();
-
-	loaded_world = ch_new World;
 	
 	assert(Font::load_from_os("consola.ttf", &font));
 	

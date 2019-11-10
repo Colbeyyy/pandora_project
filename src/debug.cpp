@@ -1,14 +1,9 @@
 #include "debug.h"
 #include "input.h"
-#include "tile.h"
-#include "world.h"
 #include "gui.h"
 #include "font.h"
 #include "console.h"
 
-bool show_tile_grid = false;
-bool show_transform_origin = false;
-bool show_collider_debug = false;
 bool show_debug_memory = false;
 bool show_fps = false;
 
@@ -21,15 +16,6 @@ static void debug_input(void* owner, Input_Event* event) {
 			show_debug_memory = !show_debug_memory;
 			break;
 		case CH_KEY_F2:
-			show_tile_grid = !show_tile_grid;
-			break;
-		case CH_KEY_F3: 
-			show_transform_origin = !show_transform_origin;
-			break;
-		case CH_KEY_F4:
-			show_collider_debug = !show_collider_debug;
-			break;
-		case CH_KEY_F5:
 			show_fps = !show_fps;
 			break;
 	}

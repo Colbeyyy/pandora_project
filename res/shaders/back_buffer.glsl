@@ -140,8 +140,8 @@ vec4 ray_march(in vec3 orig, in vec3 dir) {
 
 			vec3 ambient = vec3(0.0, 0.6, 0.7);
 
-			float reflection_intensity = max(0.0, dot(normal, vec3(0, 1, 0)));
-			reflection_intensity = reflection_intensity > 0.5 ? 1.0 : 0.0;
+			float reflection_intensity = max(0.0, dot(normal, light_dir));
+			reflection_intensity = reflection_intensity > 0.7 ? 1.0 : 0.0;
 			vec3 color = mix(vec3(0.0, 0.7, 0.8), vec3(0.0, 0.8, 0.9), reflection_intensity);
 
 			vec3 final = mix(ambient, color, diffuse_intensity);

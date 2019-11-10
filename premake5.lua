@@ -1,6 +1,6 @@
-workspace "newport"
+workspace "shader_playground"
     architecture "x64"
-    startproject "newport"
+    startproject "shader_playground"
     
     configurations
     {
@@ -16,7 +16,7 @@ workspace "newport"
 	include "libs/ch_stl"
 
 
-project "newport"
+project "shader_playground"
     language "C++"
 	dependson "ch_stl"
 

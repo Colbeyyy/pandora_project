@@ -1,8 +1,6 @@
 #include "draw.h"
-#include "game.h"
-#include "sprite_renderer.h"
+#include "app.h"
 #include "console.h"
-#include "tile.h"
 #include "debug.h"
 #include "input.h"
 #include "gui.h"
@@ -89,7 +87,7 @@ static void frame_begin() {
 static void frame_end() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glClearColor(0xFDEFEAFF);
+	glClearColor(ch::white);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Texture tex;

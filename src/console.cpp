@@ -1,7 +1,7 @@
 #include "console.h"
 #include "draw.h"
 #include "input.h"
-#include "game.h"
+#include "app.h"
 #include "font.h"
 
 #include <ch_stl/math.h>

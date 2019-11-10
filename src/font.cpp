@@ -2,7 +2,7 @@
 #include "asset_manager.h"
 
 // @HACK
-#include "game.h"
+#include "app.h"
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb/stb_truetype.h>

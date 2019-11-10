@@ -1,6 +1,6 @@
 #include "gui.h"
 #include "draw.h"
-#include "game.h"
+#include "app.h"
 #include "input.h"
 
 enum Render_Type {
@@ -115,8 +115,8 @@ bool gui_button(const ch::String& text, f32 x0, f32 y0, f32 x1, f32 y1) {
 	const bool lmb_was_down = was_mouse_button_pressed(CH_MOUSE_LEFT);
 
 	const ch::Vector2 mouse_pos(current_mouse_position.x, -current_mouse_position.y);
-	const AABB button_box(x0, y0, x1, y1);
-	const bool mouse_over = button_box.intersects(mouse_pos);
+	// const AABB button_box(x0, y0, x1, y1);
+	const bool mouse_over = false;
 
 	ch::Color color = button_color;
 
