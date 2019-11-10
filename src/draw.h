@@ -17,7 +17,7 @@ struct Vertex {
 };
 
 void init_draw();
-void draw_game();
+void draw_app();
 
 void refresh_transform();
 void render_right_handed();

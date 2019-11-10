@@ -69,6 +69,25 @@ void init_am() {
 				}
 
 				loaded_shaders.push(p);
+			} else if (ext == "png") {
+				const s32 desired_components = (s32)BT_RGBA;
+
+				stbi_set_flip_vertically_on_load(true);
+
+				Bitmap bm;
+				bm.data = stbi_load_from_memory(fd.data, (int)fd.size, &bm.width, &bm.height, &bm.num_components, desired_components);
+				defer(stbi_image_free(bm.data));
+				Lookup<Texture*> p = {};
+				p.key = r;
+				if (bm) {
+					Texture* t = ch_new Texture(bm);
+					p.value = t;
+					o_log("loaded texture %s", full_path);
+				}
+				else {
+					o_log_error("failed to load texture %s", full_path);
+				}
+				loaded_textures.push(p);
 			}
 		}
 	}

@@ -2,11 +2,14 @@
 #include "draw.h"
 #include "app.h"
 #include "input.h"
+#include "texture.h"
+#include "console.h"
 
 enum Render_Type {
 	RT_Quad,
 	RT_Border_Quad,
 	RT_Text,
+	RT_Textured_Quad,
 };
 
 struct Render_Command {
@@ -17,6 +20,7 @@ struct Render_Command {
 		struct {
 			f32 x0, y0, x1, y1;
 			f32 thickness;
+			Texture* tex;
 		};
 		struct {
 			f32 x, y;
@@ -81,6 +85,19 @@ static void push_border_quad(ch::Vector2 position, ch::Vector2 size, f32 thickne
 	commands.push(rc);
 }
 
+static void push_textured_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color, Texture* tex, f32 z_index = 9.f) {
+	Render_Command rc;
+	rc.type = RT_Textured_Quad;
+	rc.color = color;
+	rc.z_index = z_index;
+	rc.x0 = x0;
+	rc.y0 = y0;
+	rc.x1 = x1;
+	rc.y1 = y1;
+	rc.tex = tex;
+	commands.push(rc);
+}
+
 static void push_text(const ch::String& text, f32 x, f32 y, const ch::Color& color, f32 z_index = 9.f) {
 	Render_Command rc;
 	rc.type = RT_Text;
@@ -103,6 +120,11 @@ static void push_text(const char* tstr, f32 x, f32 y, const ch::Color& color, f3
 	commands.push(rc);
 }
 
+void gui_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color)
+{
+	push_quad(x0, y0, x1, y1, color);
+}
+
 void gui_text(const ch::String& text, f32 x, f32 y, const ch::Color& color) {
 	push_text(text, x, y, color);
 }
@@ -111,12 +133,15 @@ void gui_text(const char* text, f32 x, f32 y, const ch::Color& color) {
 	gui_text(ch::String(text), x, y, color);
 }
 
+static bool hit_test(f32 x0, f32 y0, f32 x1, f32 y1, ch::Vector2 point) {
+	return point.x > x0 && point.x < x1 && point.y > y0 && point.y < y1;
+}
+
 bool gui_button(const ch::String& text, f32 x0, f32 y0, f32 x1, f32 y1) {
 	const bool lmb_was_down = was_mouse_button_pressed(CH_MOUSE_LEFT);
 
 	const ch::Vector2 mouse_pos(current_mouse_position.x, -current_mouse_position.y);
-	// const AABB button_box(x0, y0, x1, y1);
-	const bool mouse_over = false;
+	const bool mouse_over = hit_test(x0, y0, x1, y1, current_mouse_position);
 
 	ch::Color color = button_color;
 
@@ -140,6 +165,22 @@ bool gui_button(const char* text, f32 x0, f32 y0, f32 x1, f32 y1) {
 	return gui_button(s, x0, y0, x1, y1);
 }
 
+bool gui_button(Texture* tex, f32 x0, f32 y0, f32 x1, f32 y1) {
+	const bool lmb_was_down = was_mouse_button_pressed(CH_MOUSE_LEFT);
+
+	const ch::Vector2 mouse_pos(current_mouse_position.x, -current_mouse_position.y);
+	ch::Color color = button_color;
+	const bool mouse_over = hit_test(x0, y0, x1, y1, mouse_pos);
+
+	if (mouse_over) {
+		color = hovered_button_color;
+	}
+	
+	push_textured_quad(x0, y0, x1, y1, color, tex);
+
+	return mouse_over && lmb_was_down;
+}
+
 void draw_gui() {
 	for (const Render_Command& it : commands) {
 		switch (it.type) {
@@ -151,6 +192,10 @@ void draw_gui() {
 			break;
 		case RT_Text:
 			draw_string(it.text, it.x, it.y - FONT_SIZE, it.color, font, it.z_index);
+			break;
+		case RT_Textured_Quad:
+			draw_textured_quad(it.x0, it.y0, it.x1, it.y1, it.color, *it.tex, it.z_index);
+			break;
 		}
 	}
 

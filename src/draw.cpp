@@ -118,12 +118,8 @@ static void frame_end() {
 
 }
 
-void draw_game() {
+void draw_app() {
 	frame_begin();
-
-	render_from_pos(0.f, back_buffer_width / 2.f);
-
-	draw_quad(0.f, 200.f, ch::white);
 
 	frame_end();
 

@@ -24,9 +24,7 @@ void main() {
 	if (out_uv.x < 0 || out_uv.y < 0) {
 		frag_color = out_color;
 	} else {
-		vec4 result = texture(ftex, out_uv);
-		result.w = 1.0;
-		frag_color = vec4(out_color.xyz, texture(ftex, out_uv).r);
+		frag_color = vec4(out_color.xyz, texture(ftex, out_uv).r * out_color.w);
 	}
 }
 #endif

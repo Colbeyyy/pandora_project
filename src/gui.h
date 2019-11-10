@@ -15,9 +15,11 @@ struct Vertical_Layout {
 	void row();
 };
 
+void gui_quad(f32 x0, f32 y0, f32 x1, f32 y1, const ch::Color& color);
 void gui_text(const ch::String& text, f32 x, f32 y, const ch::Color& color);
 void gui_text(const char* text, f32 x, f32 y, const ch::Color& color);
 bool gui_button(const ch::String& text, f32 x0, f32 y0, f32 x1, f32 y1);
 bool gui_button(const char* text, f32 x0, f32 y0, f32 x1, f32 y1);
+bool gui_button(struct Texture* tex, f32 x0, f32 y0, f32 x1, f32 y1);
 
 void draw_gui();
